@@ -1,0 +1,40 @@
+# Memory Saving
+
+## Purpose
+
+Agent Team includes a memory-saving playbook for preserving useful context between sessions.
+
+Use it when work pauses, a meaningful decision is made, or another agent needs handoff context.
+
+## Core files
+
+```text
+agent-team/playbooks/memory-saving.md
+agent-team/checklists/memory-saving.md
+agent-team/templates/memory-summary.md
+```
+
+## Recommended use
+
+Ask the agent:
+
+```text
+Save memory for the current work using agent-team/playbooks/memory-saving.md.
+Do not include secrets or raw logs.
+```
+
+## Storage
+
+Use the human's preferred memory system.
+
+For committed project memory, prefer a project-owned folder such as:
+
+```text
+docs/agent-memory/
+```
+
+Do not store project memory inside `agent-team/`; that folder is the reusable workflow package.
+
+## Safety
+
+Never save secrets, tokens, passwords, private keys, raw customer data, sensitive production data, or large logs.

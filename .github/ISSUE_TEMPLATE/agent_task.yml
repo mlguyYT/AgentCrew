@@ -1,0 +1,72 @@
+name: Agent task
+description: Create a task intended for the Agent Team workflow.
+title: "[Task]: "
+labels:
+  - agent-task
+  - needs-planning
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this when you already know what should be done and want an agent to help execute it.
+
+  - type: textarea
+    id: task
+    attributes:
+      label: Task
+      description: What should be done?
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What must be true when the task is complete?
+      placeholder: |
+        - [ ] 
+        - [ ] 
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is included?
+    validations:
+      required: false
+
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: What should not be changed?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: lane
+    attributes:
+      label: Recommended lane
+      options:
+        - Fast Lane
+        - Full Lane
+        - Unsure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Primary agent role
+      options:
+        - Product Manager
+        - Developer
+        - Tester
+        - Reviewer
+        - Advisor
+        - Idea Consultant
+        - Unsure
+    validations:
+      required: true

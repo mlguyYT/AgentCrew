@@ -1,0 +1,54 @@
+name: Rework request
+description: Request changes to an existing PR or task.
+title: "[Rework]: "
+labels:
+  - rework
+body:
+  - type: input
+    id: pr
+    attributes:
+      label: Pull request
+      description: Link to the PR needing rework.
+      placeholder: "#123"
+    validations:
+      required: false
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for rework
+      description: Why is rework required?
+    validations:
+      required: true
+
+  - type: textarea
+    id: required_changes
+    attributes:
+      label: Required changes
+      description: What must be changed?
+      placeholder: |
+        - 
+        - 
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Test output, review comments, screenshots, or logs.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: route
+    attributes:
+      label: Route to
+      options:
+        - Original Developer
+        - Tester
+        - Reviewer
+        - Product Manager
+        - Human decision
+    validations:
+      required: true

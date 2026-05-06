@@ -1,0 +1,124 @@
+# Agent Team
+
+This folder defines a reusable AI-assisted software development team.
+
+It is designed to be readable by humans and AI coding agents.
+
+---
+
+## Team roles
+
+```yaml
+agents:
+  advisor:
+    purpose: evaluate idea direction and risk
+
+  idea_consultant:
+    purpose: refine raw idea into structured brief
+
+  product_manager:
+    purpose: turn ideas into scoped tasks
+
+  developer:
+    purpose: implement changes and prepare PRs
+
+  tester:
+    purpose: validate behavior and acceptance criteria
+
+  reviewer:
+    purpose: review quality, maintainability, and risk
+
+  skill_validator:
+    purpose: validate Skill quality, triggers, safety, and registry entries
+```
+
+---
+
+## Main workflow
+
+Default:
+
+```text
+Task
+  -> Developer
+  -> Tester
+  -> Reviewer if needed
+  -> Human approval
+```
+
+For larger work:
+
+```text
+Idea
+  -> Advisor
+  -> Idea Consultant
+  -> Product Manager
+  -> Developer
+  -> Tester
+  -> Reviewer
+  -> Human approval
+```
+
+---
+
+## How agents should use this folder
+
+Before acting, an agent should:
+
+1. read `AGENTS.md`
+2. read the relevant role file in `agent-team/agents/`
+3. read the relevant playbook in `agent-team/playbooks/`
+4. read `agent-team/skills/registry.md` and load matching Skills
+5. use `agent-team/protocols/communication.md` for handoffs
+6. use the relevant output template in `agent-team/templates/`
+
+When saving handoff context, use:
+
+```text
+agent-team/playbooks/memory-saving.md
+agent-team/templates/memory-summary.md
+```
+
+When adding or changing Skills, use:
+
+```text
+agent-team/agents/skill-validator.md
+agent-team/playbooks/skill-validation.md
+agent-team/templates/skill-validation-report.md
+```
+
+For agent-to-agent handoffs, use:
+
+```text
+agent-team/protocols/communication.md
+agent-team/protocols/handoff-format.md
+agent-team/protocols/token-discipline.md
+```
+
+---
+
+## Default behavior
+
+```yaml
+default:
+  lane: Fast Lane
+  planning_depth: minimal
+  review_depth: risk_based
+  skill_loading: automatic
+  skill_validation: required_for_skill_changes
+  memory_saving: on_pause_or_request
+  handoffs: compact_artifacts
+  approval: human
+```
+
+---
+
+## Quality goal
+
+The system aims to be:
+
+```text
+fast enough for startups
+structured enough for quality
+simple enough to actually use
+```

@@ -1,0 +1,9 @@
+# CODEOWNERS template.
+#
+# Uncomment and replace with real GitHub users or teams after copying this
+# workflow into a maintained repository.
+#
+# * @your-org/core-maintainers
+# /agent-team/ @your-org/agent-team-maintainers
+# /.github/ @your-org/repo-admins
+# /docs/ @your-org/docs

@@ -1,0 +1,143 @@
+# FAQ
+
+## Does this require Codex?
+
+No.
+
+This workflow is tool-agnostic. It can be used with any AI coding agent that reads repository instructions.
+
+---
+
+## Does this require Docker or Kubernetes?
+
+No.
+
+This is a Markdown-based workflow. Docker and Kubernetes are not required.
+
+---
+
+## Can agents merge PRs?
+
+No.
+
+By default, agents must not merge. Human approval and merge are required.
+
+---
+
+## Is this only for startups?
+
+No.
+
+It is optimized for startup-style speed, but any team can use it.
+
+---
+
+## Should every task use every agent?
+
+No.
+
+Use Fast Lane by default.
+
+Only use the full team for risky or complex work.
+
+---
+
+## What if the agent ignores the instructions?
+
+Make the root `AGENTS.md` shorter and more explicit.
+
+Also repeat the role in your prompt:
+
+```text
+Act as Developer Agent and follow agent-team/agents/developer.md.
+```
+
+---
+
+## Can I add new agents?
+
+Yes.
+
+Add a new file under:
+
+```text
+agent-team/agents/
+```
+
+Then update:
+
+```text
+AGENTS.md
+```
+
+---
+
+## How do I add a new Skill?
+
+Add the Skill under the right category in:
+
+```text
+agent-team/skills/
+```
+
+Then update:
+
+```text
+agent-team/skills/registry.md
+```
+
+Validate it with:
+
+```text
+agent-team/agents/skill-validator.md
+agent-team/playbooks/skill-validation.md
+```
+
+---
+
+## Where should agents save memory?
+
+Use the human's preferred memory system.
+
+For committed project memory, use a project-owned folder such as:
+
+```text
+docs/agent-memory/
+```
+
+Do not store project memory inside `agent-team/`.
+
+---
+
+## Can I use this with GitHub Issues?
+
+Yes.
+
+Use the task template in issue descriptions.
+
+---
+
+## Can I use this without PRs?
+
+Yes, but PRs are recommended because they make quality and review visible.
+
+---
+
+## What is the smallest useful setup?
+
+```text
+AGENTS.md
+agent-team/agents/developer.md
+agent-team/agents/tester.md
+agent-team/agents/reviewer.md
+agent-team/playbooks/fast-lane.md
+agent-team/playbooks/pr-process.md
+agent-team/playbooks/rework-loop.md
+agent-team/playbooks/memory-saving.md
+agent-team/skills/registry.md
+agent-team/templates/task.md
+agent-team/templates/pr-description.md
+agent-team/templates/test-report.md
+agent-team/templates/review-report.md
+agent-team/templates/memory-summary.md
+```

@@ -1,0 +1,57 @@
+name: Feature request
+description: Propose a product or software feature.
+title: "[Feature]: "
+labels:
+  - feature
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for feature ideas. The Product Manager Agent can turn this into tasks later.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem should this solve?
+      placeholder: Users need...
+    validations:
+      required: true
+
+  - type: textarea
+    id: users
+    attributes:
+      label: Target users
+      description: Who is this for?
+      placeholder: Solo developers, admins, customers...
+    validations:
+      required: false
+
+  - type: textarea
+    id: value
+    attributes:
+      label: Expected value
+      description: What value does this create?
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Suggested scope
+      description: What should be included in the first version?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Estimated risk
+      options:
+        - Low
+        - Medium
+        - High
+        - Critical
+    validations:
+      required: true

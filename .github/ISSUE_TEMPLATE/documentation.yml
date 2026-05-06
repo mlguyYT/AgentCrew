@@ -1,0 +1,27 @@
+name: Documentation improvement
+description: Suggest a documentation update.
+title: "[Docs]: "
+labels:
+  - documentation
+body:
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is unclear or missing?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+    validations:
+      required: false
+
+  - type: input
+    id: file
+    attributes:
+      label: Related file
+      placeholder: agent-team/playbooks/fast-lane.md
+    validations:
+      required: false
