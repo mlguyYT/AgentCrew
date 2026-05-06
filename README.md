@@ -1,6 +1,6 @@
-# Agent Team
+# AgentCrew
 
-Agent Team is a Markdown-first workflow for coordinating AI coding agents in software projects.
+AgentCrew is a Markdown-first workflow for coordinating AI coding agent teams with roles, playbooks, skills, handoffs, and human approval gates.
 
 It is designed to be copied into any repository and used by tools that can read repository instructions, including Codex, Claude Code, Cursor, GitHub Copilot, and similar agents.
 
