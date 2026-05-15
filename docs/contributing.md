@@ -106,6 +106,12 @@ required_sections:
 
 ## Adding a Skill
 
+Read:
+
+```text
+agent-team/skills/authoring-guide.md
+```
+
 Add Skills under:
 
 ```text
@@ -130,6 +136,17 @@ agent-team/playbooks/skill-validation.md
 agent-team/templates/skill-validation-report.md
 ```
 
+## Adding an Agent
+
+When adding a new agent role:
+
+1. add `agent-team/agents/<role>.md`
+2. add any needed template under `agent-team/templates/`
+3. add any needed checklist under `agent-team/checklists/`
+4. update `AGENTS.md`, `agent-team/README.md`, and `agent-team/STRUCTURE.md`
+5. update usage docs and adapters
+6. keep human approval and no-merge rules intact
+
 ---
 
 ## Memory guidance changes
@@ -143,3 +160,9 @@ agent-team/templates/memory-summary.md
 ```
 
 Project-specific memory should be saved outside `agent-team/`.
+
+Current task state belongs in `.agent-state/` and should follow:
+
+```text
+agent-team/protocols/state-artifacts.md
+```

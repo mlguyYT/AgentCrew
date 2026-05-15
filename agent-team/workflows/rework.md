@@ -21,6 +21,7 @@ Failure
 
 - Tester failure
 - Reviewer request
+- Specialist reviewer request
 - Human feedback
 - CI failure
 

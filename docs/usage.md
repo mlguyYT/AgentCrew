@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide explains how to use the Agent Team workflow in day-to-day development.
+This guide explains how to use the AgentCrew workflow in day-to-day development.
 
 ---
 
@@ -13,10 +13,15 @@ Use natural language with your coding agent.
 Example:
 
 ```text
-Act as the Developer Agent.
-Read AGENTS.md and agent-team/agents/developer.md.
-Implement the task below using Fast Lane.
-Load matching Skills from agent-team/skills/registry.md.
+Read AGENTS.md and the agent-team folder.
+
+Use Fast Lane by default.
+Use Full Lane for risky work.
+Do not merge pull requests.
+Keep PRs small.
+Route implementation rework back to the Developer.
+Load relevant Skills automatically from agent-team/skills/registry.md.
+Keep handoffs compact using the communication protocol.
 ```
 
 ---
@@ -74,6 +79,30 @@ Review this PR for correctness, scope, maintainability, tests, and risk.
 Use agent-team/templates/review-report.md.
 ```
 
+### Security Reviewer
+
+```text
+Act as the Security Reviewer Agent.
+Review this PR for auth, permissions, secrets, data handling, dependency, and infrastructure risk.
+Use agent-team/templates/security-review-report.md.
+```
+
+### UX / Design Reviewer
+
+```text
+Act as the UX / Design Reviewer Agent.
+Review this user-facing change for usability, accessibility, responsive behavior, and visual quality.
+Use agent-team/templates/ux-design-review-report.md.
+```
+
+### Documentation Agent
+
+```text
+Act as the Documentation Agent.
+Review and update docs, examples, changelog, or release notes affected by this change.
+Use agent-team/templates/documentation-report.md.
+```
+
 ### Skill Validator
 
 ```text
@@ -92,6 +121,7 @@ For most small work:
 Task
   -> Developer
   -> Tester
+  -> Reviewer only if needed
   -> Human approval
 ```
 
@@ -112,10 +142,28 @@ Idea
   -> Advisor
   -> Idea Consultant
   -> Product Manager
+  -> Human concept approval
+  -> Product Manager backlog planning
+  -> Human backlog approval
   -> Developer
   -> Tester
   -> Reviewer
-  -> Human approval
+  -> Specialist Reviewer if needed
+  -> Human PR approval
+```
+
+Use specialist reviewers only when their area is touched:
+
+```text
+Security Reviewer: security, privacy, data, auth, secrets, dependency or infrastructure risk
+UX / Design Reviewer: UI, UX, accessibility, responsive behavior, visual quality
+Documentation Agent: docs, examples, changelog, release notes
+```
+
+For explicit trigger rules, use:
+
+```text
+agent-team/playbooks/specialist-review-routing.md
 ```
 
 ---
@@ -135,6 +183,12 @@ The agent should return:
 risk: low | medium | high | critical
 lane: Fast Lane | Full Lane
 reason: explanation
+```
+
+If risk changes during work, use:
+
+```text
+agent-team/playbooks/lane-escalation.md
 ```
 
 ---
@@ -175,6 +229,12 @@ The agent should return a recommendation:
 recommendation: valid | valid_with_notes | rework_required | reject
 ```
 
+When creating a Skill, use:
+
+```text
+agent-team/skills/authoring-guide.md
+```
+
 ---
 
 ## How to save memory
@@ -194,6 +254,8 @@ docs/agent-memory/
 ```
 
 Do not save project memory inside `agent-team/`.
+
+Use `.agent-state/` for active handoff state. Use durable memory only for decisions or context worth preserving beyond the current task.
 
 ---
 
@@ -284,6 +346,7 @@ Use compact artifacts instead of long chat:
 agent-team/protocols/communication.md
 agent-team/protocols/handoff-format.md
 agent-team/protocols/token-discipline.md
+agent-team/protocols/state-artifacts.md
 ```
 
 Ask:
@@ -297,12 +360,22 @@ Recommended shared artifacts:
 
 ```text
 .agent-state/current-task.md
-.agent-state/idea-brief.md
-.agent-state/product-plan.md
+.agent-state/decisions.md
+.agent-state/handoff.md
 .agent-state/test-report.md
 .agent-state/review-report.md
-.agent-state/decisions.md
+.agent-state/security-review-report.md
+.agent-state/ux-design-review-report.md
+.agent-state/documentation-report.md
+.agent-state/memory.md
 ```
+
+Use `agent-team/protocols/state-artifacts.md` for the standard schema.
+
+The `agent-team/` folder contains reusable methodology.
+The `.agent-state/` folder contains current project state.
+
+Do not store secrets, tokens, raw customer data, or large logs in `.agent-state/`.
 
 ---
 

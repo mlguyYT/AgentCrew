@@ -62,6 +62,12 @@ required_sections:
 
 ## Adding a new skill
 
+For the canonical authoring process, read:
+
+```text
+agent-team/skills/authoring-guide.md
+```
+
 1. Create a new file:
 
 ```text

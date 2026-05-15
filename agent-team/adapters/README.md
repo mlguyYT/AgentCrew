@@ -1,6 +1,6 @@
 # Tool Adapters
 
-This folder explains how to connect the Agent Team workflow to different AI coding tools.
+This folder explains how to connect the AgentCrew workflow to different AI coding tools.
 
 The canonical source is always:
 

@@ -16,6 +16,14 @@ This is a Markdown-based workflow. Docker and Kubernetes are not required.
 
 ---
 
+## Is AgentCrew a runtime?
+
+No.
+
+AgentCrew is a lightweight instruction system by default. It can be extended with automation later, but the core package is Markdown files.
+
+---
+
 ## Can agents merge PRs?
 
 No.
@@ -74,7 +82,13 @@ AGENTS.md
 
 ## How do I add a new Skill?
 
-Add the Skill under the right category in:
+Read the authoring guide:
+
+```text
+agent-team/skills/authoring-guide.md
+```
+
+Then add the Skill under the right category in:
 
 ```text
 agent-team/skills/
@@ -106,6 +120,19 @@ docs/agent-memory/
 ```
 
 Do not store project memory inside `agent-team/`.
+
+Use `.agent-state/` for current handoff state:
+
+```text
+.agent-state/current-task.md
+.agent-state/decisions.md
+.agent-state/handoff.md
+.agent-state/test-report.md
+.agent-state/review-report.md
+.agent-state/memory.md
+```
+
+Follow `agent-team/protocols/state-artifacts.md`.
 
 ---
 

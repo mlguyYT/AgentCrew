@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This playbook defines how to validate Skills before they are used by the Agent Team workflow.
+This playbook defines how to validate Skills before they are used by the AgentCrew workflow.
 
 Skill validation keeps the Skill registry useful, safe, and predictable.
 

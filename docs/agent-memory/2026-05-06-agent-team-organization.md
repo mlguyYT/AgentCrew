@@ -4,14 +4,14 @@
 2026-05-06
 
 ## Topic
-Agent Team workflow repository organization and extension.
+AgentCrew workflow repository organization and extension.
 
 ## Status
-The repository is now organized as a Markdown-first Agent Team workflow with optional runtime notes separated under `runtime/`.
+The repository is now organized as a Markdown-first AgentCrew workflow with optional orchestration notes separated under `runtime/`.
 
 ## Decisions
 - `agent-team/` is the canonical reusable package.
-- `runtime/` is optional and contains orchestration, worker, Docker/Kubernetes/OpenClaw, and GitHub integration design notes.
+- `runtime/` is optional and contains orchestration, worker, container, and GitHub integration design notes.
 - Agents use compact handoff artifacts instead of long chat.
 - Skills are categorized and autoloaded from `agent-team/skills/registry.md`.
 - Project-specific memory and handoff state must stay outside `agent-team/`.

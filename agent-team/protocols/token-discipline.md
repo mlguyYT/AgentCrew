@@ -49,16 +49,21 @@ Prefer artifacts over chat:
 
 ```text
 .agent-state/current-task.md
-.agent-state/idea-brief.md
-.agent-state/product-plan.md
+.agent-state/decisions.md
+.agent-state/handoff.md
 .agent-state/test-report.md
 .agent-state/review-report.md
-.agent-state/decisions.md
+.agent-state/security-review-report.md
+.agent-state/ux-design-review-report.md
+.agent-state/documentation-report.md
+.agent-state/memory.md
 ```
 
 Only update the artifact that changed.
 
 The next agent should read the relevant artifact instead of asking for a recap.
+
+Use `agent-team/protocols/state-artifacts.md` for artifact schemas.
 
 ---
 

@@ -23,6 +23,9 @@ Closes #
 - [ ] Developer Agent
 - [ ] Tester Agent
 - [ ] Reviewer Agent
+- [ ] Security Reviewer Agent
+- [ ] UX / Design Reviewer Agent
+- [ ] Documentation Agent
 - [ ] Product Manager Agent
 - [ ] Other: 
 

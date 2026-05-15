@@ -38,6 +38,7 @@ Human idea
   -> Developer Agent
   -> Tester Agent
   -> Reviewer Agent
+  -> Specialist Reviewer Agent if needed
   -> Human PR approval
   -> Human merge
 ```

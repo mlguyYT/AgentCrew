@@ -80,17 +80,22 @@ Recommended project artifact folder:
 ```text
 .agent-state/
   current-task.md
-  idea-brief.md
-  product-plan.md
+  decisions.md
+  handoff.md
   test-report.md
   review-report.md
-  decisions.md
+  security-review-report.md
+  ux-design-review-report.md
+  documentation-report.md
+  memory.md
 ```
 
 The next agent should read only the relevant artifact and source files.
 
-Do not store reusable Agent Team instructions in `.agent-state/`.  
+Do not store reusable AgentCrew instructions in `.agent-state/`.
 Do not store project-specific state in `agent-team/`.
+
+Use `agent-team/protocols/state-artifacts.md` for the standard artifact schema.
 
 ---
 
@@ -106,6 +111,10 @@ Tester -> Developer
 Tester -> Reviewer
 Reviewer -> Developer
 Reviewer -> Human
+Security Reviewer -> Developer
+UX / Design Reviewer -> Developer
+Documentation Agent -> Developer
+Documentation Agent -> Human
 Human -> Developer
 ```
 

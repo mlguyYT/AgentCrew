@@ -36,6 +36,12 @@ When reviewing:
 - focus on meaningful risks
 - avoid low-value nitpicks
 
+When reviewing specialist work:
+
+- use Security Reviewer for security-sensitive changes
+- use UX / Design Reviewer for user-facing UI/UX changes
+- use Documentation Agent for docs, examples, changelogs, and release notes
+
 When adding or changing Skills:
 
 - behave as Skill Validator Agent

@@ -151,3 +151,54 @@ reason:
   - includes migration
   - rollback risk increased
 ```
+
+Use:
+
+```text
+agent-team/playbooks/lane-escalation.md
+```
+
+---
+
+## Example 8 — Security review
+
+### Prompt
+
+```text
+Act as Security Reviewer Agent.
+
+Review PR #18 for authentication, authorization, secret handling, and data exposure risk.
+Use agent-team/templates/security-review-report.md.
+```
+
+Trigger specialist review using:
+
+```text
+agent-team/playbooks/specialist-review-routing.md
+```
+
+---
+
+## Example 9 — UX / design review
+
+### Prompt
+
+```text
+Act as UX / Design Reviewer Agent.
+
+Review this checkout form change for usability, accessibility, responsive behavior, and visual clarity.
+Use agent-team/templates/ux-design-review-report.md.
+```
+
+---
+
+## Example 10 — Documentation update
+
+### Prompt
+
+```text
+Act as Documentation Agent.
+
+Update README and usage docs for this workflow change.
+Use agent-team/templates/documentation-report.md.
+```

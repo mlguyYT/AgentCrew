@@ -89,6 +89,27 @@ Return JSON `{ "status": "ok" }` and rerun the test.
 None.
 ```
 
+## Specialist handoff
+
+```md
+## Security Reviewer -> Developer Handoff
+
+### Context
+- PR touches authentication.
+
+### Decision
+Rework required.
+
+### Evidence
+- Token refresh path has no expired-session test.
+
+### Next Action
+Add the missing test or document why it cannot be tested.
+
+### Open Questions
+None.
+```
+
 ---
 
 ## Bad handoff

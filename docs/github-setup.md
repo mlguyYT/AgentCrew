@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide explains how to configure a GitHub repository to support the Agent Team workflow.
+This guide explains how to configure a GitHub repository to support the AgentCrew workflow.
 
 ---
 
@@ -64,6 +64,10 @@ role_labels:
   - developer
   - tester
   - reviewer
+  - security-reviewer
+  - ux-design-reviewer
+  - documentation-agent
+  - skill-validator
 
 lane_labels:
   - fast-lane

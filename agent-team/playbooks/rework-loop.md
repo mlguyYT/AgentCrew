@@ -26,6 +26,9 @@ Rework may come from:
 sources:
   - Tester Agent
   - Reviewer Agent
+  - Security Reviewer Agent
+  - UX / Design Reviewer Agent
+  - Documentation Agent
   - Human
   - CI failure
   - build failure
@@ -86,6 +89,32 @@ reviewer_rework:
 
 ---
 
+## Specialist reviewer rework
+
+Flow:
+
+```text
+Specialist Reviewer finds issue
+  -> writes specialist report
+  -> requests rework
+  -> Developer updates PR, or Documentation Agent updates docs if the issue is docs-only
+  -> Tester re-validates if behavior changed
+  -> Specialist Reviewer reviews again
+```
+
+Specialist rework should include:
+
+```yaml
+specialist_rework:
+  - specialist type
+  - severity
+  - affected files or user flow
+  - explanation
+  - required change
+```
+
+---
+
 ## Human rework
 
 Human may request:
@@ -98,6 +127,12 @@ human_rework_routes:
     when: more validation needed
   reviewer:
     when: more review needed
+  security_reviewer:
+    when: security-sensitive review needed
+  ux_design_reviewer:
+    when: UI, UX, accessibility, or visual review needed
+  documentation_agent:
+    when: docs, examples, changelog, or release notes need review or updates
   product_manager:
     when: scope changed
   idea_consultant:

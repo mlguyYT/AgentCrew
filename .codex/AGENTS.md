@@ -41,6 +41,9 @@ Product Manager -> ../agent-team/agents/product-manager.md
 Developer -> ../agent-team/agents/developer.md
 Tester -> ../agent-team/agents/tester.md
 Reviewer -> ../agent-team/agents/reviewer.md
+Security Reviewer -> ../agent-team/agents/security-reviewer.md
+UX / Design Reviewer -> ../agent-team/agents/ux-design-reviewer.md
+Documentation Agent -> ../agent-team/agents/documentation-agent.md
 Skill Validator -> ../agent-team/agents/skill-validator.md
 ```
 

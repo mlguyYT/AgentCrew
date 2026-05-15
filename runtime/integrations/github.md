@@ -62,7 +62,7 @@ Developer Agent
   -> Git branch / PR
   -> GitHub Integration
   -> Orchestrator
-  -> Tester / Reviewer / Human
+  -> Tester / Reviewer / Specialist Reviewer / Human
 ```
 
 Webhook flow:

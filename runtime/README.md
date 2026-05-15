@@ -11,7 +11,7 @@ Use the runtime material when you want to build a managed local or hosted agent 
 ```text
 runtime/
   agents/
-    advanced runtime role profiles
+    advanced runtime role profiles, including specialist reviewers
   coordinator/
     agent coordinator design
   integrations/

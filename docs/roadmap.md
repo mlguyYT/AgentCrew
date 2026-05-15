@@ -14,6 +14,15 @@ current:
   - popular Pro language Skills
   - Skill validation
   - memory saving guidance
+  - Security Reviewer
+  - UX / Design Reviewer
+  - Documentation Agent
+  - bootstrap guide
+  - AgentCrew health check
+  - specialist review routing
+  - lane escalation rules
+  - Skill authoring guide
+  - state artifact schema
 ```
 
 ---
@@ -27,9 +36,7 @@ future:
   - example repositories
   - language-specific presets
   - frontend/backend presets
-  - security reviewer agent
   - release manager agent
-  - documentation agent
   - support triage agent
   - CLI installer
   - package generator
@@ -43,8 +50,8 @@ future:
 not_default:
   - autonomous merging
   - replacing human approval
-  - mandatory Kubernetes runtime
-  - mandatory Docker runtime
+  - mandatory runtime
+  - mandatory container platform
   - fully autonomous production deployment
 ```
 

@@ -65,8 +65,12 @@ body:
         - Developer
         - Tester
         - Reviewer
+        - Security Reviewer
+        - UX / Design Reviewer
+        - Documentation Agent
         - Advisor
         - Idea Consultant
+        - Skill Validator
         - Unsure
     validations:
       required: true

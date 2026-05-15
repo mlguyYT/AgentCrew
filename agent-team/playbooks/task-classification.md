@@ -73,7 +73,7 @@ medium_risk_examples:
 Recommended flow:
 
 ```text
-Product Manager -> Developer -> Tester -> Reviewer -> Human
+Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human
 ```
 
 ---
@@ -100,7 +100,7 @@ high_risk_examples:
 Recommended flow:
 
 ```text
-Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Human
+Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human
 ```
 
 ---
@@ -124,8 +124,10 @@ critical_risk_examples:
 Recommended flow:
 
 ```text
-Advisor -> Idea Consultant -> Human decision -> Product Manager -> Human backlog approval -> Developer -> Tester -> Specialist Reviewer -> Human
+Advisor -> Idea Consultant -> Human decision -> Product Manager -> Human backlog approval -> Developer -> Tester -> Reviewer -> Specialist Reviewer -> Human
 ```
+
+Specialist Reviewer means Security Reviewer, UX / Design Reviewer, or Documentation Agent when the task touches that area.
 
 ---
 
@@ -144,6 +146,7 @@ questions:
   - Is the task vague?
   - Is the PR likely to be large?
   - Would a bug be expensive?
+  - Does this need security, UX/design, or documentation specialist review?
 ```
 
 If any answer is yes, consider Full Lane.

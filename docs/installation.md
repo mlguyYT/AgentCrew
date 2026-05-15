@@ -2,10 +2,10 @@
 
 ## Purpose
 
-This guide explains how to add the Agent Team workflow to any software project.
+This guide explains how to add the AgentCrew workflow to any software project.
 
-The workflow is Markdown-first and tool-agnostic.  
-It does not require Docker, Kubernetes, or a special runtime.
+AgentCrew is Markdown-first and tool-agnostic.
+It is not a runtime, server, bot, or CI/CD platform by default.
 
 ---
 
@@ -29,7 +29,13 @@ Then commit:
 
 ```bash
 git add AGENTS.md agent-team
-git commit -m "Add agent team workflow"
+git commit -m "Add AgentCrew workflow"
+```
+
+For an existing repository, follow:
+
+```text
+docs/bootstrap-existing-project.md
 ```
 
 ---
@@ -55,6 +61,9 @@ your-project/
       developer.md
       tester.md
       reviewer.md
+      security-reviewer.md
+      ux-design-reviewer.md
+      documentation-agent.md
       skill-validator.md
 
     playbooks/
@@ -63,6 +72,8 @@ your-project/
       pr-process.md
       rework-loop.md
       task-classification.md
+      lane-escalation.md
+      specialist-review-routing.md
       skill-loading.md
       skill-validation.md
       memory-saving.md
@@ -76,7 +87,11 @@ your-project/
     protocols/
       communication.md
       handoff-format.md
+      state-artifacts.md
       token-discipline.md
+
+    conventions/
+      naming.md
 
     templates/
       idea-brief.md
@@ -85,16 +100,31 @@ your-project/
       pr-description.md
       test-report.md
       review-report.md
+      security-review-report.md
+      ux-design-review-report.md
+      documentation-report.md
       memory-summary.md
       skill-validation-report.md
 
     skills/
       README.md
       registry.md
+      authoring-guide.md
       languages/
       frameworks/
       frontend/
       platform/
+
+    checklists/
+      agentcrew-health-check.md
+      definition-of-done.md
+      testing.md
+      code-review.md
+      design-review.md
+      documentation.md
+      security.md
+      memory-saving.md
+      skill-validation.md
 ```
 
 ---
@@ -150,8 +180,10 @@ agent-team/
 This supports:
 
 ```text
-Developer -> Tester -> Reviewer -> Human
+Developer -> Tester -> Reviewer if needed -> Human
 ```
+
+Add specialist reviewer files and templates when the project touches security, UX, documentation, or Skill changes.
 
 ---
 
@@ -162,7 +194,7 @@ For product and planning support, install everything.
 This supports:
 
 ```text
-Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Human
+Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human
 ```
 
 ---
@@ -176,9 +208,11 @@ Read AGENTS.md and the agent-team folder.
 
 Use Fast Lane by default.
 For risky work, use Full Lane.
-Do not merge code.
+Do not merge pull requests.
 Keep PRs small.
 Route rework back to the Developer.
+Load relevant Skills automatically from agent-team/skills/registry.md.
+Keep handoffs compact using the communication protocol.
 ```
 
 ---
@@ -193,10 +227,15 @@ test -d agent-team
 test -f agent-team/playbooks/fast-lane.md
 test -f agent-team/agents/developer.md
 test -f agent-team/skills/registry.md
+test -f agent-team/skills/authoring-guide.md
 test -f agent-team/playbooks/memory-saving.md
 test -f agent-team/playbooks/skill-validation.md
+test -f agent-team/playbooks/lane-escalation.md
+test -f agent-team/playbooks/specialist-review-routing.md
 test -f agent-team/protocols/communication.md
+test -f agent-team/protocols/state-artifacts.md
 test -f agent-team/templates/pr-description.md
+test -f agent-team/checklists/agentcrew-health-check.md
 ```
 
 ---

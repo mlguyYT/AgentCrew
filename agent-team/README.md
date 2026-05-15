@@ -1,12 +1,12 @@
-# Agent Team
+# AgentCrew
 
-This folder defines a reusable AI-assisted software development team.
+This folder defines the reusable AgentCrew methodology.
 
 It is designed to be readable by humans and AI coding agents.
 
 ---
 
-## Team roles
+## Roles
 
 ```yaml
 agents:
@@ -28,6 +28,15 @@ agents:
   reviewer:
     purpose: review quality, maintainability, and risk
 
+  security_reviewer:
+    purpose: review security-sensitive work and data-risk tradeoffs
+
+  ux_design_reviewer:
+    purpose: review user-facing changes for usability, accessibility, and visual quality
+
+  documentation_agent:
+    purpose: create and review documentation, examples, changelogs, and release notes
+
   skill_validator:
     purpose: validate Skill quality, triggers, safety, and registry entries
 ```
@@ -43,6 +52,7 @@ Task
   -> Developer
   -> Tester
   -> Reviewer if needed
+  -> Specialist reviewer if needed
   -> Human approval
 ```
 
@@ -56,8 +66,11 @@ Idea
   -> Developer
   -> Tester
   -> Reviewer
+  -> Specialist reviewer if needed
   -> Human approval
 ```
+
+Specialist reviewers are Security Reviewer, UX / Design Reviewer, and Documentation Agent. Use them only when the task touches their area.
 
 ---
 
@@ -68,9 +81,11 @@ Before acting, an agent should:
 1. read `AGENTS.md`
 2. read the relevant role file in `agent-team/agents/`
 3. read the relevant playbook in `agent-team/playbooks/`
-4. read `agent-team/skills/registry.md` and load matching Skills
-5. use `agent-team/protocols/communication.md` for handoffs
-6. use the relevant output template in `agent-team/templates/`
+4. use `agent-team/playbooks/specialist-review-routing.md` when specialist review may apply
+5. use `agent-team/playbooks/lane-escalation.md` if risk changes
+6. read `agent-team/skills/registry.md` and load matching Skills
+7. use `agent-team/protocols/communication.md` for handoffs
+8. use the relevant output template in `agent-team/templates/`
 
 When saving handoff context, use:
 
@@ -82,6 +97,7 @@ agent-team/templates/memory-summary.md
 When adding or changing Skills, use:
 
 ```text
+agent-team/skills/authoring-guide.md
 agent-team/agents/skill-validator.md
 agent-team/playbooks/skill-validation.md
 agent-team/templates/skill-validation-report.md
@@ -92,7 +108,14 @@ For agent-to-agent handoffs, use:
 ```text
 agent-team/protocols/communication.md
 agent-team/protocols/handoff-format.md
+agent-team/protocols/state-artifacts.md
 agent-team/protocols/token-discipline.md
+```
+
+After installing AgentCrew in a project, run:
+
+```text
+agent-team/checklists/agentcrew-health-check.md
 ```
 
 ---
@@ -108,6 +131,7 @@ default:
   skill_validation: required_for_skill_changes
   memory_saving: on_pause_or_request
   handoffs: compact_artifacts
+  state_artifacts: .agent-state/
   approval: human
 ```
 

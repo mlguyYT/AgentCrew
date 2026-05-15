@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide explains how to adapt the Agent Team workflow to your project.
+This guide explains how to adapt the AgentCrew workflow to your project.
 
 ---
 
@@ -29,9 +29,10 @@ tester_specializations:
 reviewer_specializations:
   - code
   - architecture
-  - security
   - infra
 ```
+
+Security, UX/design, and documentation review are first-class specialist roles in the default package.
 
 ---
 
@@ -59,9 +60,11 @@ agent-team/agents/security-reviewer.md
 
 To add a new technical Skill:
 
-1. create the Skill in the most specific category
-2. add it to `agent-team/skills/registry.md`
-3. define triggers, instructions, testing guidance, review checklist, and anti-patterns
+1. read `agent-team/skills/authoring-guide.md`
+2. create the Skill in the most specific category
+3. add it to `agent-team/skills/registry.md`
+4. define triggers, instructions, testing guidance, review checklist, and anti-patterns
+5. validate it with `agent-team/playbooks/skill-validation.md`
 
 Recommended categories:
 
@@ -154,9 +157,7 @@ For larger teams, add:
 ```yaml
 larger_team_additions:
   - tech lead reviewer
-  - security reviewer
   - release manager
-  - documentation agent
   - support agent
 ```
 

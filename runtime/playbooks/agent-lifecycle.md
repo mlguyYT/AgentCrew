@@ -151,4 +151,13 @@ initial_agents:
 
   - role: reviewer
     specialization: code
+
+  - role: security_reviewer
+    specialization: application_security
+
+  - role: ux_design_reviewer
+    specialization: product_ui
+
+  - role: documentation_agent
+    specialization: product_docs
 ```

@@ -20,6 +20,7 @@ Idea
   -> Developer
   -> Tester
   -> Reviewer
+  -> Specialist Reviewer if needed
   -> Human approval
 ```
 
@@ -75,6 +76,10 @@ Validates behavior and acceptance criteria.
 ### Reviewer
 
 Reviews quality, architecture, and risk.
+
+### Specialist Reviewers
+
+Security Reviewer, UX / Design Reviewer, and Documentation Agent review their areas when the task touches them.
 
 ### Human
 
@@ -241,6 +246,41 @@ Reviewer may mark ready for human review, but cannot approve as human.
 
 ---
 
+### Step 8b — Specialist review if needed
+
+Use specialist reviewers when the task touches their area:
+
+```yaml
+specialist_reviewers:
+  security_reviewer:
+    use_for:
+      - auth
+      - permissions
+      - secrets
+      - sensitive data
+      - dependency or infrastructure risk
+
+  ux_design_reviewer:
+    use_for:
+      - UI
+      - UX
+      - accessibility
+      - visual hierarchy
+      - user-facing flows
+
+  documentation_agent:
+    use_for:
+      - README
+      - usage docs
+      - examples
+      - changelog
+      - release notes
+```
+
+Specialist reviewers may request rework but may not approve as the human.
+
+---
+
 ### Step 9 — Human PR approval
 
 Human reviews final PR and decides:
@@ -268,6 +308,7 @@ done:
   - implementation is complete
   - tests are documented
   - reviewer concerns are resolved
+  - specialist reviewer concerns are resolved when required
   - human approves final PR
   - human merges if desired
 ```

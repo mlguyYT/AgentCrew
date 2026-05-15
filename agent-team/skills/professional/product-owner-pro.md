@@ -51,8 +51,9 @@ triggers:
   files:
     - "agent-team/templates/task.md"
     - "agent-team/templates/product-plan.md"
-    - ".agent-state/product-plan.md"
     - ".agent-state/current-task.md"
+    - ".agent-state/decisions.md"
+    - ".agent-state/handoff.md"
     - "docs/roadmap.md"
 ```
 

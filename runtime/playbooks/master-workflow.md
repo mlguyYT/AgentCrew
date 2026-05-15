@@ -62,6 +62,15 @@ core_agents:
   reviewer:
     purpose: review quality, architecture, and risk
 
+  security_reviewer:
+    purpose: review security-sensitive changes and data-risk tradeoffs
+
+  ux_design_reviewer:
+    purpose: review UI, UX, accessibility, and visual quality
+
+  documentation_agent:
+    purpose: create and review docs, examples, changelogs, and release notes
+
   orchestrator:
     purpose: enforce workflow and route tasks
 
@@ -121,6 +130,7 @@ Human idea
   -> Developer Agent
   -> Tester Agent
   -> Reviewer Agent
+  -> Specialist Reviewer Agent if needed
   -> Human PR approval
   -> Human merge
 ```

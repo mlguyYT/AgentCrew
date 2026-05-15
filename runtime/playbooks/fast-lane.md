@@ -46,6 +46,7 @@ Human or PM task
   -> Developer Agent
   -> Tester Agent
   -> Optional Reviewer Agent
+  -> Optional Specialist Reviewer Agent
   -> Human approval
 ```
 

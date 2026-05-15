@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This playbook defines the standard PR process for the Agent Team workflow.
+This playbook defines the standard PR process for the AgentCrew workflow.
 
 The PR process ensures that code changes are:
 
@@ -30,6 +30,7 @@ Developer
   -> Pull Request
   -> Tester
   -> Reviewer
+  -> Specialist Reviewer if needed
   -> Human approval
   -> Human merge
 ```
@@ -204,6 +205,41 @@ Reviewer may not merge.
 
 ---
 
+## Specialist reviewer responsibilities
+
+Specialist reviewers are used only when the PR touches their area.
+
+```yaml
+specialist_reviewers:
+  security_reviewer:
+    checks:
+      - auth
+      - permissions
+      - secrets
+      - data handling
+      - dependency or infrastructure risk
+
+  ux_design_reviewer:
+    checks:
+      - user flow
+      - accessibility
+      - visual hierarchy
+      - responsive behavior
+      - screenshots or manual evidence
+
+  documentation_agent:
+    checks:
+      - docs match behavior
+      - examples are current
+      - changelog or release notes are updated if needed
+      - links and file paths are current
+```
+
+Specialist reviewers may request rework.
+Specialist reviewers may not approve as the human or merge.
+
+---
+
 ## Human responsibilities
 
 Human decides:
@@ -272,6 +308,7 @@ ready_for_human:
   - relevant tests run or limitation documented
   - tester passed or provided acceptable report
   - reviewer passed if required
+  - specialist reviewer passed if required
   - no critical unresolved comments
   - PR description is clear
 ```

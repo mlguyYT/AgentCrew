@@ -19,6 +19,7 @@ Task
   -> Developer
   -> Tester
   -> Reviewer if needed
+  -> Specialist reviewer if needed
   -> Human approval
 ```
 
@@ -112,6 +113,11 @@ Use Reviewer if:
 - human requests review
 - PR is larger than expected
 
+Use specialist reviewers only when their area is touched:
+- Security Reviewer for security-sensitive or data-risk changes
+- UX / Design Reviewer for user-facing UI/UX changes
+- Documentation Agent for docs, examples, changelogs, or release notes
+
 ### Human
 
 Required.
@@ -196,6 +202,21 @@ Reviewer should avoid nitpicks in Fast Lane.
 
 ---
 
+### Step 4b — Specialist review if needed
+
+Specialist reviewers should check only their area and keep findings actionable.
+
+Use:
+
+```yaml
+specialist_reviewers:
+  security_reviewer: security, privacy, data, auth, secrets, infrastructure risk
+  ux_design_reviewer: usability, accessibility, visual quality, responsive behavior
+  documentation_agent: docs accuracy, examples, changelog, release notes
+```
+
+---
+
 ### Step 5 — Human approval
 
 Human reviews and decides:
@@ -222,6 +243,7 @@ outputs:
   - small PR
   - test result or explanation
   - clear PR description
+  - specialist review result if required
   - human approval before merge
 ```
 

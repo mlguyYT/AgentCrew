@@ -58,5 +58,13 @@ recommended:
 Security-sensitive work should always use Full Lane.
 
 ```text
-Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Security Reviewer -> Human
+Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Security Reviewer -> Human
+```
+
+Use:
+
+```text
+agent-team/agents/security-reviewer.md
+agent-team/templates/security-review-report.md
+agent-team/checklists/security.md
 ```

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Agent Team includes a memory-saving playbook for preserving useful context between sessions.
+AgentCrew includes a memory-saving playbook for preserving useful context between sessions.
 
 Use it when work pauses, a meaningful decision is made, or another agent needs handoff context.
 
@@ -34,6 +34,12 @@ docs/agent-memory/
 ```
 
 Do not store project memory inside `agent-team/`; that folder is the reusable workflow package.
+
+For active handoff state, use `.agent-state/` and follow:
+
+```text
+agent-team/protocols/state-artifacts.md
+```
 
 ## Safety
 

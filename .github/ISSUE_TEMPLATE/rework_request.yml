@@ -48,6 +48,9 @@ body:
         - Original Developer
         - Tester
         - Reviewer
+        - Security Reviewer
+        - UX / Design Reviewer
+        - Documentation Agent
         - Product Manager
         - Human decision
     validations:

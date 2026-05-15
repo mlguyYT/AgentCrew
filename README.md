@@ -2,9 +2,33 @@
 
 AgentCrew is a Markdown-first workflow for coordinating AI coding agent teams with roles, playbooks, skills, handoffs, and human approval gates.
 
-It is designed to be copied into any repository and used by tools that can read repository instructions, including Codex, Claude Code, Cursor, GitHub Copilot, and similar agents.
+It is designed to be copied into any repository and used by tools that can read repository instructions, including Codex, Claude Code, Cursor, GitHub Copilot, and similar coding agents.
 
-## What is included
+AgentCrew is not a runtime, server, bot, or CI/CD platform by default.
+It is a lightweight instruction system that helps AI agents work like a disciplined software team.
+
+---
+
+## Core Idea
+
+AgentCrew is built around this principle:
+
+```text
+roles define responsibility
+playbooks define process
+skills define technical guidance
+templates define output shape
+policies define safety boundaries
+human approval remains final
+```
+
+Agents may prepare work, implement changes, test, review, and create pull requests.
+
+Agents may not approve as the human or merge pull requests.
+
+---
+
+## What Is Included
 
 ```text
 AGENTS.md
@@ -20,12 +44,36 @@ The core package is intentionally lightweight:
 - playbooks define Fast Lane and Full Lane workflows
 - templates define expected outputs
 - policies preserve human approval and scope control
-- Skills add technology-specific execution guidance
+- skills add technology-specific execution guidance
+- communication protocols keep handoffs compact
 - memory saving preserves handoff context safely
-- Skill validation keeps Skills useful and safe
-- communication protocols keep agent handoffs compact
+- skill validation keeps skills useful and safe
 
-## Default workflow
+---
+
+## Core Vs Optional
+
+Core:
+
+```text
+AGENTS.md
+agent-team/
+```
+
+Optional but useful:
+
+```text
+docs/
+examples/
+.github/
+runtime/
+```
+
+The `runtime/` folder is optional design material for future orchestration. The core AgentCrew workflow does not require any runtime, container platform, or custom service.
+
+---
+
+## Default Workflow
 
 Use Fast Lane for most small work:
 
@@ -33,6 +81,7 @@ Use Fast Lane for most small work:
 Task
   -> Developer
   -> Tester
+  -> Reviewer only if needed
   -> Human approval
 ```
 
@@ -43,15 +92,38 @@ Idea
   -> Advisor
   -> Idea Consultant
   -> Product Manager
+  -> Human concept approval
+  -> Product Manager backlog planning
+  -> Human backlog approval
   -> Developer
   -> Tester
   -> Reviewer
-  -> Human approval
+  -> Specialist Reviewer if needed
+  -> Human PR approval
 ```
 
-Agents may prepare work, test it, review it, and create PRs. Agents may not approve as the human or merge PRs.
+Use Fast Lane for low-risk work such as docs, small fixes, simple tests, isolated features, and low-risk refactors.
 
-## Quick install
+Use Full Lane for auth, billing, customer data, migrations, infrastructure, CI/CD, public APIs, large refactors, or high-impact product changes.
+
+---
+
+## Human Approval Stays Final
+
+AgentCrew lets agents do the work, testing, review, and preparation, but keeps final product direction, risk acceptance, PR approval, and merging with the human.
+
+Agents must not:
+
+- merge pull requests
+- approve as the human
+- bypass branch protection
+- commit secrets
+- hide failing tests
+- make unrelated changes
+
+---
+
+## Quick Install
 
 Copy the core workflow into your project:
 
@@ -60,20 +132,86 @@ cp AGENTS.md /path/to/your-project/
 cp -r agent-team /path/to/your-project/
 ```
 
-Optional adapters are provided for common tools:
+Optional GitHub templates:
+
+```bash
+cp -r .github /path/to/your-project/
+```
+
+Optional docs and examples:
+
+```bash
+cp -r docs examples /path/to/your-project/
+```
+
+Then commit:
+
+```bash
+git add AGENTS.md agent-team docs examples .github
+git commit -m "Add AgentCrew workflow"
+```
+
+---
+
+## First Prompt To Your Coding Agent
+
+After installing AgentCrew, tell your coding agent:
 
 ```text
-.codex/AGENTS.md
-.claude/CLAUDE.md
-.cursor/rules/agent-team.md
-.github/copilot-instructions.md
+Read AGENTS.md and the agent-team folder.
+
+Use Fast Lane by default.
+Use Full Lane for risky work.
+Do not merge pull requests.
+Keep PRs small.
+Route implementation rework back to the Developer.
+Load relevant Skills automatically from agent-team/skills/registry.md.
+Keep handoffs compact using the communication protocol.
 ```
+
+---
+
+## Roles
+
+AgentCrew defines role files under:
+
+```text
+agent-team/agents/
+```
+
+Core roles:
+
+- Advisor: evaluates idea direction and risk
+- Idea Consultant: turns a rough idea into a structured brief
+- Product Manager: creates scope, tasks, acceptance criteria, and priorities
+- Developer: implements focused changes
+- Tester: validates behavior and acceptance criteria
+- Reviewer: checks correctness, scope, maintainability, risk, and tests
+
+Specialist roles may include:
+
+- Security Reviewer: checks auth, secrets, data, dependencies, and infrastructure risk
+- UX / Design Reviewer: checks usability, accessibility, responsive behavior, and visual quality
+- Documentation Agent: updates and reviews docs, examples, changelog, and release notes
+- Skill Validator: reviews skills when they are added or changed
+
+---
 
 ## Skills
 
-Skills are technology and professional practice profiles that agents load when a task touches a language, framework, frontend stack, platform, or role-specific practice.
+Skills are technology and professional-practice profiles that agents load when a task touches a language, framework, frontend stack, platform, or role-specific practice.
 
-Current Skills:
+Examples:
+
+```text
+FastAPI task      -> python-pro + fastapi
+React component   -> typescript-pro + react
+Kubernetes YAML   -> kubernetes
+PR review         -> reviewer-pro
+Backlog work      -> product-owner-pro
+```
+
+Current skills may include:
 
 - Python Pro
 - TypeScript Pro
@@ -92,29 +230,43 @@ Current Skills:
 - Reviewer Pro
 - Product Owner Pro
 
-See `agent-team/skills/registry.md`.
+See:
 
-Use the Skill Validator when adding or changing Skills:
+```text
+agent-team/skills/registry.md
+```
+
+Use the Skill Validator when adding or changing skills:
 
 ```text
 agent-team/agents/skill-validator.md
 agent-team/playbooks/skill-validation.md
 ```
 
-## Memory saving
+---
 
-Use the memory-saving playbook when work pauses, a meaningful decision is made, or another agent needs handoff context:
+## Communication Protocol
 
-```text
-agent-team/playbooks/memory-saving.md
-agent-team/templates/memory-summary.md
+AgentCrew prefers compact artifacts over long chat.
+
+Default handoff format:
+
+```md
+### Context
+1-3 bullets only.
+
+### Decision
+What was decided.
+
+### Evidence
+Only facts needed by the next agent.
+
+### Next Action
+Exactly what the next agent should do.
+
+### Open Questions
+Only blockers.
 ```
-
-Memory should not contain secrets, raw customer data, or large logs.
-
-## Communication protocol
-
-Agent handoffs should use compact artifacts instead of long chat.
 
 Core protocol files:
 
@@ -122,25 +274,115 @@ Core protocol files:
 agent-team/protocols/communication.md
 agent-team/protocols/handoff-format.md
 agent-team/protocols/token-discipline.md
+agent-team/protocols/state-artifacts.md
 ```
 
-Project handoff artifacts should use:
+---
+
+## Project State
+
+Project-specific handoff artifacts should live in:
 
 ```text
 .agent-state/
 ```
 
-## Optional runtime layer
+The `agent-team/` folder contains reusable methodology.
 
-The `runtime/` folder contains advanced design notes for a future orchestrated agent runtime with coordinators, GitHub integration, containers, and Kubernetes jobs.
+The `.agent-state/` folder contains current project state.
 
-The runtime layer is optional. The core Agent Team workflow does not require Docker, Kubernetes, OpenClaw, or any custom service.
+Example:
 
-## Start here
+```text
+.agent-state/
+  current-task.md
+  decisions.md
+  handoff.md
+  test-report.md
+  review-report.md
+  memory.md
+```
 
-1. Read `docs/installation.md`.
-2. Read `docs/usage.md`.
-3. Read `docs/memory-saving.md` and `docs/skill-validation.md` if you plan to extend the workflow.
-4. Read `docs/examples.md` for prompt examples.
-5. Copy `AGENTS.md` and `agent-team/` into a target repository.
-6. Ask your coding agent to follow Fast Lane by default.
+Do not store secrets, tokens, raw customer data, or large logs in `.agent-state/`.
+
+---
+
+## Memory Saving
+
+Use the memory-saving playbook when work pauses, a meaningful decision is made, or another agent needs handoff context.
+
+Memory can include:
+
+- decisions
+- current status
+- commands run
+- risks
+- next steps
+
+Memory must not include:
+
+- secrets
+- tokens
+- passwords
+- raw customer data
+- sensitive production data
+- large logs
+
+See:
+
+```text
+agent-team/playbooks/memory-saving.md
+agent-team/templates/memory-summary.md
+```
+
+---
+
+## Optional Runtime Layer
+
+AgentCrew can be extended later with an orchestrated runtime, coordinators, integrations, containers, and job workers.
+
+This is optional.
+
+The core AgentCrew workflow does not require any runtime, container platform, or custom service.
+
+---
+
+## Start Here
+
+1. Read `docs/bootstrap-existing-project.md`.
+2. Copy `AGENTS.md` and `agent-team/` into your target repository.
+3. Run the health check in `agent-team/checklists/agentcrew-health-check.md`.
+4. Read `docs/installation.md`.
+5. Read `docs/usage.md`.
+6. Read `docs/examples.md`.
+7. Ask your coding agent to follow Fast Lane by default.
+
+---
+
+## Recommended First Workflow
+
+Start with:
+
+```text
+Product Manager
+  -> Developer
+  -> Tester
+  -> Reviewer
+  -> Human
+```
+
+For small tasks, use:
+
+```text
+Developer
+  -> Tester
+  -> Human
+```
+
+Once that works, add Advisor, Idea Consultant, specialist reviewers, and skills as needed.
+
+---
+
+## License
+
+MIT

@@ -14,6 +14,9 @@ agent-team/
     developer.md
     tester.md
     reviewer.md
+    security-reviewer.md
+    ux-design-reviewer.md
+    documentation-agent.md
     skill-validator.md
 
   playbooks/
@@ -22,6 +25,8 @@ agent-team/
     pr-process.md
     rework-loop.md
     task-classification.md
+    lane-escalation.md
+    specialist-review-routing.md
     skill-loading.md
     skill-validation.md
     memory-saving.md
@@ -35,7 +40,11 @@ agent-team/
   protocols/
     communication.md
     handoff-format.md
+    state-artifacts.md
     token-discipline.md
+
+  conventions/
+    naming.md
 
   templates/
     idea-brief.md
@@ -44,12 +53,16 @@ agent-team/
     pr-description.md
     test-report.md
     review-report.md
+    security-review-report.md
+    ux-design-review-report.md
+    documentation-report.md
     memory-summary.md
     skill-validation-report.md
 
   skills/
     README.md
     registry.md
+    authoring-guide.md
     languages/
       python-pro.md
       typescript-pro.md
@@ -79,9 +92,12 @@ agent-team/
     secrets-policy.md
 
   checklists/
+    agentcrew-health-check.md
     definition-of-done.md
     testing.md
     code-review.md
+    design-review.md
+    documentation.md
     security.md
     memory-saving.md
     skill-validation.md
@@ -102,14 +118,18 @@ Recommended project-state artifact structure:
 ```text
 .agent-state/
   current-task.md
-  idea-brief.md
-  product-plan.md
+  decisions.md
+  handoff.md
   test-report.md
   review-report.md
-  decisions.md
+  security-review-report.md
+  ux-design-review-report.md
+  documentation-report.md
+  memory.md
 ```
 
-`.agent-state/` is for project-specific handoff artifacts. It is not part of the reusable Agent Team package.
+`.agent-state/` is for project-specific handoff artifacts. It is not part of the reusable AgentCrew package.
+See `agent-team/protocols/state-artifacts.md`.
 
 ---
 
@@ -125,6 +145,8 @@ task-classification.md
 ```
 
 Use clear headings inside every file.
+
+See `agent-team/conventions/naming.md`.
 
 ---
 
@@ -156,4 +178,4 @@ runtime/
   playbooks/
 ```
 
-Keep Docker, Kubernetes, OpenClaw, GitHub App, and worker orchestration design in `runtime/`.
+Keep optional orchestration, GitHub App, container, and worker design in `runtime/`.

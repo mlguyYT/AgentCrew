@@ -19,6 +19,9 @@ Use roles:
 - Developer
 - Tester
 - Reviewer
+- Security Reviewer
+- UX / Design Reviewer
+- Documentation Agent
 - Skill Validator
 
 Important rules:

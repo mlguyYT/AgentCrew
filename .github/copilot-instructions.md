@@ -30,6 +30,12 @@ For review tasks:
 2. read `agent-team/skills/registry.md`
 3. use `agent-team/templates/review-report.md`
 
+For specialist review tasks:
+
+- security-sensitive changes: read `agent-team/agents/security-reviewer.md` and use `agent-team/templates/security-review-report.md`
+- user-facing UI/UX changes: read `agent-team/agents/ux-design-reviewer.md` and use `agent-team/templates/ux-design-review-report.md`
+- docs, examples, changelogs, or release notes: read `agent-team/agents/documentation-agent.md` and use `agent-team/templates/documentation-report.md`
+
 For Skill changes:
 
 1. read `agent-team/agents/skill-validator.md`

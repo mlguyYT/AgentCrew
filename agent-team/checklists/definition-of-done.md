@@ -33,6 +33,9 @@ For Fast Lane work:
 - [ ] change is low risk
 - [ ] Tester validated changed behavior
 - [ ] Reviewer was used if risk became medium or higher
+- [ ] Security Reviewer was used if security-sensitive behavior changed
+- [ ] UX / Design Reviewer was used if user-facing UI/UX changed
+- [ ] Documentation Agent was used if docs, examples, changelog, or release notes changed
 - [ ] human approved
 
 ---
@@ -46,6 +49,7 @@ For Full Lane work:
 - [ ] task acceptance criteria are explicit
 - [ ] Tester report exists
 - [ ] Reviewer report exists
+- [ ] specialist reviewer report exists if required
 - [ ] high/critical findings are resolved
 - [ ] human approved final PR
 

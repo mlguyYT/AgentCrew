@@ -58,7 +58,7 @@ Use this especially for Full Lane work.
 
 ## Escalation
 
-Escalate to human or security reviewer if:
+Escalate to human or Security Reviewer if:
 
 - [ ] auth changes
 - [ ] permissions change

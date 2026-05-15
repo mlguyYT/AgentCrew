@@ -25,11 +25,14 @@ agent-team/playbooks/full-lane.md
 agent-team/playbooks/pr-process.md
 agent-team/playbooks/rework-loop.md
 agent-team/playbooks/task-classification.md
+agent-team/playbooks/lane-escalation.md
+agent-team/playbooks/specialist-review-routing.md
 agent-team/playbooks/skill-loading.md
 agent-team/playbooks/skill-validation.md
 agent-team/playbooks/memory-saving.md
 agent-team/protocols/communication.md
 agent-team/protocols/handoff-format.md
+agent-team/protocols/state-artifacts.md
 agent-team/protocols/token-discipline.md
 ```
 
@@ -49,6 +52,7 @@ Use technical Skills from:
 
 ```text
 agent-team/skills/registry.md
+agent-team/skills/authoring-guide.md
 ```
 
 Use policies and checklists from:
@@ -56,6 +60,7 @@ Use policies and checklists from:
 ```text
 agent-team/policies/
 agent-team/checklists/
+agent-team/conventions/
 ```
 
 Use communication protocols from:
@@ -81,6 +86,7 @@ Task
   -> Developer
   -> Tester
   -> Reviewer only if needed
+  -> Specialist reviewer only if needed
   -> Human approval
 ```
 
@@ -131,6 +137,9 @@ roles:
   developer: agent-team/agents/developer.md
   tester: agent-team/agents/tester.md
   reviewer: agent-team/agents/reviewer.md
+  security_reviewer: agent-team/agents/security-reviewer.md
+  ux_design_reviewer: agent-team/agents/ux-design-reviewer.md
+  documentation_agent: agent-team/agents/documentation-agent.md
   skill_validator: agent-team/agents/skill-validator.md
 ```
 
@@ -239,6 +248,7 @@ Use:
 ```text
 agent-team/protocols/communication.md
 agent-team/protocols/handoff-format.md
+agent-team/protocols/state-artifacts.md
 agent-team/protocols/token-discipline.md
 ```
 
@@ -248,11 +258,14 @@ Preferred shared project artifacts:
 
 ```text
 .agent-state/current-task.md
-.agent-state/idea-brief.md
-.agent-state/product-plan.md
+.agent-state/decisions.md
+.agent-state/handoff.md
 .agent-state/test-report.md
 .agent-state/review-report.md
-.agent-state/decisions.md
+.agent-state/security-review-report.md
+.agent-state/ux-design-review-report.md
+.agent-state/documentation-report.md
+.agent-state/memory.md
 ```
 
 Do not store secrets, raw customer data, sensitive production data, or long logs in shared artifacts.
@@ -278,7 +291,7 @@ Never include unrelated refactors unless explicitly requested.
 
 ## Rework routing
 
-If Tester, Reviewer, CI, or Human requests changes:
+If Tester, Reviewer, Security Reviewer, UX / Design Reviewer, Documentation Agent, CI, or Human requests changes:
 
 ```text
 Route implementation rework back to the Developer.
@@ -322,6 +335,15 @@ tester:
 
 reviewer:
   use: agent-team/templates/review-report.md
+
+security_reviewer:
+  use: agent-team/templates/security-review-report.md
+
+ux_design_reviewer:
+  use: agent-team/templates/ux-design-review-report.md
+
+documentation_agent:
+  use: agent-team/templates/documentation-report.md
 
 product_manager:
   use: agent-team/templates/task.md
