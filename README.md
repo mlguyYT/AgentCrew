@@ -9,6 +9,18 @@ It is a lightweight instruction system that helps AI agents work like a discipli
 
 ---
 
+## For Coding Agents
+
+Read `AGENTS.md` first.
+
+Then read the relevant role, playbook, Skills, and templates under `agent-team/`.
+
+Use Fast Lane by default.
+
+Do not merge pull requests.
+
+---
+
 ## Core Idea
 
 AgentCrew is built around this principle:

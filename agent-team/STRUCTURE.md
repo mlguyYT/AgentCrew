@@ -7,6 +7,9 @@ agent-team/
   README.md
   STRUCTURE.md
 
+  adapters/
+    README.md
+
   agents/
     advisor.md
     idea-consultant.md
@@ -98,6 +101,8 @@ agent-team/
     code-review.md
     design-review.md
     documentation.md
+    human-approval.md
+    release-readiness.md
     security.md
     memory-saving.md
     skill-validation.md

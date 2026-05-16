@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Added
-- Initial public Agent Team workflow
+- Initial public AgentCrew agent-team workflow
 - Tool-agnostic `AGENTS.md`
 - Fast Lane and Full Lane playbooks
 - Agent role definitions
