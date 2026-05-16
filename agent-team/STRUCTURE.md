@@ -49,6 +49,9 @@ agent-team/
   conventions/
     naming.md
 
+  tools/
+    save-session.sh
+
   templates/
     idea-brief.md
     product-plan.md
@@ -124,6 +127,7 @@ Recommended project-state artifact structure:
 
 ```text
 .agent-state/
+  sessions/
   current-task.md
   decisions.md
   handoff.md

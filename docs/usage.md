@@ -270,6 +270,12 @@ Use agent-team/templates/memory-summary.md.
 Do not include secrets, raw customer data, or large logs.
 ```
 
+Or save a local session checkpoint from the target project:
+
+```bash
+~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
+```
+
 For committed project memory, prefer a project-owned path such as:
 
 ```text

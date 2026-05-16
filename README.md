@@ -94,6 +94,16 @@ Agents must not:
 
 Human approval stays final.
 
+## Session Saving
+
+To save local pause/resume context in a target project:
+
+```bash
+~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
+```
+
+This writes a safe checkpoint under `.agent-state/sessions/`.
+
 ## Status
 
 AgentCrew is a lightweight methodology package. The core workflow is usable now. The `runtime/` folder is optional design material for future orchestration.

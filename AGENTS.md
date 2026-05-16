@@ -242,6 +242,12 @@ agent-team/playbooks/memory-saving.md
 agent-team/templates/memory-summary.md
 ```
 
+If the optional utility is available, save a local session checkpoint with:
+
+```bash
+~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
+```
+
 Memory must not include secrets, raw customer data, sensitive production data, or large logs.
 
 Do not store project memory inside `agent-team/`; that folder is the reusable workflow package.

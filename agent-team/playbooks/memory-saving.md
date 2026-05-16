@@ -143,6 +143,37 @@ Identify durable context
 
 ---
 
+## Optional session save utility
+
+If AgentCrew is available outside the project, agents may save a local session checkpoint with:
+
+```bash
+~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
+```
+
+Use extra fields when useful:
+
+```bash
+~/AgentCrew/agent-team/tools/save-session.sh \
+  --project . \
+  --title "checkout validation work" \
+  --summary "Checkout validation was updated and tests are partially complete." \
+  --decision "Keep validation in the form service layer." \
+  --next "Run focused checkout tests." \
+  --note "Coverage tooling exists; target remains 70 percent or higher."
+```
+
+By default, the utility writes to:
+
+```text
+.agent-state/sessions/
+```
+
+The utility captures short git state only: branch, head, status, diff stat, staged diff stat, and recent log.
+It does not save full diffs, secrets, raw customer data, sensitive production data, or long logs.
+
+---
+
 ## Human boundary
 
 The human decides whether project memory should be committed, edited, deleted, or treated as authoritative.

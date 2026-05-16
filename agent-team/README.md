@@ -97,6 +97,12 @@ agent-team/playbooks/memory-saving.md
 agent-team/templates/memory-summary.md
 ```
 
+The optional local checkpoint utility is:
+
+```text
+~/AgentCrew/agent-team/tools/save-session.sh
+```
+
 When adding or changing Skills, use:
 
 ```text

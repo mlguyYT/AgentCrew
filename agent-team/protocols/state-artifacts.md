@@ -30,6 +30,7 @@ agent-team/
 
 ```text
 .agent-state/
+  sessions/
   current-task.md
   decisions.md
   handoff.md
@@ -42,6 +43,8 @@ agent-team/
 ```
 
 Use only the files that are useful for the current project.
+
+`sessions/` stores timestamped local session checkpoints created by the optional AgentCrew save-session utility.
 
 ---
 
@@ -74,6 +77,9 @@ documentation-report.md:
 
 memory.md:
   purpose: short project context worth preserving between sessions
+
+sessions/:
+  purpose: timestamped local checkpoints for pause/resume across agent sessions
 ```
 
 ---

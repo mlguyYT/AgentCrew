@@ -23,6 +23,18 @@ Save memory for the current work using agent-team/playbooks/memory-saving.md.
 Do not include secrets or raw logs.
 ```
 
+If AgentCrew is installed at `~/AgentCrew`, save a local session checkpoint from the target project with:
+
+```bash
+~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
+```
+
+The checkpoint is written to:
+
+```text
+.agent-state/sessions/
+```
+
 ## Storage
 
 Use the human's preferred memory system.
