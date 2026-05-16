@@ -108,7 +108,7 @@ agent-team/
     skill-validation.md
 ```
 
-Recommended repository-level structure:
+AgentCrew repository structure:
 
 ```text
 AGENTS.md
@@ -117,6 +117,8 @@ docs/
 examples/
 .github/
 ```
+
+Target projects do not need this structure unless intentionally vendoring AgentCrew.
 
 Recommended project-state artifact structure:
 
@@ -166,7 +168,12 @@ Optional adapters can be added later:
 .claude/CLAUDE.md
 ```
 
-These should reference the canonical `agent-team/` folder instead of duplicating content.
+These should reference the external AgentCrew paths instead of duplicating content:
+
+```text
+~/AgentCrew/AGENTS.md
+~/AgentCrew/agent-team/
+```
 
 ---
 

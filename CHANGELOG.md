@@ -25,3 +25,4 @@
 - Operational completeness docs for bootstrapping, health checks, naming, specialist routing, lane escalation, Skill authoring, and state artifacts
 - Documentation refresh aligning public docs on AgentCrew naming, Markdown-first positioning, project state, memory, and first-use prompts
 - External loading model so AgentCrew lives outside target repositories and is loaded by coding agents on demand
+- Onboarding UX polish for minimal prompts, external-path adapters, and AgentCrew repository structure wording

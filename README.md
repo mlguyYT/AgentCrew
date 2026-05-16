@@ -34,6 +34,15 @@ From any project, tell your coding agent:
 
 ```text
 Load AgentCrew from ~/AgentCrew.
+Use Fast Lane by default.
+Do not merge pull requests.
+Keep PRs small.
+```
+
+For fuller guidance, use:
+
+```text
+Load AgentCrew from ~/AgentCrew.
 
 Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
 
