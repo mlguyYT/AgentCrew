@@ -20,7 +20,9 @@ Pass / Fail / Partial
 - expected vs actual
 
 ## Coverage Notes
-What areas were tested?
+- coverage percentage if available
+- whether coverage is at least 70 percent
+- if not measured, why coverage tooling was unavailable
 
 ## Risks
 Any potential regression risk.

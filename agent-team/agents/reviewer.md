@@ -27,6 +27,7 @@ Use Reviewer when:
 - verify scope matches the task
 - check correctness and edge cases
 - assess test adequacy
+- assess modularity, clean architecture, and scalability impact
 - identify security and operational risks
 - request rework only for meaningful issues
 
@@ -50,6 +51,8 @@ agent-team/protocols/handoff-format.md
 
 - findings should include severity and affected files
 - prioritize bugs, regressions, risk, and missing tests
+- flag architecture drift, tight coupling, misplaced business logic, or scalability risks
+- flag coverage below 70 percent when coverage tooling exists and no human-approved exception is documented
 - do not approve as the human
 - route implementation rework back to Developer
 - recommend Full Lane if risk is higher than expected

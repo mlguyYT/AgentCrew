@@ -150,7 +150,9 @@ Developer must:
 developer_responsibilities:
   - implement task
   - keep changes focused
+  - preserve modular clean architecture
   - update tests when needed
+  - keep coverage at or above 70 percent when coverage tooling exists
   - prepare PR description
   - document tests run
   - mention limitations
@@ -177,6 +179,8 @@ Tester must:
 tester_responsibilities:
   - validate acceptance criteria
   - run relevant tests
+  - run coverage checks when available
+  - flag coverage below 70 percent
   - document results
   - request rework if behavior fails
 ```
@@ -195,8 +199,10 @@ reviewer_responsibilities:
   - check scope
   - check maintainability
   - check architecture fit
+  - check modularity and clean architecture boundaries
   - check security concerns
   - check test adequacy
+  - check coverage is at least 70 percent when tooling exists
 ```
 
 Reviewer may mark ready for human review.
@@ -305,7 +311,9 @@ A PR is ready for human approval when:
 ```yaml
 ready_for_human:
   - acceptance criteria addressed
+  - implementation is modular and architecture fit is acceptable
   - relevant tests run or limitation documented
+  - coverage is at least 70 percent when coverage tooling exists, or exception is documented
   - tester passed or provided acceptable report
   - reviewer passed if required
   - specialist reviewer passed if required

@@ -14,6 +14,11 @@ Reference task ID or description.
 - change 1
 - change 2
 
+## Architecture
+- Modular boundaries preserved?
+- Business logic placed in the correct layer?
+- Scalability or coupling concerns?
+
 ## Tests
 Commands run:
 ```
@@ -22,6 +27,9 @@ Commands run:
 
 Results:
 - pass/fail summary
+
+Coverage:
+- percentage if available, or limitation if not measured
 
 ## Risk
 Low / Medium / High

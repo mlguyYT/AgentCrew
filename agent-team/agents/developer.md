@@ -28,7 +28,9 @@ Use Developer when:
 - load matching Skills from `agent-team/skills/registry.md`
 - inspect relevant files before editing
 - keep changes small and focused
+- preserve modular boundaries and clean architecture
 - add or update tests when useful
+- aim for at least 70 percent code coverage when coverage tooling exists
 - document tests run or limitations
 - prepare a clear PR description
 
@@ -59,6 +61,9 @@ For rework, also summarize what changed and which request was addressed.
 - do not hide test failures
 - avoid unrelated changes
 - preserve existing project conventions
+- keep implementation modular, loosely coupled, and aligned with the existing architecture
+- do not place business logic in the wrong layer when the project separates UI, API, service, domain, or data-access concerns
+- document coverage results when available and flag any coverage below 70 percent
 - escalate to Product Manager or Full Lane if scope grows
 - hand off to Tester with compact evidence and next action
 

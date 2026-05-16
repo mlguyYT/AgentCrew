@@ -31,6 +31,10 @@ This checklist helps Reviewer Agents and humans review PRs consistently.
 - [ ] Are names clear?
 - [ ] Is complexity justified?
 - [ ] Does it follow project conventions?
+- [ ] Is the implementation modular and loosely coupled?
+- [ ] Does it preserve clean architecture boundaries?
+- [ ] Is business logic in the correct layer for this project?
+- [ ] Will this scale without forcing a broad rewrite soon?
 - [ ] Would a future developer understand this?
 
 ---
@@ -39,6 +43,8 @@ This checklist helps Reviewer Agents and humans review PRs consistently.
 
 - [ ] Are relevant tests present?
 - [ ] Do tests cover changed behavior?
+- [ ] Is overall coverage at least 70 percent when coverage tooling exists?
+- [ ] If coverage is below 70 percent, is the gap documented for human decision?
 - [ ] Are test results documented?
 - [ ] Are important negative cases covered?
 - [ ] Are flaky or skipped tests explained?

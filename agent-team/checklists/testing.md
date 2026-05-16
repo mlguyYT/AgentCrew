@@ -12,6 +12,7 @@ This checklist helps Tester Agents validate changes consistently.
 - [ ] Read acceptance criteria
 - [ ] Inspect changed files
 - [ ] Identify relevant test commands
+- [ ] Identify coverage command if the project has coverage tooling
 - [ ] Identify risk level
 
 ---
@@ -32,15 +33,21 @@ build.gradle
 .github/workflows
 ```
 
+Coverage commands may appear in the same files or in CI configuration.
+
 ---
 
 ## Test execution
 
 - [ ] Run focused tests first
 - [ ] Run broader tests if risk requires it
+- [ ] Run coverage command when available
+- [ ] Confirm coverage is at least 70 percent when coverage tooling exists
 - [ ] Capture command output
 - [ ] Report pass/fail honestly
 - [ ] Do not invent results
+
+If coverage tooling does not exist, document that limitation and recommend adding it when the project has production code.
 
 ---
 
@@ -64,6 +71,7 @@ failure_report:
   - command
   - expected_behavior
   - actual_behavior
+  - coverage_percent_if_available
   - reproduction_steps
   - suspected_area
   - recommendation

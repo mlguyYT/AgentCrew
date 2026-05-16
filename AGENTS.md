@@ -310,6 +310,8 @@ pr_rules:
   - focused
   - linked to a task
   - tested or clearly marked as not tested
+  - modular and aligned with clean architecture for scalable maintenance
+  - code coverage is at least 70 percent when coverage tooling exists
   - reviewed before human approval
 ```
 
@@ -336,7 +338,9 @@ Work is done only when:
 done:
   - task objective is satisfied
   - acceptance criteria are addressed
+  - implementation remains modular and consistent with project architecture
   - relevant tests are run or limitations documented
+  - test coverage is at least 70 percent when coverage tooling exists, or the gap is documented for human decision
   - PR description is clear
   - reviewer concerns are resolved or documented
   - human approves final merge

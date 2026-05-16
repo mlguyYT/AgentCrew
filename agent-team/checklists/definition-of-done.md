@@ -15,8 +15,10 @@ A task is done when:
 - [ ] the requested behavior is implemented
 - [ ] acceptance criteria are addressed
 - [ ] changes are focused and scoped
+- [ ] implementation remains modular and aligned with clean architecture
 - [ ] relevant tests are added or updated
 - [ ] tests were run or limitations are documented
+- [ ] coverage is at least 70 percent when coverage tooling exists, or the gap is documented for human decision
 - [ ] PR description is clear
 - [ ] known risks are documented
 - [ ] no secrets are committed

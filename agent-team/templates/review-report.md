@@ -23,8 +23,15 @@ Ready / Changes Required
 ## Scope Check
 Is the PR focused?
 
+## Architecture Check
+- modularity: acceptable / needs rework
+- clean architecture boundaries: preserved / unclear / violated
+- scalability concerns: none / documented below
+
 ## Test Coverage
-Sufficient / Insufficient
+- sufficient / insufficient
+- coverage percentage if available
+- below 70 percent? yes / no / not measured
 
 ## Security Notes
 Any concerns?
