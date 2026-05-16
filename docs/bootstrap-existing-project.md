@@ -13,7 +13,7 @@ AgentCrew is Markdown-first. It should live outside the project and be loaded by
 Clone or place AgentCrew in a stable local path:
 
 ```bash
-git clone git@github.com-mlguyyt:mlguyYT/AgentCrew.git ~/AgentCrew
+git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ```
 
 Do not copy `AGENTS.md` or `agent-team/` into the target project unless you intentionally want a vendored snapshot.

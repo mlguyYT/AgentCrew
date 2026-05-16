@@ -20,7 +20,7 @@ Place AgentCrew once outside your project repositories:
 Example:
 
 ```bash
-git clone git@github.com-mlguyyt:mlguyYT/AgentCrew.git ~/AgentCrew
+git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ```
 
 Do not copy `AGENTS.md` or `agent-team/` into each project by default.
@@ -31,6 +31,49 @@ For an existing repository, follow:
 
 ```text
 docs/bootstrap-existing-project.md
+```
+
+---
+
+## First command to give your coding agent
+
+From the target project, ask your coding agent:
+
+```text
+Load AgentCrew from ~/AgentCrew.
+
+Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
+
+Use Fast Lane by default.
+For risky work, use Full Lane.
+Do not merge pull requests.
+Keep PRs small.
+Route rework back to the Developer.
+Load relevant Skills automatically from ~/AgentCrew/agent-team/skills/registry.md.
+Keep handoffs compact using ~/AgentCrew/agent-team/protocols/communication.md.
+```
+
+---
+
+## Verify external installation
+
+Check that these files exist:
+
+```bash
+test -f ~/AgentCrew/AGENTS.md
+test -d ~/AgentCrew/agent-team
+test -f ~/AgentCrew/agent-team/playbooks/fast-lane.md
+test -f ~/AgentCrew/agent-team/agents/developer.md
+test -f ~/AgentCrew/agent-team/skills/registry.md
+test -f ~/AgentCrew/agent-team/skills/authoring-guide.md
+test -f ~/AgentCrew/agent-team/playbooks/memory-saving.md
+test -f ~/AgentCrew/agent-team/playbooks/skill-validation.md
+test -f ~/AgentCrew/agent-team/playbooks/lane-escalation.md
+test -f ~/AgentCrew/agent-team/playbooks/specialist-review-routing.md
+test -f ~/AgentCrew/agent-team/protocols/communication.md
+test -f ~/AgentCrew/agent-team/protocols/state-artifacts.md
+test -f ~/AgentCrew/agent-team/templates/pr-description.md
+test -f ~/AgentCrew/agent-team/checklists/agentcrew-health-check.md
 ```
 
 ---
@@ -196,51 +239,6 @@ This supports:
 ```text
 Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human
 ```
-
----
-
-## First command to give your coding agent
-
-From the target project, ask your coding agent:
-
-```text
-Load AgentCrew from ~/AgentCrew.
-
-Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
-
-Use Fast Lane by default.
-For risky work, use Full Lane.
-Do not merge pull requests.
-Keep PRs small.
-Route rework back to the Developer.
-Load relevant Skills automatically from ~/AgentCrew/agent-team/skills/registry.md.
-Keep handoffs compact using ~/AgentCrew/agent-team/protocols/communication.md.
-```
-
----
-
-## Verify external installation
-
-Check that these files exist:
-
-```bash
-test -f ~/AgentCrew/AGENTS.md
-test -d ~/AgentCrew/agent-team
-test -f ~/AgentCrew/agent-team/playbooks/fast-lane.md
-test -f ~/AgentCrew/agent-team/agents/developer.md
-test -f ~/AgentCrew/agent-team/skills/registry.md
-test -f ~/AgentCrew/agent-team/skills/authoring-guide.md
-test -f ~/AgentCrew/agent-team/playbooks/memory-saving.md
-test -f ~/AgentCrew/agent-team/playbooks/skill-validation.md
-test -f ~/AgentCrew/agent-team/playbooks/lane-escalation.md
-test -f ~/AgentCrew/agent-team/playbooks/specialist-review-routing.md
-test -f ~/AgentCrew/agent-team/protocols/communication.md
-test -f ~/AgentCrew/agent-team/protocols/state-artifacts.md
-test -f ~/AgentCrew/agent-team/templates/pr-description.md
-test -f ~/AgentCrew/agent-team/checklists/agentcrew-health-check.md
-```
-
----
 
 ## Next step
 

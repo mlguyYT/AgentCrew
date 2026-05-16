@@ -27,7 +27,7 @@ AgentCrew lets agents do the work, testing, review, and preparation, but keeps f
 Clone AgentCrew once outside your projects:
 
 ```bash
-git clone git@github.com-mlguyyt:mlguyYT/AgentCrew.git ~/AgentCrew
+git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ```
 
 From any project, tell your coding agent:

@@ -1,5 +1,16 @@
 # Examples
 
+Before using any example, tell your coding agent:
+
+```text
+Load AgentCrew from ~/AgentCrew.
+Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
+```
+
+Paths in these examples are relative to the external AgentCrew checkout unless a project path is explicitly named.
+
+---
+
 ## Example 1 — Small bug fix
 
 ### Prompt
