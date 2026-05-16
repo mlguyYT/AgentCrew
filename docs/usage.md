@@ -15,23 +15,12 @@ Example:
 ```text
 Load AgentCrew from ~/AgentCrew.
 
-Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
-
-For each request, classify the task.
-Choose the right lane, role, and Skills automatically.
-Use Fast Lane by default and Full Lane for risky work.
-Do not merge pull requests.
-Keep PRs small.
-Route implementation rework back to the Developer.
-Load relevant Skills automatically from ~/AgentCrew/agent-team/skills/registry.md.
-Keep handoffs compact using ~/AgentCrew/agent-team/protocols/communication.md.
-```
-
-After that, ask for the outcome:
-
-```text
 Fix the login form so empty email shows a validation message.
 ```
+
+AgentCrew should read its own instructions, classify the task, choose the lane, role, and Skills, and stop where human approval is required.
+
+Add extra rules to your prompt only when you want to constrain or override the default workflow.
 
 Paths in the examples below are relative to the external AgentCrew checkout unless a project path is explicitly named.
 

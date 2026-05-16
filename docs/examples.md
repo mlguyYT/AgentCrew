@@ -4,8 +4,6 @@ Before using any example, tell your coding agent:
 
 ```text
 Load AgentCrew from ~/AgentCrew.
-Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
-Classify each request and choose the right lane, role, and Skills automatically.
 ```
 
 Paths in these examples are relative to the external AgentCrew checkout unless a project path is explicitly named.

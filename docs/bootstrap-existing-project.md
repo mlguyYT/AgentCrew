@@ -27,13 +27,10 @@ From the target project, tell the coding agent:
 ```text
 Load AgentCrew from ~/AgentCrew.
 
-Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
-For each request, classify the task and choose the right lane, role, and Skills.
-Use Fast Lane by default and Full Lane for risky work.
-Do not merge pull requests.
-Keep PRs small.
-Load relevant Skills from ~/AgentCrew/agent-team/skills/registry.md.
+Fix the login form so empty email shows a validation message.
 ```
+
+AgentCrew should read its own instructions, classify the task, choose the lane, role, and Skills, and stop where human approval is required.
 
 Optional: create a tiny project-local adapter that points to `~/AgentCrew/AGENTS.md`. Do not duplicate the full AgentCrew package in the project.
 

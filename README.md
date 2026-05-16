@@ -30,7 +30,7 @@ Clone AgentCrew once outside your projects:
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ```
 
-From any project, ask for the outcome. You do not need to name the role, lane, or Skill.
+From any project, ask for the outcome:
 
 ```text
 Load AgentCrew from ~/AgentCrew.
@@ -38,22 +38,7 @@ Load AgentCrew from ~/AgentCrew.
 Fix the login form so empty email shows a validation message.
 ```
 
-For fuller guidance, use:
-
-```text
-Load AgentCrew from ~/AgentCrew.
-
-Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
-
-Classify my request.
-Choose the right lane, role, and Skills.
-Use Fast Lane by default and Full Lane for risky work.
-Do not merge pull requests.
-Keep PRs small.
-Route implementation rework back to the Developer.
-Load relevant Skills from ~/AgentCrew/agent-team/skills/registry.md.
-Keep handoffs compact using ~/AgentCrew/agent-team/protocols/communication.md.
-```
+AgentCrew reads its own instructions, chooses the lane, role, and Skills, and stops where human approval is required.
 
 No AgentCrew files need to be copied into the project.
 
