@@ -125,6 +125,10 @@ After installation, AgentCrew should live outside the project it is guiding:
     conventions/
       naming.md
 
+    tools/
+      list-sessions.sh
+      save-session.sh
+
     templates/
       idea-brief.md
       product-plan.md
@@ -146,6 +150,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       frameworks/
       frontend/
       platform/
+      professional/
 
     checklists/
       agentcrew-health-check.md

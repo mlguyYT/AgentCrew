@@ -242,7 +242,7 @@ Example:
 Ask:
 
 ```text
-Validate agent-team/skills/frameworks/example.md.
+Validate agent-team/skills/frameworks/fastapi.md.
 Check registry path, triggers, safety rules, testing guidance, and overlap with existing Skills.
 ```
 
@@ -274,6 +274,13 @@ Or save a local session checkpoint from the target project:
 
 ```bash
 ~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
+```
+
+List saved sessions or show the latest checkpoint:
+
+```bash
+~/AgentCrew/agent-team/tools/list-sessions.sh --project .
+~/AgentCrew/agent-team/tools/list-sessions.sh --project . --latest
 ```
 
 The checkpoint is saved under the target project's own `.agent-state/sessions/`.

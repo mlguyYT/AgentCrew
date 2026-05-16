@@ -180,6 +180,13 @@ By default, the utility writes to:
 PROJECT_ROOT/.agent-state/sessions/
 ```
 
+To list saved checkpoints or show the latest one:
+
+```bash
+~/AgentCrew/agent-team/tools/list-sessions.sh --project .
+~/AgentCrew/agent-team/tools/list-sessions.sh --project . --latest
+```
+
 If the command is run from a subdirectory inside a git repository, it automatically resolves the git repository root and saves there.
 This keeps each project's checkpoints isolated even when AgentCrew is loaded from the same external `~/AgentCrew` checkout.
 

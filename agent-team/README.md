@@ -101,6 +101,7 @@ The optional local checkpoint utility is:
 
 ```text
 ~/AgentCrew/agent-team/tools/save-session.sh
+~/AgentCrew/agent-team/tools/list-sessions.sh
 ```
 
 When adding or changing Skills, use:

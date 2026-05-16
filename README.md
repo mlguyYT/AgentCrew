@@ -1,8 +1,6 @@
 # AgentCrew
 
-When I start any projects, I need to first define the roles of Agents to make sure the code quality is high and the project objectives are reached. Till now I needed to collect features from different repositories to make sure the agents' output gets reliable.
-
-So AgentCrew is built to fill that gap: AgentCrew is a Markdown-first workflow for coordinating AI coding agents like a small software team.
+AgentCrew is a Markdown-first workflow for coordinating AI coding agents like a small software team.
 
 It gives agents roles, playbooks, skills, handoff formats, review rules, and human approval gates.
 
@@ -104,6 +102,13 @@ To save local pause/resume context in a target project:
 
 This writes a safe checkpoint under `.agent-state/sessions/`.
 Each project gets its own `.agent-state/` folder, so session memory does not mix across projects.
+
+To list saved sessions or show the latest one:
+
+```bash
+~/AgentCrew/agent-team/tools/list-sessions.sh --project .
+~/AgentCrew/agent-team/tools/list-sessions.sh --project . --latest
+```
 
 ## Status
 

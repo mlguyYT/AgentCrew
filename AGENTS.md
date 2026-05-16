@@ -291,6 +291,7 @@ Agents do not pass full reasoning. Agents pass compact artifacts.
 Preferred shared project artifacts:
 
 ```text
+.agent-state/sessions/
 .agent-state/current-task.md
 .agent-state/decisions.md
 .agent-state/handoff.md

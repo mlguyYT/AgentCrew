@@ -31,3 +31,4 @@
 - Development quality gates for modular clean architecture and at least 70 percent test coverage when coverage tooling exists
 - Optional `save-session.sh` utility for local AgentCrew pause/resume checkpoints under `.agent-state/sessions/`
 - Automatic per-project session memory isolation using the target project's git root
+- Optional `list-sessions.sh` utility for listing checkpoints or showing the latest saved session

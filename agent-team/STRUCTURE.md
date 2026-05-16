@@ -50,6 +50,7 @@ agent-team/
     naming.md
 
   tools/
+    list-sessions.sh
     save-session.sh
 
   templates/

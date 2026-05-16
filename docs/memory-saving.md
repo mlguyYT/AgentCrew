@@ -29,6 +29,13 @@ If AgentCrew is installed at `~/AgentCrew`, save a local session checkpoint from
 ~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
 ```
 
+List saved checkpoints or show the latest one with:
+
+```bash
+~/AgentCrew/agent-team/tools/list-sessions.sh --project .
+~/AgentCrew/agent-team/tools/list-sessions.sh --project . --latest
+```
+
 The checkpoint is written to:
 
 ```text
