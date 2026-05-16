@@ -1,6 +1,6 @@
 # AgentCrew
 
-When I start any projects, I need to first define the roles of Agents to make sure the code quality is high and the project objectives are reached. Till now I could not find any repositories (maybe my search skills :)) to keep the agent team in proper roles, handoffs while keep the communication between agents efficient and while not wasting tokens.
+When I start any projects, I need to first define the roles of Agents to make sure the code quality is high and the project objectives are reached. Till now I needed to collect different features from different repositories to make sure the agents' output gets reliable. I decided to define AgentCrew in a proper software team to have proper roles, handoffs while keep the communication between agents efficient and while not wasting tokens.
 
 So AgentCrew is built to fill that gap: AgentCrew is a Markdown-first workflow for coordinating AI coding agents like a small software team.
 
