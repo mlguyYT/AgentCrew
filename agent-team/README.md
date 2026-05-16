@@ -112,10 +112,10 @@ agent-team/protocols/state-artifacts.md
 agent-team/protocols/token-discipline.md
 ```
 
-After installing AgentCrew in a project, run:
+After placing AgentCrew outside a project, run:
 
 ```text
-agent-team/checklists/agentcrew-health-check.md
+~/AgentCrew/agent-team/checklists/agentcrew-health-check.md
 ```
 
 ---

@@ -13,16 +13,20 @@ Use natural language with your coding agent.
 Example:
 
 ```text
-Read AGENTS.md and the agent-team folder.
+Load AgentCrew from ~/AgentCrew.
+
+Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
 
 Use Fast Lane by default.
 Use Full Lane for risky work.
 Do not merge pull requests.
 Keep PRs small.
 Route implementation rework back to the Developer.
-Load relevant Skills automatically from agent-team/skills/registry.md.
-Keep handoffs compact using the communication protocol.
+Load relevant Skills automatically from ~/AgentCrew/agent-team/skills/registry.md.
+Keep handoffs compact using ~/AgentCrew/agent-team/protocols/communication.md.
 ```
+
+Paths in the examples below are relative to the external AgentCrew checkout unless a project path is explicitly named.
 
 ---
 

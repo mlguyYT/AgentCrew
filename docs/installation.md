@@ -9,28 +9,23 @@ It is not a runtime, server, bot, or CI/CD platform by default.
 
 ---
 
-## Quick install
+## Quick Install
 
-Copy these into your project:
+Place AgentCrew once outside your project repositories:
 
 ```text
-AGENTS.md
-agent-team/
+~/AgentCrew/
 ```
 
 Example:
 
 ```bash
-cp AGENTS.md /path/to/your-project/
-cp -r agent-team /path/to/your-project/
+git clone git@github.com-mlguyyt:mlguyYT/AgentCrew.git ~/AgentCrew
 ```
 
-Then commit:
+Do not copy `AGENTS.md` or `agent-team/` into each project by default.
 
-```bash
-git add AGENTS.md agent-team
-git commit -m "Add AgentCrew workflow"
-```
+From the target project, ask your coding agent to load AgentCrew from the external path.
 
 For an existing repository, follow:
 
@@ -40,12 +35,12 @@ docs/bootstrap-existing-project.md
 
 ---
 
-## Recommended project structure
+## Recommended local structure
 
-After installation:
+After installation, AgentCrew should live outside the project it is guiding:
 
 ```text
-your-project/
+~/AgentCrew/
   AGENTS.md
   docs/
   examples/
@@ -125,6 +120,11 @@ your-project/
       security.md
       memory-saving.md
       skill-validation.md
+
+/path/to/your-project/
+  application files
+  project docs
+  project tests
 ```
 
 ---
@@ -140,24 +140,24 @@ You may also add tool-specific adapter files:
 .claude/CLAUDE.md
 ```
 
-These files should point to:
+If you choose to add a tiny project-local adapter, it should point to the external AgentCrew path:
 
 ```text
-AGENTS.md
-agent-team/
+~/AgentCrew/AGENTS.md
+~/AgentCrew/agent-team/
 ```
 
-Do not duplicate the whole system in every adapter.
+Do not duplicate or vendor the whole system into every project.
 
 ---
 
-## Minimal install
+## Minimal Load
 
-For a very small project, install only:
+For a very small task, ask the agent to load only:
 
 ```text
-AGENTS.md
-agent-team/
+~/AgentCrew/AGENTS.md
+~/AgentCrew/agent-team/
   agents/
     developer.md
     tester.md
@@ -183,13 +183,13 @@ This supports:
 Developer -> Tester -> Reviewer if needed -> Human
 ```
 
-Add specialist reviewer files and templates when the project touches security, UX, documentation, or Skill changes.
+Load specialist reviewer files and templates when the project touches security, UX, documentation, or Skill changes.
 
 ---
 
-## Full install
+## Full Load
 
-For product and planning support, install everything.
+For product and planning support, load the full external AgentCrew folder.
 
 This supports:
 
@@ -201,41 +201,43 @@ Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer
 
 ## First command to give your coding agent
 
-After installation, ask your coding agent:
+From the target project, ask your coding agent:
 
 ```text
-Read AGENTS.md and the agent-team folder.
+Load AgentCrew from ~/AgentCrew.
+
+Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
 
 Use Fast Lane by default.
 For risky work, use Full Lane.
 Do not merge pull requests.
 Keep PRs small.
 Route rework back to the Developer.
-Load relevant Skills automatically from agent-team/skills/registry.md.
-Keep handoffs compact using the communication protocol.
+Load relevant Skills automatically from ~/AgentCrew/agent-team/skills/registry.md.
+Keep handoffs compact using ~/AgentCrew/agent-team/protocols/communication.md.
 ```
 
 ---
 
-## Verify installation
+## Verify external installation
 
 Check that these files exist:
 
 ```bash
-test -f AGENTS.md
-test -d agent-team
-test -f agent-team/playbooks/fast-lane.md
-test -f agent-team/agents/developer.md
-test -f agent-team/skills/registry.md
-test -f agent-team/skills/authoring-guide.md
-test -f agent-team/playbooks/memory-saving.md
-test -f agent-team/playbooks/skill-validation.md
-test -f agent-team/playbooks/lane-escalation.md
-test -f agent-team/playbooks/specialist-review-routing.md
-test -f agent-team/protocols/communication.md
-test -f agent-team/protocols/state-artifacts.md
-test -f agent-team/templates/pr-description.md
-test -f agent-team/checklists/agentcrew-health-check.md
+test -f ~/AgentCrew/AGENTS.md
+test -d ~/AgentCrew/agent-team
+test -f ~/AgentCrew/agent-team/playbooks/fast-lane.md
+test -f ~/AgentCrew/agent-team/agents/developer.md
+test -f ~/AgentCrew/agent-team/skills/registry.md
+test -f ~/AgentCrew/agent-team/skills/authoring-guide.md
+test -f ~/AgentCrew/agent-team/playbooks/memory-saving.md
+test -f ~/AgentCrew/agent-team/playbooks/skill-validation.md
+test -f ~/AgentCrew/agent-team/playbooks/lane-escalation.md
+test -f ~/AgentCrew/agent-team/playbooks/specialist-review-routing.md
+test -f ~/AgentCrew/agent-team/protocols/communication.md
+test -f ~/AgentCrew/agent-team/protocols/state-artifacts.md
+test -f ~/AgentCrew/agent-team/templates/pr-description.md
+test -f ~/AgentCrew/agent-team/checklists/agentcrew-health-check.md
 ```
 
 ---

@@ -172,7 +172,7 @@ These should reference the canonical `agent-team/` folder instead of duplicating
 
 ## Optional runtime structure
 
-Runtime and orchestration material is optional and should live outside the copyable core:
+Runtime and orchestration material is optional and should live outside the reusable core:
 
 ```text
 runtime/

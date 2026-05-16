@@ -2,7 +2,7 @@
 
 AgentCrew is a Markdown-first workflow for coordinating AI coding agent teams with roles, playbooks, skills, handoffs, and human approval gates.
 
-It is designed to be copied into any repository and used by tools that can read repository instructions, including Codex, Claude Code, Cursor, GitHub Copilot, and similar coding agents.
+It is designed to live outside your project repositories and be loaded by tools that can read local instructions, including Codex, Claude Code, Cursor, GitHub Copilot, and similar coding agents.
 
 AgentCrew is not a runtime, server, bot, or CI/CD platform by default.
 It is a lightweight instruction system that helps AI agents work like a disciplined software team.
@@ -11,9 +11,9 @@ It is a lightweight instruction system that helps AI agents work like a discipli
 
 ## For Coding Agents
 
-Read `AGENTS.md` first.
+Read `/path/to/AgentCrew/AGENTS.md` first.
 
-Then read the relevant role, playbook, Skills, and templates under `agent-team/`.
+Then read the relevant role, playbook, Skills, and templates under `/path/to/AgentCrew/agent-team/`.
 
 Use Fast Lane by default.
 
@@ -65,20 +65,22 @@ The core package is intentionally lightweight:
 
 ## Core Vs Optional
 
+Inside the external AgentCrew checkout:
+
 Core:
 
 ```text
-AGENTS.md
-agent-team/
+/path/to/AgentCrew/AGENTS.md
+/path/to/AgentCrew/agent-team/
 ```
 
 Optional but useful:
 
 ```text
-docs/
-examples/
-.github/
-runtime/
+/path/to/AgentCrew/docs/
+/path/to/AgentCrew/examples/
+/path/to/AgentCrew/.github/
+/path/to/AgentCrew/runtime/
 ```
 
 The `runtime/` folder is optional design material for future orchestration. The core AgentCrew workflow does not require any runtime, container platform, or custom service.
@@ -137,48 +139,40 @@ Agents must not:
 
 ## Quick Install
 
-Copy the core workflow into your project:
+Clone or place AgentCrew once outside your project repositories:
 
 ```bash
-cp AGENTS.md /path/to/your-project/
-cp -r agent-team /path/to/your-project/
+git clone git@github.com-mlguyyt:mlguyYT/AgentCrew.git ~/AgentCrew
 ```
 
-Optional GitHub templates:
+Then, from any project, tell your coding agent to load AgentCrew from that external path.
+
+No AgentCrew files need to be copied into the project.
+
+Optional: if you want GitHub issue or PR templates in a project, copy only the `.github/` templates:
 
 ```bash
 cp -r .github /path/to/your-project/
-```
-
-Optional docs and examples:
-
-```bash
-cp -r docs examples /path/to/your-project/
-```
-
-Then commit:
-
-```bash
-git add AGENTS.md agent-team docs examples .github
-git commit -m "Add AgentCrew workflow"
 ```
 
 ---
 
 ## First Prompt To Your Coding Agent
 
-After installing AgentCrew, tell your coding agent:
+From your project repository, tell your coding agent:
 
 ```text
-Read AGENTS.md and the agent-team folder.
+Load AgentCrew from ~/AgentCrew.
+
+Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
 
 Use Fast Lane by default.
 Use Full Lane for risky work.
 Do not merge pull requests.
 Keep PRs small.
 Route implementation rework back to the Developer.
-Load relevant Skills automatically from agent-team/skills/registry.md.
-Keep handoffs compact using the communication protocol.
+Load relevant Skills automatically from ~/AgentCrew/agent-team/skills/registry.md.
+Keep handoffs compact using ~/AgentCrew/agent-team/protocols/communication.md.
 ```
 
 ---
@@ -188,7 +182,7 @@ Keep handoffs compact using the communication protocol.
 AgentCrew defines role files under:
 
 ```text
-agent-team/agents/
+~/AgentCrew/agent-team/agents/
 ```
 
 Core roles:
@@ -362,12 +356,13 @@ The core AgentCrew workflow does not require any runtime, container platform, or
 ## Start Here
 
 1. Read `docs/bootstrap-existing-project.md`.
-2. Copy `AGENTS.md` and `agent-team/` into your target repository.
-3. Run the health check in `agent-team/checklists/agentcrew-health-check.md`.
-4. Read `docs/installation.md`.
-5. Read `docs/usage.md`.
-6. Read `docs/examples.md`.
-7. Ask your coding agent to follow Fast Lane by default.
+2. Clone or place AgentCrew outside your target repository.
+3. From the target repository, tell your coding agent to load `~/AgentCrew/AGENTS.md`.
+4. Run the health check in `~/AgentCrew/agent-team/checklists/agentcrew-health-check.md`.
+5. Read `docs/installation.md`.
+6. Read `docs/usage.md`.
+7. Read `docs/examples.md`.
+8. Ask your coding agent to follow Fast Lane by default.
 
 ---
 

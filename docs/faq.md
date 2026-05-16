@@ -150,21 +150,21 @@ Yes, but PRs are recommended because they make quality and review visible.
 
 ---
 
-## What is the smallest useful setup?
+## What is the smallest useful external setup?
 
 ```text
-AGENTS.md
-agent-team/agents/developer.md
-agent-team/agents/tester.md
-agent-team/agents/reviewer.md
-agent-team/playbooks/fast-lane.md
-agent-team/playbooks/pr-process.md
-agent-team/playbooks/rework-loop.md
-agent-team/playbooks/memory-saving.md
-agent-team/skills/registry.md
-agent-team/templates/task.md
-agent-team/templates/pr-description.md
-agent-team/templates/test-report.md
-agent-team/templates/review-report.md
-agent-team/templates/memory-summary.md
+~/AgentCrew/AGENTS.md
+~/AgentCrew/agent-team/agents/developer.md
+~/AgentCrew/agent-team/agents/tester.md
+~/AgentCrew/agent-team/agents/reviewer.md
+~/AgentCrew/agent-team/playbooks/fast-lane.md
+~/AgentCrew/agent-team/playbooks/pr-process.md
+~/AgentCrew/agent-team/playbooks/rework-loop.md
+~/AgentCrew/agent-team/playbooks/memory-saving.md
+~/AgentCrew/agent-team/skills/registry.md
+~/AgentCrew/agent-team/templates/task.md
+~/AgentCrew/agent-team/templates/pr-description.md
+~/AgentCrew/agent-team/templates/test-report.md
+~/AgentCrew/agent-team/templates/review-report.md
+~/AgentCrew/agent-team/templates/memory-summary.md
 ```

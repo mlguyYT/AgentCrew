@@ -26,7 +26,7 @@ principles:
   - startup-friendly
   - human-in-the-loop
   - simple by default
-  - easy to copy into projects
+  - easy to load from outside projects
 ```
 
 ---
