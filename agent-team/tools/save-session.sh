@@ -11,7 +11,7 @@ usage() {
   printf '%s\n' "  --decision TEXT      Decision to save. May be repeated"
   printf '%s\n' "  --next TEXT          Next step to save. May be repeated"
   printf '%s\n' "  --note TEXT          Note to save. May be repeated"
-  printf '%s\n' "  --out-dir PATH       Output directory. Default: PROJECT/.agent-state/sessions"
+  printf '%s\n' "  --out-dir PATH       Output directory. Default: PROJECT_ROOT/.agent-state/sessions"
   printf '%s\n' "  -h, --help           Show help"
 }
 
@@ -77,12 +77,6 @@ if [ ! -d "$PROJECT" ]; then
   exit 1
 fi
 
-if [ -z "$OUT_DIR" ]; then
-  OUT_DIR="$PROJECT/.agent-state/sessions"
-fi
-
-mkdir -p "$OUT_DIR" || exit 1
-
 slugify() {
   printf '%s' "$1" |
     tr '[:upper:]' '[:lower:]' |
@@ -90,6 +84,26 @@ slugify() {
     tr -cd 'a-z0-9.-' |
     cut -c1-60
 }
+
+PROJECT_INPUT="$PROJECT"
+PROJECT_ABS="$(cd "$PROJECT_INPUT" && pwd -P)" || exit 1
+
+is_git_repo="false"
+PROJECT_ROOT="$PROJECT_ABS"
+if git -C "$PROJECT_ABS" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  is_git_repo="true"
+  PROJECT_ROOT="$(git -C "$PROJECT_ABS" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$PROJECT_ABS")"
+fi
+
+PROJECT_NAME="$(basename "$PROJECT_ROOT")"
+PROJECT_ID="$(slugify "$PROJECT_NAME")"
+PROJECT_ID="${PROJECT_ID:-project}"
+
+if [ -z "$OUT_DIR" ]; then
+  OUT_DIR="$PROJECT_ROOT/.agent-state/sessions"
+fi
+
+mkdir -p "$OUT_DIR" || exit 1
 
 TITLE_SLUG="$(slugify "$TITLE")"
 TITLE_SLUG="${TITLE_SLUG:-session}"
@@ -103,14 +117,9 @@ if [ -e "$FILE" ]; then
   FILE="$OUT_DIR/${TIMESTAMP}-${TITLE_SLUG}-${SUFFIX}.md"
 fi
 
-is_git_repo="false"
-if git -C "$PROJECT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  is_git_repo="true"
-fi
-
 git_value() {
   if [ "$is_git_repo" = "true" ]; then
-    git -C "$PROJECT" "$@" 2>/dev/null || true
+    git -C "$PROJECT_ROOT" "$@" 2>/dev/null || true
   fi
 }
 
@@ -145,7 +154,9 @@ write_list() {
   printf '%s\n' '---'
   printf '%s\n' 'status: saved'
   printf 'timestamp: %s\n' "$ISO_TIMESTAMP"
-  printf 'project: %s\n' "$PROJECT"
+  printf 'project: %s\n' "$PROJECT_NAME"
+  printf 'project_id: %s\n' "$PROJECT_ID"
+  printf 'project_root: %s\n' "$PROJECT_ROOT"
   printf 'git_repo: %s\n' "$is_git_repo"
   if [ -n "$BRANCH" ]; then
     printf 'branch: %s\n' "$BRANCH"
@@ -180,7 +191,8 @@ write_list() {
 
 printf '%s\n' "AGENTCREW SESSION SAVED"
 printf '%s\n' "File: $FILE"
-printf '%s\n' "Project: $PROJECT"
+printf '%s\n' "Project: $PROJECT_NAME"
+printf '%s\n' "Project root: $PROJECT_ROOT"
 if [ "$is_git_repo" = "true" ]; then
   printf '%s\n' "Branch: ${BRANCH:-unknown}"
   printf '%s\n' "Head: ${HEAD_SHA:-unknown}"

@@ -276,6 +276,9 @@ Or save a local session checkpoint from the target project:
 ~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
 ```
 
+The checkpoint is saved under the target project's own `.agent-state/sessions/`.
+If you run the command from a subdirectory, AgentCrew resolves the git repository root automatically.
+
 For committed project memory, prefer a project-owned path such as:
 
 ```text

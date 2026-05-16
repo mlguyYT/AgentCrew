@@ -24,6 +24,10 @@ agent-team/
 
 `agent-team/` is reusable methodology. `.agent-state/` is local project context.
 
+Each project owns its own `.agent-state/` folder.
+Agents must not share one `.agent-state/` folder across multiple target projects.
+When AgentCrew is loaded from an external checkout, state still belongs in the target project, not in the AgentCrew checkout.
+
 ---
 
 ## Recommended Files
@@ -45,6 +49,7 @@ agent-team/
 Use only the files that are useful for the current project.
 
 `sessions/` stores timestamped local session checkpoints created by the optional AgentCrew save-session utility.
+The save-session utility resolves the target git repository root automatically, so checkpoints from different projects do not conflict.
 
 ---
 

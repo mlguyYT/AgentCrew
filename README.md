@@ -103,6 +103,7 @@ To save local pause/resume context in a target project:
 ```
 
 This writes a safe checkpoint under `.agent-state/sessions/`.
+Each project gets its own `.agent-state/` folder, so session memory does not mix across projects.
 
 ## Status
 

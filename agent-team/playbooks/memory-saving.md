@@ -40,6 +40,17 @@ For small completed tasks, a PR description or test report is usually enough.
 
 Use the human's preferred memory system if one exists.
 
+Each target project must have separate memory.
+AgentCrew must not mix memory across projects when it is used on multiple repositories at the same time.
+
+For local session state, use the target project's own:
+
+```text
+.agent-state/
+```
+
+Do not save one project's state into another project's `.agent-state/`.
+
 If the repository needs committed memory, use a project-owned folder such as:
 
 ```text
@@ -166,8 +177,11 @@ Use extra fields when useful:
 By default, the utility writes to:
 
 ```text
-.agent-state/sessions/
+PROJECT_ROOT/.agent-state/sessions/
 ```
+
+If the command is run from a subdirectory inside a git repository, it automatically resolves the git repository root and saves there.
+This keeps each project's checkpoints isolated even when AgentCrew is loaded from the same external `~/AgentCrew` checkout.
 
 The utility captures short git state only: branch, head, status, diff stat, staged diff stat, and recent log.
 It does not save full diffs, secrets, raw customer data, sensitive production data, or long logs.

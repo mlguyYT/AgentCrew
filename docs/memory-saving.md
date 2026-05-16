@@ -32,8 +32,11 @@ If AgentCrew is installed at `~/AgentCrew`, save a local session checkpoint from
 The checkpoint is written to:
 
 ```text
-.agent-state/sessions/
+PROJECT_ROOT/.agent-state/sessions/
 ```
+
+AgentCrew resolves the target git repository root automatically.
+If two projects use the same external `~/AgentCrew` checkout, their session checkpoints still stay separate because each project writes to its own `.agent-state/`.
 
 ## Storage
 
