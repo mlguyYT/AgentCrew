@@ -17,8 +17,9 @@ Load AgentCrew from ~/AgentCrew.
 
 Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
 
-Use Fast Lane by default.
-Use Full Lane for risky work.
+For each request, classify the task.
+Choose the right lane, role, and Skills automatically.
+Use Fast Lane by default and Full Lane for risky work.
 Do not merge pull requests.
 Keep PRs small.
 Route implementation rework back to the Developer.
@@ -26,13 +27,43 @@ Load relevant Skills automatically from ~/AgentCrew/agent-team/skills/registry.m
 Keep handoffs compact using ~/AgentCrew/agent-team/protocols/communication.md.
 ```
 
+After that, ask for the outcome:
+
+```text
+Fix the login form so empty email shows a validation message.
+```
+
 Paths in the examples below are relative to the external AgentCrew checkout unless a project path is explicitly named.
 
 ---
 
-## Choose the right role
+## Automatic routing
 
-Use these prompts.
+You do not need to choose the role, lane, or Skill.
+
+AgentCrew should infer them from the request:
+
+```text
+"Fix the login validation bug"
+  -> Developer -> Tester -> Human
+
+"Plan a project creation feature"
+  -> Product Manager -> Developer -> Tester -> Reviewer -> Human
+
+"Change how API tokens are validated"
+  -> Advisor -> Product Manager -> Developer -> Tester -> Reviewer -> Security Reviewer -> Human
+
+"Review this checkout form change"
+  -> UX / Design Reviewer -> Human
+```
+
+Explicit role prompts are optional. Use them when you want manual control or when an agent ignores routing.
+
+---
+
+## Optional manual role prompts
+
+Use these prompts only when you want to force a specific role.
 
 ### Advisor
 
@@ -174,7 +205,7 @@ agent-team/playbooks/specialist-review-routing.md
 
 ## How to classify a task
 
-Ask:
+Classification is automatic by default. Ask explicitly only when you want the routing decision before work starts:
 
 ```text
 Classify this task using agent-team/playbooks/task-classification.md.
@@ -222,7 +253,6 @@ Example:
 Ask:
 
 ```text
-Act as Skill Validator Agent.
 Validate agent-team/skills/frameworks/example.md.
 Check registry path, triggers, safety rules, testing guidance, and overlap with existing Skills.
 ```
@@ -268,9 +298,6 @@ Use `.agent-state/` for active handoff state. Use durable memory only for decisi
 Example:
 
 ```text
-Act as Developer Agent.
-
-Task:
 Add a `/healthz` endpoint that returns `{ "status": "ok" }`.
 
 Acceptance Criteria:
@@ -278,7 +305,7 @@ Acceptance Criteria:
 - response body includes status ok
 - include a simple test if the project has test infrastructure
 
-Use Fast Lane.
+Classify the task and use the right AgentCrew lane, role, and Skills.
 Do not modify unrelated files.
 ```
 
@@ -289,8 +316,6 @@ Do not modify unrelated files.
 Example:
 
 ```text
-Act as Tester Agent.
-
 Validate the current branch.
 
 Acceptance Criteria:
@@ -299,7 +324,7 @@ Acceptance Criteria:
 
 Run relevant tests.
 If tests cannot be run, explain why.
-Use the test-report template.
+Use the AgentCrew test-report template.
 ```
 
 ---
@@ -309,8 +334,6 @@ Use the test-report template.
 Example:
 
 ```text
-Act as Reviewer Agent.
-
 Review this PR.
 
 Focus on:
@@ -330,8 +353,6 @@ Only request changes for meaningful issues.
 Example:
 
 ```text
-Act as Developer Agent.
-
 Address this rework request:
 - The endpoint should return JSON, not plain text.
 - Add a test for the response body.

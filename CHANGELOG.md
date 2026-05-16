@@ -26,3 +26,4 @@
 - Documentation refresh aligning public docs on AgentCrew naming, Markdown-first positioning, project state, memory, and first-use prompts
 - External loading model so AgentCrew lives outside target repositories and is loaded by coding agents on demand
 - Onboarding UX polish for minimal prompts, external-path adapters, and AgentCrew repository structure wording
+- Natural-language request routing so users can ask for outcomes while AgentCrew chooses the lane, role, and Skills

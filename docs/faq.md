@@ -44,9 +44,26 @@ It is optimized for startup-style speed, but any team can use it.
 
 No.
 
-Use Fast Lane by default.
+AgentCrew should classify the request and use Fast Lane by default.
 
 Only use the full team for risky or complex work.
+
+---
+
+## Do I have to tell AgentCrew which role to use?
+
+No.
+
+You can ask a normal question or request an outcome:
+
+```text
+Load AgentCrew from ~/AgentCrew.
+Fix the empty-email validation bug.
+```
+
+AgentCrew should choose the lane, role, and Skills automatically.
+
+Explicit role prompts are still useful when you want manual control.
 
 ---
 
@@ -54,10 +71,11 @@ Only use the full team for risky or complex work.
 
 Make the root `AGENTS.md` shorter and more explicit.
 
-Also repeat the role in your prompt:
+Also repeat the routing instruction in your prompt:
 
 ```text
-Act as Developer Agent and follow agent-team/agents/developer.md.
+Load AgentCrew from ~/AgentCrew.
+Classify this request, choose the right AgentCrew role and Skills, and follow the matching playbook.
 ```
 
 ---

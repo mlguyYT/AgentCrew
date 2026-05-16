@@ -153,6 +153,35 @@ If any answer is yes, consider Full Lane.
 
 ---
 
+## Default request routing
+
+Users do not need to choose the role or lane.
+
+When a request does not name a role, classify it and route it:
+
+```yaml
+route_request:
+  planning_or_idea: Advisor or Product Manager
+  scoped_implementation: Developer
+  validation_or_regression_check: Tester
+  review_or_quality_check: Reviewer
+  security_sensitive_change: Security Reviewer after normal review
+  user_facing_flow_or_design: UX / Design Reviewer after normal review
+  docs_or_examples_change: Documentation Agent when useful
+  skill_change: Skill Validator
+```
+
+Then run the selected lane:
+
+```text
+Fast Lane: Developer -> Tester -> Reviewer if needed -> Human
+Full Lane: Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human
+```
+
+If the user explicitly asks for a role, use that role unless risk requires escalation.
+
+---
+
 ## Escalation rules
 
 Escalate to Full Lane if:

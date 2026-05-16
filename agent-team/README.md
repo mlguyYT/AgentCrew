@@ -76,6 +76,9 @@ Specialist reviewers are Security Reviewer, UX / Design Reviewer, and Documentat
 
 ## How agents should use this folder
 
+If the user does not name a role, lane, or Skill, infer them from the request.
+Use `agent-team/playbooks/task-classification.md` to choose the lane and starting role, then use `agent-team/playbooks/skill-loading.md` to load matching Skills.
+
 Before acting, an agent should:
 
 1. read `AGENTS.md`

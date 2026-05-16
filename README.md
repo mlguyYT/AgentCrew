@@ -30,13 +30,12 @@ Clone AgentCrew once outside your projects:
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ```
 
-From any project, tell your coding agent:
+From any project, ask for the outcome. You do not need to name the role, lane, or Skill.
 
 ```text
 Load AgentCrew from ~/AgentCrew.
-Use Fast Lane by default.
-Do not merge pull requests.
-Keep PRs small.
+
+Fix the login form so empty email shows a validation message.
 ```
 
 For fuller guidance, use:
@@ -46,8 +45,9 @@ Load AgentCrew from ~/AgentCrew.
 
 Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
 
-Use Fast Lane by default.
-Use Full Lane for risky work.
+Classify my request.
+Choose the right lane, role, and Skills.
+Use Fast Lane by default and Full Lane for risky work.
 Do not merge pull requests.
 Keep PRs small.
 Route implementation rework back to the Developer.

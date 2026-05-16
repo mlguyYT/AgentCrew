@@ -5,6 +5,7 @@ Before using any example, tell your coding agent:
 ```text
 Load AgentCrew from ~/AgentCrew.
 Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
+Classify each request and choose the right lane, role, and Skills automatically.
 ```
 
 Paths in these examples are relative to the external AgentCrew checkout unless a project path is explicitly named.
@@ -16,9 +17,6 @@ Paths in these examples are relative to the external AgentCrew checkout unless a
 ### Prompt
 
 ```text
-Act as Developer Agent.
-
-Task:
 Fix the login form so empty email shows a validation message.
 
 Acceptance Criteria:
@@ -26,7 +24,6 @@ Acceptance Criteria:
 - form does not submit when email is empty
 - existing behavior remains unchanged
 
-Use Fast Lane.
 Keep the PR small.
 ```
 
@@ -43,16 +40,16 @@ Developer -> Tester -> Human
 ### Prompt
 
 ```text
-Act as Product Manager Agent.
-
-Idea:
 Users should be able to create projects from the dashboard.
 
-Create small implementation tasks.
-Use Fast Lane unless a task is risky.
+Plan the work, split it into small implementation tasks, and choose the right lane for each task.
 ```
 
-### Expected output
+### Expected routing and output
+
+```text
+Product Manager -> Developer -> Tester -> Reviewer if needed -> Human
+```
 
 ```yaml
 tasks:
@@ -69,19 +66,18 @@ tasks:
 ### Prompt
 
 ```text
-Act as Advisor Agent.
-
-Idea:
 Change how API tokens are validated.
 
-Evaluate risk and recommend whether this should use Fast Lane or Full Lane.
+Evaluate risk, choose the right AgentCrew lane, and identify required reviewers.
 ```
 
-### Expected lane
+### Expected routing
 
 ```yaml
 lane: Full Lane
 reason: authentication and security-sensitive behavior
+specialist_review:
+  - Security Reviewer
 ```
 
 ---
@@ -91,8 +87,6 @@ reason: authentication and security-sensitive behavior
 ### Prompt
 
 ```text
-Act as Tester Agent.
-
 Validate PR #12 against these acceptance criteria:
 - project name is required
 - duplicate project names return an error
@@ -108,8 +102,6 @@ Run relevant tests and produce a test report.
 ### Prompt
 
 ```text
-Act as Reviewer Agent.
-
 Review PR #12.
 If there are real issues, request rework using the review-report template.
 ```
@@ -131,8 +123,6 @@ finding:
 ### Prompt
 
 ```text
-Act as Developer Agent.
-
 The human requested this PR change:
 - rename "workspace" to "project" in user-facing labels only
 
@@ -176,8 +166,6 @@ agent-team/playbooks/lane-escalation.md
 ### Prompt
 
 ```text
-Act as Security Reviewer Agent.
-
 Review PR #18 for authentication, authorization, secret handling, and data exposure risk.
 Use agent-team/templates/security-review-report.md.
 ```
@@ -195,8 +183,6 @@ agent-team/playbooks/specialist-review-routing.md
 ### Prompt
 
 ```text
-Act as UX / Design Reviewer Agent.
-
 Review this checkout form change for usability, accessibility, responsive behavior, and visual clarity.
 Use agent-team/templates/ux-design-review-report.md.
 ```
@@ -208,8 +194,6 @@ Use agent-team/templates/ux-design-review-report.md.
 ### Prompt
 
 ```text
-Act as Documentation Agent.
-
 Update README and usage docs for this workflow change.
 Use agent-team/templates/documentation-report.md.
 ```

@@ -76,6 +76,8 @@ If the task says:
 
 Load those skills.
 
+Explicit Skills are optional. If the user only asks for an outcome, infer Skills from the task and repository context.
+
 ---
 
 ## Automatic skills

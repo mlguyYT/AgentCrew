@@ -44,8 +44,9 @@ Load AgentCrew from ~/AgentCrew.
 
 Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
 
-Use Fast Lane by default.
-For risky work, use Full Lane.
+For each request, classify the task.
+Choose the right lane, role, and Skills automatically.
+Use Fast Lane by default and Full Lane for risky work.
 Do not merge pull requests.
 Keep PRs small.
 Route rework back to the Developer.

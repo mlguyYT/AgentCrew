@@ -94,6 +94,34 @@ Use Full Lane when the task is high risk.
 
 ---
 
+## Default request routing
+
+Users do not need to name a role, lane, or Skill.
+
+When the user asks a normal question or requests an outcome, AgentCrew must:
+
+```yaml
+request_routing:
+  - understand the requested outcome
+  - classify risk using agent-team/playbooks/task-classification.md
+  - choose Fast Lane or Full Lane
+  - choose the starting role
+  - load relevant Skills from agent-team/skills/registry.md
+  - run the workflow until human approval is needed
+```
+
+Examples:
+
+```text
+"Fix this login validation bug" -> Developer -> Tester -> Human
+"Plan this new dashboard feature" -> Product Manager -> Developer -> Tester -> Reviewer -> Human
+"Change token validation" -> Advisor/Product Manager -> Developer -> Tester -> Reviewer -> Security Reviewer -> Human
+```
+
+If the user explicitly names a role, lane, or Skill, honor that unless it conflicts with safety rules or human approval.
+
+---
+
 ## Non-negotiable rules
 
 ```yaml

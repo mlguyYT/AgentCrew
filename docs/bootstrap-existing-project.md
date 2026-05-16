@@ -28,8 +28,8 @@ From the target project, tell the coding agent:
 Load AgentCrew from ~/AgentCrew.
 
 Read ~/AgentCrew/AGENTS.md and ~/AgentCrew/agent-team/.
-Use Fast Lane by default.
-Use Full Lane for risky work.
+For each request, classify the task and choose the right lane, role, and Skills.
+Use Fast Lane by default and Full Lane for risky work.
 Do not merge pull requests.
 Keep PRs small.
 Load relevant Skills from ~/AgentCrew/agent-team/skills/registry.md.
@@ -61,11 +61,10 @@ Start with a small, reversible task.
 Example:
 
 ```text
-Act as Developer Agent.
 Load AgentCrew from ~/AgentCrew.
-Use Fast Lane.
+
 Make one small docs-only change in this project.
-Then act as Tester Agent and validate the docs-only change.
+Let AgentCrew classify the task, choose the role and lane, validate the change, and stop before merge.
 Do not merge.
 ```
 
