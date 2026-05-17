@@ -1,5 +1,5 @@
 name: Agent task
-description: Create a task intended for the Agent Team workflow.
+description: Create a task intended for the AgentCrew workflow.
 title: "[Task]: "
 labels:
   - agent-task

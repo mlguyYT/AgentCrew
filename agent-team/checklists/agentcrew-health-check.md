@@ -11,9 +11,11 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 ## Root Files
 
 - [ ] `AGENTS.md` exists
+- [ ] `bin/agentcrew` exists and is executable
 - [ ] `agent-team/` exists
 - [ ] `README.md` or project docs explain how to use AgentCrew
 - [ ] Optional tool adapters point to `AGENTS.md` and `agent-team/`
+- [ ] Automatic-loading docs explain that AgentCrew should live outside target repositories
 
 ---
 
@@ -54,6 +56,17 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/protocols/token-discipline.md`
 - [ ] `agent-team/protocols/state-artifacts.md`
 - [ ] `agent-team/conventions/naming.md`
+
+---
+
+## Required Tool Adapters
+
+- [ ] `agent-team/adapters/README.md`
+- [ ] `agent-team/adapters/claude-code.md`
+- [ ] `agent-team/adapters/codex.md`
+- [ ] `agent-team/adapters/cursor.md`
+- [ ] `agent-team/adapters/copilot.md`
+- [ ] `docs/auto-load.md`
 
 ---
 

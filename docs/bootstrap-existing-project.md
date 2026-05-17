@@ -4,7 +4,7 @@
 
 Use this guide to apply AgentCrew to an existing repository without copying AgentCrew into that repository.
 
-AgentCrew is Markdown-first. It should live outside the project and be loaded by the coding agent on demand.
+AgentCrew is Markdown-first. It should live outside the project and be registered once with supported coding agents.
 
 ---
 
@@ -14,19 +14,18 @@ Clone or place AgentCrew in a stable local path:
 
 ```bash
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
+~/AgentCrew/bin/agentcrew install
 ```
 
 Do not copy `AGENTS.md` or `agent-team/` into the target project unless you intentionally want a vendored snapshot.
 
 ---
 
-## Step 2 - Load AgentCrew from the target project
+## Step 2 - Ask for the outcome from the target project
 
-From the target project, tell the coding agent:
+From the target project, ask normally:
 
 ```text
-Load AgentCrew from ~/AgentCrew.
-
 Fix the login form so empty email shows a validation message.
 ```
 
@@ -41,7 +40,6 @@ Optional: create a tiny project-local adapter that points to `~/AgentCrew/AGENTS
 Use:
 
 ```text
-Load AgentCrew from ~/AgentCrew.
 Run the AgentCrew health check using ~/AgentCrew/agent-team/checklists/agentcrew-health-check.md.
 Report missing files, stale platform assumptions, and human-approval gaps.
 Do not edit application code.
@@ -58,8 +56,6 @@ Start with a small, reversible task.
 Example:
 
 ```text
-Load AgentCrew from ~/AgentCrew.
-
 Make one small docs-only change in this project.
 Let AgentCrew classify the task, choose the role and lane, validate the change, and stop before merge.
 Do not merge.
@@ -95,6 +91,7 @@ Bootstrap is complete when:
 
 - external `~/AgentCrew/AGENTS.md` exists
 - external `~/AgentCrew/agent-team/` exists
+- `~/AgentCrew/bin/agentcrew status` shows the expected registration
 - required roles, playbooks, templates, policies, and Skills registry exist
 - any optional project-local adapter points to external AgentCrew files
 - no required runtime, container platform, or custom service assumption remains

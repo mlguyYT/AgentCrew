@@ -4,7 +4,7 @@ AgentCrew is a Markdown-first workflow for coordinating AI coding agents like a 
 
 It gives agents roles, playbooks, skills, handoff formats, review rules, and human approval gates.
 
-AgentCrew lives outside your project repositories. You load it from Codex, Claude Code, Cursor, GitHub Copilot, or any coding agent that can read local files.
+AgentCrew lives outside your project repositories. Register it once where your agent supports global instructions, or use a tiny adapter that points to the external checkout.
 
 It is not a runtime, server, bot, or CI/CD platform by default.
 
@@ -28,17 +28,16 @@ Clone AgentCrew once outside your projects:
 
 ```bash
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
+~/AgentCrew/bin/agentcrew install
 ```
 
 From any project, ask for the outcome:
 
 ```text
-Load AgentCrew from ~/AgentCrew.
-
 Fix the login form so empty email shows a validation message.
 ```
 
-AgentCrew reads its own instructions, chooses the lane, role, and Skills, and stops where human approval is required.
+AgentCrew is registered globally for supported agents, reads its own instructions, chooses the lane, role, and Skills, and stops where human approval is required. Cursor, GitHub Copilot, and other tools can use the adapter snippets in `agent-team/adapters/` when they need a tool-specific instruction surface.
 
 No AgentCrew files need to be copied into the project.
 
@@ -62,6 +61,7 @@ Specialist reviewers are used only when needed: Security, UX / Design, Documenta
 
 ```text
 AGENTS.md              entry point for agents
+bin/                   one-time registration command
 agent-team/            roles, playbooks, skills, templates, policies
 docs/                  install, usage, examples, customization
 examples/              example prompts and workflows
@@ -72,6 +72,7 @@ runtime/               optional future orchestration notes
 ## Useful Docs
 
 - [Installation](docs/installation.md)
+- [Automatic Loading](docs/auto-load.md)
 - [Use in an Existing Project](docs/bootstrap-existing-project.md)
 - [Usage Guide](docs/usage.md)
 - [Examples](docs/examples.md)

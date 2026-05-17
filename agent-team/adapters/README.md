@@ -13,14 +13,33 @@ Adapter files should not duplicate the full workflow.
 
 They should only point the tool to the canonical files.
 
-## Supported adapter examples
+## Preferred model
+
+Install AgentCrew once outside target projects:
 
 ```text
-.codex/AGENTS.md
-.github/copilot-instructions.md
-.cursor/rules/agent-team.md
-.claude/CLAUDE.md
+~/AgentCrew/
 ```
+
+Then register a tiny global loader:
+
+```bash
+~/AgentCrew/bin/agentcrew install
+```
+
+After registration, users should be able to open any project and ask for the outcome without saying `Load AgentCrew`.
+
+## Supported adapters
+
+```text
+claude-code.md
+codex.md
+cursor.md
+copilot.md
+```
+
+The installer currently writes global loaders for Claude Code and Codex.
+Cursor and GitHub Copilot adapters provide loader text for their custom-instruction surfaces.
 
 ## Rule
 

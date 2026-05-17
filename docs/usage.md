@@ -13,16 +13,20 @@ Use natural language with your coding agent.
 Example:
 
 ```text
-Load AgentCrew from ~/AgentCrew.
-
 Fix the login form so empty email shows a validation message.
 ```
 
-AgentCrew should read its own instructions, classify the task, choose the lane, role, and Skills, and stop where human approval is required.
+After one-time registration, AgentCrew should be loaded automatically. It should read its own instructions, classify the task, choose the lane, role, and Skills, and stop where human approval is required.
 
 Add extra rules to your prompt only when you want to constrain or override the default workflow.
 
 Paths in the examples below are relative to the external AgentCrew checkout unless a project path is explicitly named.
+
+If automatic loading has not been registered yet, run:
+
+```bash
+~/AgentCrew/bin/agentcrew install
+```
 
 ---
 

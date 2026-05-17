@@ -57,7 +57,6 @@ No.
 You can ask a normal question or request an outcome:
 
 ```text
-Load AgentCrew from ~/AgentCrew.
 Fix the empty-email validation bug.
 ```
 
@@ -71,10 +70,21 @@ Explicit role prompts are still useful when you want manual control.
 
 Make the root `AGENTS.md` shorter and more explicit.
 
-Also repeat the routing instruction in your prompt:
+First check whether automatic loading is registered:
+
+```bash
+~/AgentCrew/bin/agentcrew status
+```
+
+If the tool still ignores AgentCrew, use the relevant adapter in:
 
 ```text
-Load AgentCrew from ~/AgentCrew.
+agent-team/adapters/
+```
+
+As a temporary fallback, repeat the routing instruction in your prompt:
+
+```text
 Classify this request, choose the right AgentCrew role and Skills, and follow the matching playbook.
 ```
 

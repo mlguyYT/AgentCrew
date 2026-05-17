@@ -4,6 +4,14 @@ This folder defines the reusable AgentCrew methodology.
 
 It is designed to be readable by humans and AI coding agents.
 
+AgentCrew should normally be installed once outside target projects and registered with supported coding agents:
+
+```bash
+~/AgentCrew/bin/agentcrew install
+```
+
+After registration, users should be able to ask for an outcome without saying `Load AgentCrew`.
+
 ---
 
 ## Roles
@@ -126,6 +134,13 @@ After placing AgentCrew outside a project, run:
 
 ```text
 ~/AgentCrew/agent-team/checklists/agentcrew-health-check.md
+```
+
+For tool-specific loading behavior, use:
+
+```text
+agent-team/adapters/
+docs/auto-load.md
 ```
 
 ---

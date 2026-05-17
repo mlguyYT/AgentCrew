@@ -1,6 +1,6 @@
 # Codex Instructions
 
-Use the repository-level agent team instructions.
+Use the repository-level AgentCrew instructions.
 
 Canonical files:
 
@@ -16,6 +16,8 @@ Before doing work:
 3. read the relevant playbook in `../agent-team/playbooks/`
 4. read `../agent-team/skills/registry.md` and load matching Skills
 5. use the relevant template in `../agent-team/templates/`
+
+Users do not need to name a role, lane, or Skill. Classify the request and route it automatically unless the user explicitly asks for manual control.
 
 Default workflow:
 

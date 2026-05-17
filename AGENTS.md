@@ -16,6 +16,8 @@ The canonical agent workflow lives in:
 agent-team/
 ```
 
+If this file is loaded from an external AgentCrew checkout, resolve relative AgentCrew paths from the checkout that contains this `AGENTS.md`, not from the target project. The target project remains the working repository for application code.
+
 Read these files before performing work:
 
 ```text
@@ -67,6 +69,14 @@ Use communication protocols from:
 
 ```text
 agent-team/protocols/
+```
+
+Use tool adapters and installer guidance from:
+
+```text
+bin/agentcrew
+agent-team/adapters/
+docs/auto-load.md
 ```
 
 ---

@@ -9,6 +9,10 @@ agent-team/
 
   adapters/
     README.md
+    claude-code.md
+    codex.md
+    cursor.md
+    copilot.md
 
   agents/
     advisor.md
@@ -116,6 +120,8 @@ AgentCrew repository structure:
 
 ```text
 AGENTS.md
+bin/
+  agentcrew
 agent-team/
 docs/
 examples/
@@ -164,16 +170,19 @@ See `agent-team/conventions/naming.md`.
 
 ## Tool-specific adapters
 
-Optional adapters can be added later:
+Tool-specific adapters live in:
 
 ```text
-.codex/AGENTS.md
-.github/copilot-instructions.md
-.cursor/rules/agent-team.md
-.claude/CLAUDE.md
+agent-team/adapters/
 ```
 
-These should reference the external AgentCrew paths instead of duplicating content:
+The preferred setup is the one-time installer:
+
+```bash
+~/AgentCrew/bin/agentcrew install
+```
+
+This writes small global loaders for supported tools. Project-local adapters are optional fallbacks and should reference the external AgentCrew paths instead of duplicating content:
 
 ```text
 ~/AgentCrew/AGENTS.md

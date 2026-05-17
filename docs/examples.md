@@ -1,10 +1,13 @@
 # Examples
 
-Before using any example, tell your coding agent:
+Before using these examples, install and register AgentCrew once:
 
-```text
-Load AgentCrew from ~/AgentCrew.
+```bash
+git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
+~/AgentCrew/bin/agentcrew install
 ```
+
+After that, open any project and use the prompts directly. You should not need to say `Load AgentCrew`.
 
 Paths in these examples are relative to the external AgentCrew checkout unless a project path is explicitly named.
 

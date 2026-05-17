@@ -1,6 +1,6 @@
 # GitHub Copilot Instructions
 
-This repository uses the Agent Team workflow.
+This repository uses the AgentCrew workflow.
 
 Canonical instructions:
 
@@ -10,6 +10,8 @@ agent-team/
 ```
 
 Use Fast Lane by default.
+
+Users do not need to name a role, lane, or Skill. Classify the request and route it automatically unless the user explicitly asks for manual control.
 
 For implementation tasks:
 

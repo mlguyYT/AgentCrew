@@ -1,4 +1,4 @@
-# Cursor Rule — Agent Team Workflow
+# Cursor Rule - AgentCrew Workflow
 
 Use the shared repository instructions:
 
@@ -12,6 +12,8 @@ Default mode:
 ```text
 Fast Lane
 ```
+
+Users do not need to name a role, lane, or Skill. Classify the request and route it automatically unless the user explicitly asks for manual control.
 
 When implementing:
 

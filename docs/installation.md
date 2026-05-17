@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This guide explains how to add the AgentCrew workflow to any software project.
+This guide explains how to install AgentCrew once and make it available to coding agents across projects.
 
 AgentCrew is Markdown-first and tool-agnostic.
 It is not a runtime, server, bot, or CI/CD platform by default.
@@ -21,11 +21,12 @@ Example:
 
 ```bash
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
+~/AgentCrew/bin/agentcrew install
 ```
 
 Do not copy `AGENTS.md` or `agent-team/` into each project by default.
 
-From the target project, ask your coding agent to load AgentCrew from the external path.
+From the target project, ask your coding agent for the outcome. You should not need to say `Load AgentCrew` after registration.
 
 For an existing repository, follow:
 
@@ -40,12 +41,16 @@ docs/bootstrap-existing-project.md
 From the target project, ask your coding agent:
 
 ```text
-Load AgentCrew from ~/AgentCrew.
-
 Fix the login form so empty email shows a validation message.
 ```
 
 AgentCrew should read its own instructions, classify the task, choose the lane, role, and Skills, and stop where human approval is required.
+
+For automatic-loading details, read:
+
+```text
+docs/auto-load.md
+```
 
 ---
 
@@ -79,6 +84,8 @@ After installation, AgentCrew should live outside the project it is guiding:
 ```text
 ~/AgentCrew/
   AGENTS.md
+  bin/
+    agentcrew
   docs/
   examples/
 
@@ -171,18 +178,23 @@ After installation, AgentCrew should live outside the project it is guiding:
 
 ---
 
-## Optional tool adapters
+## Automatic loading and optional tool adapters
 
-You may also add tool-specific adapter files:
+The preferred setup is:
 
-```text
-.codex/AGENTS.md
-.github/copilot-instructions.md
-.cursor/rules/agent-team.md
-.claude/CLAUDE.md
+```bash
+~/AgentCrew/bin/agentcrew install
 ```
 
-If you choose to add a tiny project-local adapter, it should point to the external AgentCrew path:
+This writes small global loaders for supported tools and keeps AgentCrew outside target repositories.
+
+Tool adapter guidance lives in:
+
+```text
+agent-team/adapters/
+```
+
+If you choose to add a tiny project-local adapter as a fallback, it should point to the external AgentCrew path:
 
 ```text
 ~/AgentCrew/AGENTS.md
@@ -193,9 +205,11 @@ Do not duplicate or vendor the whole system into every project.
 
 ---
 
-## Minimal Load
+## Minimal Load Fallback
 
-For a very small task, ask the agent to load only:
+Use this only when an agent does not honor global registration and you do not want to add a project-local adapter.
+
+For a very small task, ask the agent to read only:
 
 ```text
 ~/AgentCrew/AGENTS.md
@@ -229,9 +243,11 @@ Load specialist reviewer files and templates when the project touches security, 
 
 ---
 
-## Full Load
+## Full Load Fallback
 
-For product and planning support, load the full external AgentCrew folder.
+Use this only when an agent does not honor global registration.
+
+For product and planning support, ask the agent to read the full external AgentCrew folder.
 
 This supports:
 

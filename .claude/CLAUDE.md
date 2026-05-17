@@ -1,6 +1,6 @@
 # Claude Instructions
 
-This repository follows the Agent Team workflow.
+This repository follows the AgentCrew workflow.
 
 Read:
 
@@ -10,6 +10,8 @@ Read:
 ```
 
 Default to Fast Lane unless the task is risky.
+
+Users do not need to name a role, lane, or Skill. Classify the request and route it automatically unless the user explicitly asks for manual control.
 
 Use roles:
 
