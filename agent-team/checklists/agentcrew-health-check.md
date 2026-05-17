@@ -64,6 +64,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/adapters/README.md`
 - [ ] `agent-team/adapters/claude-code.md`
 - [ ] `agent-team/adapters/codex.md`
+- [ ] `agent-team/adapters/openclaw.md`
 - [ ] `agent-team/adapters/cursor.md`
 - [ ] `agent-team/adapters/copilot.md`
 - [ ] `docs/auto-load.md`

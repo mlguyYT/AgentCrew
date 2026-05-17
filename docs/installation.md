@@ -188,6 +188,8 @@ The preferred setup is:
 
 This writes small global loaders for supported tools and keeps AgentCrew outside target repositories.
 
+Supported automatic registrations currently include Claude Code, Codex, and OpenClaw. The default installer registers OpenClaw when OpenClaw is detected; use `--agent openclaw` to force OpenClaw registration explicitly.
+
 Tool adapter guidance lives in:
 
 ```text

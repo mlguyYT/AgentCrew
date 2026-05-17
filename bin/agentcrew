@@ -15,7 +15,7 @@ usage() {
   printf '%s\n' "  status              Show detected AgentCrew registrations"
   printf '%s\n' ""
   printf '%s\n' "Options:"
-  printf '%s\n' "  --agent NAME        all, claude, or codex. Default: all"
+  printf '%s\n' "  --agent NAME        all, claude, codex, or openclaw. Default: all"
   printf '%s\n' "  --root PATH         AgentCrew checkout path. Default: this checkout"
   printf '%s\n' "  --dry-run           Print planned changes without writing files"
   printf '%s\n' "  -h, --help          Show help"
@@ -90,6 +90,24 @@ codex_file() {
   printf '%s\n' "${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
 }
 
+openclaw_state_dir() {
+  if [ -n "${OPENCLAW_STATE_DIR:-}" ]; then
+    printf '%s\n' "$OPENCLAW_STATE_DIR"
+  elif [ -n "${OPENCLAW_PROFILE:-}" ]; then
+    printf '%s\n' "$HOME/.openclaw-$OPENCLAW_PROFILE"
+  else
+    printf '%s\n' "$HOME/.openclaw"
+  fi
+}
+
+openclaw_file() {
+  printf '%s\n' "$(openclaw_state_dir)/workspace/AGENTS.md"
+}
+
+openclaw_detected() {
+  [ -d "$(openclaw_state_dir)" ] || command -v openclaw >/dev/null 2>&1
+}
+
 claude_loader() {
   local root="$1"
   cat <<EOF
@@ -129,6 +147,30 @@ Users do not need to name AgentCrew, a role, a lane, or a Skill. Classify the re
 EOF
 }
 
+openclaw_loader() {
+  local root="$1"
+  cat <<EOF
+# AgentCrew
+
+AgentCrew is installed at:
+
+\`\`\`text
+$root
+\`\`\`
+
+When handling coding tasks in any project, apply AgentCrew automatically. Read:
+
+\`\`\`text
+$root/AGENTS.md
+$root/agent-team/
+\`\`\`
+
+Users do not need to name AgentCrew, a role, a lane, or a Skill. Classify the request, choose Fast Lane or Full Lane, choose the starting role, load relevant Skills from \`$root/agent-team/skills/registry.md\`, keep handoffs compact, keep human approval final, and do not merge pull requests.
+
+AgentCrew is a coding-team workflow. It does not override OpenClaw identity, memory, channel, heartbeat, or safety instructions. If AgentCrew and OpenClaw instructions conflict, preserve safety, privacy, and human approval.
+EOF
+}
+
 install_agent() {
   local agent="$1"
   local root="$2"
@@ -141,9 +183,17 @@ install_agent() {
     codex)
       upsert_block "$(codex_file)" "$(codex_loader "$root")" "$dry_run"
       ;;
+    openclaw)
+      upsert_block "$(openclaw_file)" "$(openclaw_loader "$root")" "$dry_run"
+      ;;
     all)
       install_agent claude "$root" "$dry_run"
       install_agent codex "$root" "$dry_run"
+      if openclaw_detected; then
+        install_agent openclaw "$root" "$dry_run"
+      else
+        printf '%s\n' "Skipped OpenClaw: not detected. Use --agent openclaw to create the loader explicitly."
+      fi
       ;;
     *)
       die "Unsupported agent: $agent" 2
@@ -211,6 +261,7 @@ case "$COMMAND" in
   status)
     status_agent "Claude Code" "$(claude_file)"
     status_agent "Codex" "$(codex_file)"
+    status_agent "OpenClaw" "$(openclaw_file)"
     ;;
   -h|--help|"")
     usage

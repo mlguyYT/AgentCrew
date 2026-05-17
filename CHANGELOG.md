@@ -34,3 +34,4 @@
 - Optional `list-sessions.sh` utility for listing checkpoints or showing the latest saved session
 - One-time `bin/agentcrew install` command for global AgentCrew registration with supported coding agents
 - Automatic-loading docs and adapters for Claude Code, Codex, Cursor, and GitHub Copilot
+- OpenClaw adapter and installer registration support

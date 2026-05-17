@@ -30,6 +30,8 @@ Register AgentCrew with supported agents:
 ~/AgentCrew/bin/agentcrew install
 ```
 
+This registers Claude Code and Codex, and registers OpenClaw when OpenClaw is detected on the machine.
+
 Check registration:
 
 ```bash
@@ -53,6 +55,7 @@ Supported automatic registrations:
 ```text
 Claude Code -> ~/.claude/CLAUDE.md
 Codex       -> ${CODEX_HOME:-~/.codex}/AGENTS.md
+OpenClaw    -> ${OPENCLAW_STATE_DIR:-~/.openclaw}/workspace/AGENTS.md
 ```
 
 The loader points the agent to:
@@ -106,6 +109,36 @@ ${CODEX_HOME:-~/.codex}/AGENTS.md
 ```
 
 Some Codex clients may vary in how they load global `AGENTS.md`. If automatic loading is not visible in a session, add a project-local adapter or explicitly ask Codex to read `~/AgentCrew/AGENTS.md`.
+
+### OpenClaw
+
+Use:
+
+```bash
+~/AgentCrew/bin/agentcrew install --agent openclaw
+```
+
+This updates:
+
+```text
+~/.openclaw/workspace/AGENTS.md
+```
+
+For custom OpenClaw state:
+
+```bash
+OPENCLAW_STATE_DIR=/path/to/openclaw-state ~/AgentCrew/bin/agentcrew install --agent openclaw
+```
+
+For named OpenClaw profiles:
+
+```bash
+OPENCLAW_PROFILE=work ~/AgentCrew/bin/agentcrew install --agent openclaw
+```
+
+OpenClaw should keep its own identity, memory, channel, heartbeat, gateway, and safety behavior. AgentCrew only supplies the coding-team workflow.
+
+The default `agentcrew install` command also registers OpenClaw when OpenClaw is detected. Use `--agent openclaw` when you want to create the loader explicitly.
 
 ### Cursor and GitHub Copilot
 

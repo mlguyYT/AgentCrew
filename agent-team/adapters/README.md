@@ -34,11 +34,13 @@ After registration, users should be able to open any project and ask for the out
 ```text
 claude-code.md
 codex.md
+openclaw.md
 cursor.md
 copilot.md
 ```
 
-The installer currently writes global loaders for Claude Code and Codex.
+The installer currently writes global loaders for Claude Code, Codex, and OpenClaw.
+The default `install` command registers OpenClaw when OpenClaw is detected; `--agent openclaw` forces OpenClaw registration explicitly.
 Cursor and GitHub Copilot adapters provide loader text for their custom-instruction surfaces.
 
 ## Rule

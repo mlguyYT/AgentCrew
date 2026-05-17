@@ -11,6 +11,7 @@ agent-team/
     README.md
     claude-code.md
     codex.md
+    openclaw.md
     cursor.md
     copilot.md
 
