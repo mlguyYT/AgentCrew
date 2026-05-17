@@ -31,7 +31,7 @@ git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ~/AgentCrew/bin/agentcrew install
 ```
 
-From any project, ask for the outcome:
+From any project, ask normally:
 
 ```text
 Fix the login form so empty email shows a validation message.

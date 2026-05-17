@@ -26,7 +26,7 @@ git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 
 Do not copy `AGENTS.md` or `agent-team/` into each project by default.
 
-From the target project, ask your coding agent for the outcome. You should not need to say `Load AgentCrew` after registration.
+From the target project, ask normally and enjoy development with your AgentCrew.
 
 For an existing repository, follow:
 

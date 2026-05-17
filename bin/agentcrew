@@ -256,7 +256,7 @@ case "$COMMAND" in
     install_agent "$AGENT" "$ROOT" "$DRY_RUN"
     printf '%s\n' ""
     printf '%s\n' "AgentCrew registration complete."
-    printf '%s\n' "Open any project and ask for the outcome. You should not need to say \"Load AgentCrew\"."
+    printf '%s\n' "Open any project and enjoy development with your AgentCrew."
     ;;
   status)
     status_agent "Claude Code" "$(claude_file)"

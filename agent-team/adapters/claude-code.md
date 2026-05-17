@@ -4,7 +4,7 @@
 
 Use this adapter to make Claude Code load AgentCrew automatically.
 
-After one-time installation, users should be able to open any project and ask for the outcome without saying `Load AgentCrew`.
+After one-time installation, users should be able to open any project and enjoy development with AgentCrew.
 
 ## Recommended install
 

@@ -7,7 +7,7 @@ git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ~/AgentCrew/bin/agentcrew install
 ```
 
-After that, open any project and use the prompts directly. You should not need to say `Load AgentCrew`.
+After that, open any project and enjoy development with your AgentCrew.
 
 Paths in these examples are relative to the external AgentCrew checkout unless a project path is explicitly named.
 

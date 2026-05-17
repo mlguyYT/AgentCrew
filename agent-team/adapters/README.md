@@ -27,7 +27,7 @@ Then register a tiny global loader:
 ~/AgentCrew/bin/agentcrew install
 ```
 
-After registration, users should be able to open any project and ask for the outcome without saying `Load AgentCrew`.
+After registration, users should be able to open any project and enjoy development with AgentCrew.
 
 ## Supported adapters
 
