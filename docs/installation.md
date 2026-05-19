@@ -217,6 +217,7 @@ For a very small task, ask the agent to read only:
 ~/AgentCrew/AGENTS.md
 ~/AgentCrew/agent-team/
   agents/
+    product-manager.md
     developer.md
     tester.md
     reviewer.md
@@ -227,6 +228,7 @@ For a very small task, ask the agent to read only:
     memory-saving.md
   templates/
     task.md
+    product-plan.md
     pr-description.md
     test-report.md
     review-report.md
@@ -238,7 +240,7 @@ For a very small task, ask the agent to read only:
 This supports:
 
 ```text
-Developer -> Tester -> Reviewer if needed -> Human
+Developer -> Tester -> Reviewer when risk is meaningful -> Product Manager when scope or product behavior changes -> Human
 ```
 
 Load specialist reviewer files and templates when the project touches security, UX, documentation, or Skill changes.

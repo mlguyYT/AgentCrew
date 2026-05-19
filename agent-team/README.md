@@ -59,7 +59,8 @@ Default:
 Task
   -> Developer
   -> Tester
-  -> Reviewer if needed
+  -> Reviewer when risk is meaningful
+  -> Product Manager when scope or product behavior changes
   -> Specialist reviewer if needed
   -> Human approval
 ```
@@ -93,10 +94,14 @@ Before acting, an agent should:
 2. read the relevant role file in `agent-team/agents/`
 3. read the relevant playbook in `agent-team/playbooks/`
 4. use `agent-team/playbooks/specialist-review-routing.md` when specialist review may apply
-5. use `agent-team/playbooks/lane-escalation.md` if risk changes
-6. read `agent-team/skills/registry.md` and load matching Skills
-7. use `agent-team/protocols/communication.md` for handoffs
-8. use the relevant output template in `agent-team/templates/`
+5. use `agent-team/playbooks/default-branch-merge.md` before default-branch merge readiness
+6. use `agent-team/playbooks/dependency-supply-chain.md` for dependency, runtime, container, CI, or build-system changes
+7. use `agent-team/playbooks/behavior-preserving-refactor.md` for refactors
+8. use `agent-team/playbooks/compatibility-rollout.md` for protocol, API, auth, config, or client/server compatibility changes
+9. use `agent-team/playbooks/lane-escalation.md` if risk changes
+10. read `agent-team/skills/registry.md` and load matching Skills
+11. use `agent-team/protocols/communication.md` for handoffs
+12. use the relevant output template in `agent-team/templates/`
 
 When saving handoff context, use:
 

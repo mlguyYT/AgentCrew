@@ -18,7 +18,8 @@ The goal is to move from task to pull request quickly without losing basic quali
 Task
   -> Developer
   -> Tester
-  -> Reviewer if needed
+  -> Reviewer when risk is meaningful
+  -> Product Manager when scope or product behavior changes
   -> Specialist reviewer if needed
   -> Human approval
 ```
@@ -88,7 +89,14 @@ Use Full Lane for those.
 
 Optional.
 
-Use PM only if the task is vague or needs acceptance criteria.
+Use PM if the task is vague, needs acceptance criteria, or changes product behavior.
+
+Use Product Manager when:
+
+- behavior changes visible to users or operators
+- compatibility tradeoffs appear
+- migration or rollout decisions appear
+- acceptance criteria are unclear
 
 ### Developer
 
@@ -112,6 +120,13 @@ Use Reviewer if:
 - Tester is unsure
 - human requests review
 - PR is larger than expected
+- public API or protocol behavior changes
+- security, auth, or authorization changes
+- production configuration changes
+- dependency, runtime, container, CI, or build-system changes
+- default-branch merge readiness is being evaluated
+- behavior-changing refactors are included
+- shared modules or broad surfaces change
 
 Use specialist reviewers only when their area is touched:
 - Security Reviewer for security-sensitive or data-risk changes
@@ -202,7 +217,23 @@ Reviewer should avoid nitpicks in Fast Lane.
 
 ---
 
-### Step 4b — Specialist review if needed
+### Step 4b — Product Owner / Product Manager check if needed
+
+Product Manager should check:
+
+```yaml
+product_checks:
+  - user or operator-visible behavior change
+  - compatibility tradeoff
+  - migration or rollout decision
+  - unclear acceptance criteria
+```
+
+Human remains responsible for final product direction and risk acceptance.
+
+---
+
+### Step 4c — Specialist review if needed
 
 Specialist reviewers should check only their area and keep findings actionable.
 
@@ -258,6 +289,10 @@ escalate_if:
   - task becomes larger than expected
   - security risk appears
   - database migration appears
+  - default-branch merge risk appears
+  - supply-chain risk appears
+  - compatibility rollout decision appears
+  - integration behavior spans external systems
   - unclear product decision appears
   - multiple systems are affected
   - tester cannot validate safely

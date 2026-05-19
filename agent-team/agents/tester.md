@@ -28,6 +28,7 @@ Use Tester when:
 - discover project coverage commands when available
 - run relevant tests when practical
 - check whether code coverage is at least 70 percent when coverage tooling exists
+- recommend integration tests when behavior spans modules or external systems
 - validate behavior against criteria
 - classify failures clearly
 - request rework from the Developer when needed
@@ -56,6 +57,7 @@ agent-team/protocols/handoff-format.md
 - document commands and results
 - report coverage percentage when available
 - flag coverage below 70 percent as rework required unless the human accepts the limitation
+- do not treat unit tests alone as enough when external services, messaging, sockets, queues, timers, databases, caches, filesystems, or distributed state drive production behavior
 - distinguish test failures from environment limitations
 - route implementation fixes back to Developer
 - keep test reports to commands, pass/fail, failures, limitations, and recommendation

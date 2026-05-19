@@ -24,6 +24,11 @@ Pass / Fail / Partial
 - whether coverage is at least 70 percent
 - if not measured, why coverage tooling was unavailable
 
+## Integration-Test Assessment
+- needed / not needed / gap documented
+- reason: external services, messaging, sockets, queues, timers, databases, caches, filesystems, distributed state, or cross-module behavior
+- integration command and result if run
+
 ## Risks
 Any potential regression risk.
 

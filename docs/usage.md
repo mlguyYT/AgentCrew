@@ -38,7 +38,7 @@ AgentCrew should infer them from the request:
 
 ```text
 "Fix the login validation bug"
-  -> Developer -> Tester -> Human
+  -> Developer -> Tester -> Human, with Reviewer/PM if risk or behavior scope requires it
 
 "Plan a project creation feature"
   -> Product Manager -> Developer -> Tester -> Reviewer -> Human
@@ -149,7 +149,8 @@ For most small work:
 Task
   -> Developer
   -> Tester
-  -> Reviewer only if needed
+  -> Reviewer when risk is meaningful
+  -> Product Manager when scope or product behavior changes
   -> Human approval
 ```
 

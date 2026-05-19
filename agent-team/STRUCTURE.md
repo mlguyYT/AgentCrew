@@ -35,6 +35,10 @@ agent-team/
     task-classification.md
     lane-escalation.md
     specialist-review-routing.md
+    default-branch-merge.md
+    dependency-supply-chain.md
+    behavior-preserving-refactor.md
+    compatibility-rollout.md
     skill-loading.md
     skill-validation.md
     memory-saving.md
@@ -115,6 +119,8 @@ agent-team/
     security.md
     memory-saving.md
     skill-validation.md
+    shared-memory-refresh.md
+    integration-test-escalation.md
 ```
 
 AgentCrew repository structure:

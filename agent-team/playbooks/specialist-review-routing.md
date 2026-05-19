@@ -23,6 +23,10 @@ security_reviewer:
     - sensitive data
     - payments or billing
     - dependency changes
+    - lockfile changes
+    - runtime changes
+    - container changes
+    - CI or build-system changes
     - infrastructure permissions
     - public API exposure
     - input handling with injection risk

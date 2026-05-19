@@ -14,6 +14,7 @@ This checklist helps Tester Agents validate changes consistently.
 - [ ] Identify relevant test commands
 - [ ] Identify coverage command if the project has coverage tooling
 - [ ] Identify risk level
+- [ ] Decide whether integration tests are needed using `agent-team/checklists/integration-test-escalation.md`
 
 ---
 
@@ -42,6 +43,7 @@ Coverage commands may appear in the same files or in CI configuration.
 - [ ] Run focused tests first
 - [ ] Run broader tests if risk requires it
 - [ ] Run coverage command when available
+- [ ] Run integration tests when behavior spans modules or external systems
 - [ ] Confirm coverage is at least 70 percent when coverage tooling exists
 - [ ] Capture command output
 - [ ] Report pass/fail honestly

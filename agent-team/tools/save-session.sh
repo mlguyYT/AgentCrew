@@ -156,7 +156,7 @@ write_list() {
   printf 'timestamp: %s\n' "$ISO_TIMESTAMP"
   printf 'project: %s\n' "$PROJECT_NAME"
   printf 'project_id: %s\n' "$PROJECT_ID"
-  printf 'project_root: %s\n' "$PROJECT_ROOT"
+  printf '%s\n' 'project_root: omitted-team-neutral'
   printf 'git_repo: %s\n' "$is_git_repo"
   if [ -n "$BRANCH" ]; then
     printf 'branch: %s\n' "$BRANCH"
@@ -186,8 +186,16 @@ write_list() {
   printf '### Staged Diff Stat\n\n```text\n%s\n```\n\n' "${STAGED_DIFF_STAT:-none}"
   printf '### Recent Log\n\n```text\n%s\n```\n\n' "${RECENT_LOG:-unavailable}"
   printf '## Safety\n\n'
-  printf '%s\n' 'This checkpoint intentionally avoids full diffs, raw logs, secrets, tokens, raw customer data, and sensitive production data.'
+  printf '%s\n' 'This checkpoint intentionally avoids full diffs, raw logs, secrets, tokens, raw customer data, sensitive production data, personal identifiers, sensitive local paths, and workstation-specific auth commands.'
 } > "$FILE"
+
+SENSITIVE_PATTERN='[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}|/home/[^[:space:]]+|/Users/[^[:space:]]+|[A-Za-z]:\\Users\\|\.ssh/|id_rsa|id_ed25519|deploy[-_ ]?key'
+if grep -Eiq "$SENSITIVE_PATTERN" "$FILE"; then
+  rm -f "$FILE"
+  printf '%s\n' 'Refusing to save session: generated checkpoint contains personal identifiers, private key paths, deploy-key paths, local machine paths, or workstation-specific auth details.' >&2
+  printf '%s\n' 'Remove that content or keep it in private local notes, then rerun save-session.sh.' >&2
+  exit 1
+fi
 
 printf '%s\n' "AGENTCREW SESSION SAVED"
 printf '%s\n' "File: $FILE"

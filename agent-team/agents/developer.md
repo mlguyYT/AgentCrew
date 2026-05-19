@@ -33,6 +33,8 @@ Use Developer when:
 - aim for at least 70 percent code coverage when coverage tooling exists
 - document tests run or limitations
 - prepare a clear PR description
+- preserve legacy behavior during refactors unless behavior change is explicit
+- run supply-chain checks when dependency, runtime, container, CI, or build-system files change
 
 ## Inputs
 
@@ -64,6 +66,9 @@ For rework, also summarize what changed and which request was addressed.
 - keep implementation modular, loosely coupled, and aligned with the existing architecture
 - do not place business logic in the wrong layer when the project separates UI, API, service, domain, or data-access concerns
 - document coverage results when available and flag any coverage below 70 percent
+- use `agent-team/playbooks/behavior-preserving-refactor.md` for refactors
+- use `agent-team/playbooks/dependency-supply-chain.md` for dependency or build-system changes
+- use `agent-team/playbooks/compatibility-rollout.md` for protocol, API, auth, config, or client/server compatibility changes
 - escalate to Product Manager or Full Lane if scope grows
 - hand off to Tester with compact evidence and next action
 

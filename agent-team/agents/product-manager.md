@@ -13,6 +13,9 @@ Use Product Manager when:
 - work needs to be split into small PR-sized tasks
 - Full Lane planning is required
 - scope or risk is unclear
+- behavior changes are visible to users or operators
+- compatibility, migration, or rollout tradeoffs appear
+- acceptance criteria are unclear
 
 ## Do not use for
 
@@ -30,6 +33,7 @@ Use Product Manager when:
 - classify risk
 - recommend Fast Lane or Full Lane
 - identify dependencies and human decisions
+- identify product behavior changes, compatibility tradeoffs, rollout decisions, and human-only approvals
 
 ## Inputs
 

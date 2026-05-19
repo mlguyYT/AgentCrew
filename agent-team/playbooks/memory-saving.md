@@ -61,6 +61,9 @@ If memory is local, private, or tool-specific, use the tool's memory store or a 
 
 Do not store project memory inside `agent-team/`; that folder is the reusable workflow package.
 
+Shared or committed memory must be team-neutral.
+It should contain project knowledge, not personal workstation details.
+
 ---
 
 ## What to save
@@ -99,6 +102,12 @@ forbidden:
   - tokens
   - passwords
   - private keys
+  - private key paths
+  - deploy-key paths
+  - personal Git identity
+  - personal email addresses
+  - local machine paths
+  - workstation-specific auth commands
   - raw customer data
   - sensitive production data
   - large logs
@@ -126,6 +135,7 @@ good_memory:
   - tied to a task or decision
   - clear about unknowns
   - useful to a future agent
+  - team-neutral if committed or shared
 ```
 
 Bad memory is:
@@ -146,10 +156,18 @@ bad_memory:
 
 ```text
 Identify durable context
+  -> refresh against current branch, HEAD, validation, risks, and next steps
   -> remove secrets and noise
+  -> remove personal/local setup details
   -> write memory summary
   -> mark open questions
   -> tell the human where it was saved
+```
+
+Before committing or updating shared memory, use:
+
+```text
+agent-team/checklists/shared-memory-refresh.md
 ```
 
 ---
@@ -191,7 +209,7 @@ If the command is run from a subdirectory inside a git repository, it automatica
 This keeps each project's checkpoints isolated even when AgentCrew is loaded from the same external `~/AgentCrew` checkout.
 
 The utility captures short git state only: branch, head, status, diff stat, staged diff stat, and recent log.
-It does not save full diffs, secrets, raw customer data, sensitive production data, or long logs.
+It avoids saving absolute project paths, full diffs, secrets, raw customer data, sensitive production data, personal identifiers, private key paths, local auth commands, or long logs.
 
 ---
 

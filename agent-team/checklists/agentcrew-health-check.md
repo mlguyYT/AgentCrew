@@ -43,6 +43,10 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/task-classification.md`
 - [ ] `agent-team/playbooks/lane-escalation.md`
 - [ ] `agent-team/playbooks/specialist-review-routing.md`
+- [ ] `agent-team/playbooks/default-branch-merge.md`
+- [ ] `agent-team/playbooks/dependency-supply-chain.md`
+- [ ] `agent-team/playbooks/behavior-preserving-refactor.md`
+- [ ] `agent-team/playbooks/compatibility-rollout.md`
 - [ ] `agent-team/playbooks/skill-loading.md`
 - [ ] `agent-team/playbooks/skill-validation.md`
 - [ ] `agent-team/playbooks/memory-saving.md`
@@ -56,6 +60,8 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/protocols/token-discipline.md`
 - [ ] `agent-team/protocols/state-artifacts.md`
 - [ ] `agent-team/conventions/naming.md`
+- [ ] `agent-team/checklists/shared-memory-refresh.md`
+- [ ] `agent-team/checklists/integration-test-escalation.md`
 
 ---
 
@@ -94,6 +100,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] Agents may not commit secrets
 - [ ] Agents may not hide test failures
 - [ ] Security or data-risk tradeoffs require human decision
+- [ ] Data-loss, migration, public-behavior, insecure legacy compatibility, and shared-history rewrite decisions require human decision
 
 ---
 

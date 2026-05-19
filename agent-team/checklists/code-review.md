@@ -21,6 +21,8 @@ This checklist helps Reviewer Agents and humans review PRs consistently.
 - [ ] Is the PR focused?
 - [ ] Are unrelated changes avoided?
 - [ ] Are refactors separated from feature changes?
+- [ ] Is preserved legacy behavior distinguished from intentional behavior change?
+- [ ] Are discovered legacy bugs documented as follow-up instead of silently corrected?
 - [ ] Is the PR small enough to review?
 
 ---
@@ -48,6 +50,7 @@ This checklist helps Reviewer Agents and humans review PRs consistently.
 - [ ] Are test results documented?
 - [ ] Are important negative cases covered?
 - [ ] Are flaky or skipped tests explained?
+- [ ] Were integration tests considered when behavior spans modules or external systems?
 
 ---
 
@@ -58,6 +61,7 @@ This checklist helps Reviewer Agents and humans review PRs consistently.
 - [ ] Permissions are not broadened unnecessarily
 - [ ] Sensitive data is not logged
 - [ ] Auth behavior is not weakened
+- [ ] Dependency, lockfile, runtime, container, CI, or build-system changes passed the supply-chain gate
 
 ---
 
@@ -67,6 +71,21 @@ This checklist helps Reviewer Agents and humans review PRs consistently.
 - [ ] Migrations are safe if present
 - [ ] Rollback risk is understood
 - [ ] CI/CD impact is clear
+- [ ] Compatibility rollout is documented for API, protocol, auth, config, or client/server changes
+- [ ] Default-branch merge readiness is documented if preparing merge
+
+---
+
+## Output Discipline
+
+Separate review output into:
+
+- blocking issues
+- non-blocking risks
+- preserved legacy issues
+- test gaps
+- product or rollout decisions
+- next implementation phase
 
 ---
 

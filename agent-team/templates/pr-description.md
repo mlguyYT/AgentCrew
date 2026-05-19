@@ -19,6 +19,11 @@ Reference task ID or description.
 - Business logic placed in the correct layer?
 - Scalability or coupling concerns?
 
+## Refactor Behavior
+- preserved legacy behavior:
+- intentional behavior changes:
+- discovered legacy issues left for follow-up:
+
 ## Tests
 Commands run:
 ```
@@ -30,6 +35,22 @@ Results:
 
 Coverage:
 - percentage if available, or limitation if not measured
+
+Integration tests:
+- needed / not needed / gap documented
+
+## Supply-Chain / Runtime Gate
+Required if dependencies, lockfiles, package manager, runtime, container, CI, or build-system files changed.
+- audit command and result:
+- remaining issues:
+- overrides or resolutions:
+
+## Compatibility / Rollout
+Required if protocol, API, auth, config, migration, or client/server compatibility changed.
+- secure default:
+- legacy compatibility flag:
+- rollout note:
+- removal plan:
 
 ## Risk
 Low / Medium / High

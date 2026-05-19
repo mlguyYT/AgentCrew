@@ -35,8 +35,24 @@ Agents can recommend, but human approval is required.
 - [ ] tests are documented
 - [ ] reviewer concerns are resolved or accepted
 - [ ] risk is acceptable
+- [ ] security, data-loss, migration, compatibility, and public-behavior tradeoffs are explicit
+- [ ] default-branch merge readiness is documented when applicable
 - [ ] no secrets are present
 - [ ] you are comfortable merging
+
+---
+
+## Human-Only Decisions
+
+Only the human may approve:
+
+- merging to the default branch
+- accepting security risk
+- accepting data-loss or migration risk
+- changing public behavior
+- enabling legacy insecure compatibility
+- force-pushing or rewriting shared history
+- overriding quality gates
 
 ---
 

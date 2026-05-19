@@ -39,10 +39,14 @@ Agents must not:
 - bypass required checks
 - dismiss required reviews
 - force-push protected branches
+- rewrite shared history
 - change branch protection
+- push a default-branch merge without human approval
 
 ---
 
 ## Exception
 
 Any exception must be explicit, repository-specific, and approved by the human maintainers.
+
+Before default-branch merge readiness, use `agent-team/playbooks/default-branch-merge.md`.

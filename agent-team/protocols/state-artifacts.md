@@ -148,6 +148,12 @@ State artifacts must not include:
 - tokens
 - passwords
 - private keys
+- private key paths
+- deploy-key paths
+- personal Git identity
+- personal email addresses
+- local machine paths
+- workstation-specific auth commands
 - raw customer data
 - sensitive production data
 - long logs
@@ -162,3 +168,20 @@ If a secret is discovered, follow `agent-team/policies/secrets-policy.md`.
 `.agent-state/` is usually gitignored.
 
 If a project intentionally commits state artifacts, keep them short, factual, dated, and free of sensitive data.
+Committed state must be team-neutral.
+
+Before committing or updating shared state, refresh:
+
+- current default branch
+- current HEAD
+- current validation baseline
+- current open risks
+- current next steps
+
+Remove stale phase notes, personal/local setup, secrets, and private paths.
+
+Use:
+
+```text
+agent-team/checklists/shared-memory-refresh.md
+```

@@ -23,6 +23,10 @@ escalate_to_full_lane_if:
   - production infrastructure changes
   - CI/CD or deployment logic changes
   - public API behavior changes
+  - protocol or compatibility behavior changes
+  - dependency, lockfile, runtime, container, CI, or build-system risk appears
+  - default-branch merge risk appears
+  - integration behavior spans external services, messaging, sockets, queues, timers, databases, caches, filesystems, or distributed state
   - rollback becomes difficult
   - task becomes vague or product-heavy
   - PR becomes too large

@@ -31,7 +31,7 @@ Keep the PR small.
 ### Expected flow
 
 ```text
-Developer -> Tester -> Human
+Developer -> Tester -> Reviewer/PM when needed -> Human
 ```
 
 ---
@@ -49,7 +49,7 @@ Plan the work, split it into small implementation tasks, and choose the right la
 ### Expected routing and output
 
 ```text
-Product Manager -> Developer -> Tester -> Reviewer if needed -> Human
+Product Manager -> Developer -> Tester -> Reviewer/PM when needed -> Human
 ```
 
 ```yaml

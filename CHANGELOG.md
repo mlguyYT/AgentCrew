@@ -35,3 +35,7 @@
 - One-time `bin/agentcrew install` command for global AgentCrew registration with supported coding agents
 - Automatic-loading docs and adapters for Claude Code, Codex, Cursor, and GitHub Copilot
 - OpenClaw adapter and installer registration support
+- Team-neutral shared state rules with session-save personal identifier and private path checks
+- Conditional Fast Lane Reviewer and Product Manager routing triggers
+- Default-branch merge, dependency supply-chain, behavior-preserving refactor, compatibility rollout, shared-memory refresh, and integration-test escalation guidance
+- Review report output discipline for blocking issues, risks, preserved legacy issues, test gaps, product decisions, and next phase

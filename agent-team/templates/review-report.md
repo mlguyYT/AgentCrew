@@ -6,7 +6,8 @@ Reference
 ## Summary
 Ready / Changes Required
 
-## Findings
+## Blocking Issues
+Issues that must be fixed before human approval.
 
 ### Critical
 - issue
@@ -14,11 +15,26 @@ Ready / Changes Required
 ### High
 - issue
 
+## Non-Blocking Risks
+Risks that can be accepted by the human or tracked as follow-up.
+
 ### Medium
 - issue
 
 ### Low
 - issue
+
+## Preserved Legacy Issues
+Questionable existing behavior intentionally left unchanged.
+
+## Test Gaps
+Missing or limited validation.
+
+## Product / Rollout Decisions
+Human decisions needed for behavior, compatibility, rollout, migration, or risk acceptance.
+
+## Next Implementation Phase
+Recommended next focused task or rework phase.
 
 ## Scope Check
 Is the PR focused?
@@ -33,8 +49,8 @@ Is the PR focused?
 - coverage percentage if available
 - below 70 percent? yes / no / not measured
 
-## Security Notes
-Any concerns?
+## Security And Supply-Chain Notes
+Any security, dependency, runtime, container, CI, or build-system concerns?
 
 ## Recommendation
 Approve for human review / Request changes

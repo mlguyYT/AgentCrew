@@ -29,6 +29,10 @@ agent-team/playbooks/rework-loop.md
 agent-team/playbooks/task-classification.md
 agent-team/playbooks/lane-escalation.md
 agent-team/playbooks/specialist-review-routing.md
+agent-team/playbooks/default-branch-merge.md
+agent-team/playbooks/dependency-supply-chain.md
+agent-team/playbooks/behavior-preserving-refactor.md
+agent-team/playbooks/compatibility-rollout.md
 agent-team/playbooks/skill-loading.md
 agent-team/playbooks/skill-validation.md
 agent-team/playbooks/memory-saving.md
@@ -95,7 +99,8 @@ Fast Lane means:
 Task
   -> Developer
   -> Tester
-  -> Reviewer only if needed
+  -> Reviewer when risk is meaningful
+  -> Product Manager when scope or product behavior changes
   -> Specialist reviewer only if needed
   -> Human approval
 ```
@@ -123,7 +128,7 @@ request_routing:
 Examples:
 
 ```text
-"Fix this login validation bug" -> Developer -> Tester -> Human
+"Fix this login validation bug" -> Developer -> Tester -> Human, with Reviewer/PM if risk or behavior scope requires it
 "Plan this new dashboard feature" -> Product Manager -> Developer -> Tester -> Reviewer -> Human
 "Change token validation" -> Advisor/Product Manager -> Developer -> Tester -> Reviewer -> Security Reviewer -> Human
 ```
@@ -158,6 +163,10 @@ human_only:
   - approve pull requests
   - merge pull requests
   - accept security or data-risk tradeoffs
+  - accept data-loss or migration risk
+  - change public behavior
+  - enable legacy insecure compatibility
+  - force-push or rewrite shared history
   - override quality gates
 ```
 
@@ -258,7 +267,7 @@ If the optional utility is available, save a local session checkpoint with:
 ~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
 ```
 
-Memory must not include secrets, raw customer data, sensitive production data, or large logs.
+Memory must not include secrets, raw customer data, sensitive production data, large logs, personal Git identity, personal email, private key paths, deploy-key paths, local machine paths, or workstation-specific auth commands.
 
 Do not store project memory inside `agent-team/`; that folder is the reusable workflow package.
 
@@ -314,6 +323,8 @@ Preferred shared project artifacts:
 ```
 
 Do not store secrets, raw customer data, sensitive production data, or long logs in shared artifacts.
+Do not store personal Git identity, personal email, private key paths, deploy-key paths, local machine paths, or workstation-specific auth commands in committed shared state.
+Before committing or updating shared state, use `agent-team/checklists/shared-memory-refresh.md`.
 
 ---
 
@@ -329,6 +340,8 @@ pr_rules:
   - tested or clearly marked as not tested
   - modular and aligned with clean architecture for scalable maintenance
   - code coverage is at least 70 percent when coverage tooling exists
+  - dependency and supply-chain gate runs when package, lock, runtime, container, CI, or build files change
+  - default-branch merge readiness follows agent-team/playbooks/default-branch-merge.md
   - reviewed before human approval
 ```
 
@@ -356,8 +369,13 @@ done:
   - task objective is satisfied
   - acceptance criteria are addressed
   - implementation remains modular and consistent with project architecture
+  - refactors preserve legacy behavior unless behavior change is explicit
   - relevant tests are run or limitations documented
+  - integration-test need is evaluated when behavior spans modules or external systems
   - test coverage is at least 70 percent when coverage tooling exists, or the gap is documented for human decision
+  - dependency and supply-chain gate passes when dependency, runtime, container, CI, or build-system files change
+  - compatibility rollout is documented when protocol, API, auth, config, or client/server behavior changes
+  - committed shared state is team-neutral
   - PR description is clear
   - reviewer concerns are resolved or documented
   - human approves final merge

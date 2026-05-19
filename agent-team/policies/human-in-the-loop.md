@@ -14,8 +14,13 @@ Only humans may:
 - approve backlog for larger work
 - approve final PR
 - merge PR
+- merge to the default branch
 - accept high security risk
 - accept destructive data risk
+- accept data-loss or migration risk
+- change public behavior
+- enable legacy insecure compatibility
+- force-push or rewrite shared history
 - override quality gates
 
 ---

@@ -9,6 +9,13 @@ Task, feature, bug, or decision area.
 ## Status
 Current state of the work.
 
+## Current Reality
+- default branch:
+- current HEAD:
+- validation baseline:
+- open risks:
+- next steps:
+
 ## Decisions
 - decision 1
 - decision 2
@@ -33,7 +40,7 @@ Commands run and results, or why validation was not run.
 - next step 2
 
 ## Notes
-Short factual context only. Do not include secrets, raw customer data, or large logs.
+Short factual context only. Do not include secrets, personal Git identity, personal email, private key paths, deploy-key paths, local machine paths, workstation-specific auth commands, raw customer data, or large logs.
 
 ## Handoff
 

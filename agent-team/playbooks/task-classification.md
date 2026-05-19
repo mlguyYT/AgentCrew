@@ -50,7 +50,7 @@ low_risk_examples:
 Recommended flow:
 
 ```text
-Developer -> Tester -> Human
+Developer -> Tester -> Reviewer if risk is meaningful -> Product Manager if product behavior changes -> Human
 ```
 
 ---
@@ -68,6 +68,8 @@ medium_risk_examples:
   - non-critical database read change
   - moderate refactor
   - user-facing UI behavior
+  - dependency or runtime update with limited blast radius
+  - shared-module change with clear tests
 ```
 
 Recommended flow:
@@ -95,6 +97,10 @@ high_risk_examples:
   - CI/CD
   - deployment
   - public API change
+  - protocol compatibility change
+  - production configuration change
+  - default-branch merge of a large feature or refactor
+  - dependency, lockfile, runtime, container, CI, or build-system change with security or rollout risk
 ```
 
 Recommended flow:
@@ -147,6 +153,11 @@ questions:
   - Is the PR likely to be large?
   - Would a bug be expensive?
   - Does this need security, UX/design, or documentation specialist review?
+  - Does this change dependencies, runtime, containers, CI, or build systems?
+  - Does this require default-branch merge readiness checks?
+  - Does this refactor behavior that must be preserved?
+  - Does this require compatibility rollout?
+  - Do integration tests become necessary because behavior spans components or external systems?
 ```
 
 If any answer is yes, consider Full Lane.
@@ -165,6 +176,7 @@ route_request:
   scoped_implementation: Developer
   validation_or_regression_check: Tester
   review_or_quality_check: Reviewer
+  product_behavior_or_scope_change: Product Manager
   security_sensitive_change: Security Reviewer after normal review
   user_facing_flow_or_design: UX / Design Reviewer after normal review
   docs_or_examples_change: Documentation Agent when useful
@@ -174,7 +186,7 @@ route_request:
 Then run the selected lane:
 
 ```text
-Fast Lane: Developer -> Tester -> Reviewer if needed -> Human
+Fast Lane: Developer -> Tester -> Reviewer when risk is meaningful -> Product Manager when scope or product behavior changes -> Human
 Full Lane: Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human
 ```
 

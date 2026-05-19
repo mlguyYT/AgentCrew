@@ -64,7 +64,7 @@ Do not merge.
 This verifies that the project can move through:
 
 ```text
-Developer -> Tester -> Human approval
+Developer -> Tester -> Reviewer/PM when needed -> Human approval
 ```
 
 ---

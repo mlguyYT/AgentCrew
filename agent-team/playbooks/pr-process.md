@@ -41,10 +41,12 @@ For low-risk Fast Lane work:
 Developer
   -> Pull Request
   -> Tester
+  -> Reviewer when risk is meaningful
+  -> Product Manager when scope or product behavior changes
   -> Human approval
 ```
 
-Reviewer is optional for low-risk work.
+Reviewer is optional only for genuinely low-risk work.
 
 ---
 
@@ -153,6 +155,8 @@ developer_responsibilities:
   - preserve modular clean architecture
   - update tests when needed
   - keep coverage at or above 70 percent when coverage tooling exists
+  - preserve legacy behavior during refactors unless the task explicitly includes behavior change
+  - run dependency and supply-chain checks when dependency, lockfile, runtime, container, CI, or build-system files change
   - prepare PR description
   - document tests run
   - mention limitations
@@ -181,6 +185,7 @@ tester_responsibilities:
   - run relevant tests
   - run coverage checks when available
   - flag coverage below 70 percent
+  - recommend integration tests when behavior spans modules or external systems
   - document results
   - request rework if behavior fails
 ```
@@ -203,6 +208,7 @@ reviewer_responsibilities:
   - check security concerns
   - check test adequacy
   - check coverage is at least 70 percent when tooling exists
+  - separate blocking issues, non-blocking risks, preserved legacy issues, test gaps, product or rollout decisions, and next implementation phase
 ```
 
 Reviewer may mark ready for human review.
@@ -256,7 +262,34 @@ human_responsibilities:
   - request changes
   - merge
   - reject or close PR
+  - accept security, data-loss, migration, compatibility, or public-behavior risk
+  - approve force-push or shared-history rewrite
 ```
+
+---
+
+## Default-Branch Merge Readiness
+
+Before any default-branch merge, use:
+
+```text
+agent-team/playbooks/default-branch-merge.md
+```
+
+Do not assume the default branch name.
+Detect it from remote metadata or ask the human.
+
+---
+
+## Dependency And Supply-Chain Gate
+
+When package, lockfile, package manager, runtime, container, CI, or build-system files change, use:
+
+```text
+agent-team/playbooks/dependency-supply-chain.md
+```
+
+Avoid forced or breaking audit fixes unless the human explicitly approves.
 
 ---
 
@@ -316,7 +349,10 @@ ready_for_human:
   - coverage is at least 70 percent when coverage tooling exists, or exception is documented
   - tester passed or provided acceptable report
   - reviewer passed if required
+  - Product Manager checked scope or behavior change if required
   - specialist reviewer passed if required
+  - supply-chain gate passed if dependency, runtime, container, CI, or build-system files changed
+  - default-branch merge readiness documented if preparing merge
   - no critical unresolved comments
   - PR description is clear
 ```

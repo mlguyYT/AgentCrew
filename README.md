@@ -46,7 +46,7 @@ No AgentCrew files need to be copied into the project.
 Fast Lane is for small, reversible work:
 
 ```text
-Developer -> Tester -> Human
+Developer -> Tester -> Reviewer/PM when needed -> Human
 ```
 
 Full Lane is for risky or ambiguous work:
@@ -90,6 +90,7 @@ Agents must not:
 - commit secrets
 - hide failing tests
 - make unrelated changes
+- store personal/local setup in shared project state
 
 Human approval stays final.
 
