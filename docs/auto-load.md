@@ -181,8 +181,9 @@ A successful setup means:
 
 If a tool does not appear to load AgentCrew, ask it which instruction files were loaded at session start, then use the relevant adapter file.
 
-To inspect the project stack that AgentCrew should route against, run:
+To inspect the project stack and preview routing, run:
 
 ```bash
 ~/AgentCrew/bin/agentcrew detect-project --project .
+~/AgentCrew/bin/agentcrew classify --project . --task "Fix the login validation bug"
 ```

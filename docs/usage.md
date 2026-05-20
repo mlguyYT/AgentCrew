@@ -56,6 +56,18 @@ The profile lists likely languages, frameworks, package managers, validation com
 
 ---
 
+## Task classification
+
+Use the classifier when you want to preview how AgentCrew would route a request:
+
+```bash
+~/AgentCrew/bin/agentcrew classify "Add OAuth login"
+```
+
+The classifier prints the likely lane, starting role, reviewers, specialists, Skill hints, gates, and files to load. It is a routing aid; agents still inspect the project before acting.
+
+---
+
 ## Automatic routing
 
 You do not need to choose the role, lane, or Skill.

@@ -44,3 +44,4 @@
 - `agentcrew doctor` setup-health command and documentation for validating files, loaders, tools, and project context
 - `agentcrew detect-project` read-only project profiling for stack, package managers, validation commands, coverage hints, and suggested Skills
 - Request Routing playbook and compact routing template for automatic role, lane, Skill, and gate selection
+- `agentcrew classify` task classifier for previewing lane, starting role, reviewers, specialists, Skill hints, gates, and files to load

@@ -126,6 +126,7 @@ agent-team/templates/memory-summary.md
 The optional local checkpoint utility is:
 
 ```text
+~/AgentCrew/agent-team/tools/classify-task.sh
 ~/AgentCrew/agent-team/tools/detect-project.sh
 ~/AgentCrew/agent-team/tools/save-session.sh
 ~/AgentCrew/agent-team/tools/list-sessions.sh

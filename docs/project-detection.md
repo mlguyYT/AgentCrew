@@ -81,3 +81,13 @@ Do not treat missing detection as proof that a technology is absent. Small proje
 ```
 
 For a request like `Fix the dashboard filter bug`, AgentCrew can start with the Developer role, load TypeScript/React guidance, then run the detected validation commands when relevant.
+
+---
+
+## Pair With Classification
+
+After detecting the project profile, classify a request against that project:
+
+```bash
+~/AgentCrew/bin/agentcrew classify --project /path/to/project --task "Add OAuth login"
+```

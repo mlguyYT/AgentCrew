@@ -29,10 +29,11 @@ Do not copy `AGENTS.md` or `agent-team/` into each project by default.
 
 From the target project, ask normally and enjoy development with your AgentCrew.
 
-Optional: inspect a target project profile without changing it:
+Optional: inspect a target project profile and classify a request without changing the project:
 
 ```bash
 ~/AgentCrew/bin/agentcrew detect-project --project /path/to/your-project
+~/AgentCrew/bin/agentcrew classify --project /path/to/your-project --task "Add OAuth login"
 ```
 
 For an existing repository, follow:
@@ -138,6 +139,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       naming.md
 
     tools/
+      classify-task.sh
       detect-project.sh
       list-sessions.sh
       save-session.sh

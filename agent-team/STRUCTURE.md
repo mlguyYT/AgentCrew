@@ -71,6 +71,7 @@ agent-team/
     naming.md
 
   tools/
+    classify-task.sh
     detect-project.sh
     list-sessions.sh
     save-session.sh

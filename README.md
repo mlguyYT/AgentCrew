@@ -77,6 +77,7 @@ runtime/               optional future orchestration notes
 - [Installation](docs/installation.md)
 - [Setup Doctor](docs/doctor.md)
 - [Project Detection](docs/project-detection.md)
+- [Task Classifier](docs/task-classifier.md)
 - [Automatic Loading](docs/auto-load.md)
 - [Use in an Existing Project](docs/bootstrap-existing-project.md)
 - [Usage Guide](docs/usage.md)

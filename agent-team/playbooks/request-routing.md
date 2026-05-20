@@ -10,7 +10,13 @@ Users should be able to ask for the outcome directly. AgentCrew is responsible f
 
 ## Routing Order
 
-Use this order before loading detailed role files or Skills:
+Use this order before loading detailed role files or Skills. For a quick machine-readable preview, use `agentcrew classify`:
+
+```bash
+~/AgentCrew/bin/agentcrew classify "Add OAuth login"
+```
+
+Then apply this order:
 
 ```yaml
 routing_order:
