@@ -43,6 +43,7 @@ agent-team/
     pr-process.md
     rework-loop.md
     task-classification.md
+    request-routing.md
     lane-escalation.md
     specialist-review-routing.md
     default-branch-merge.md
@@ -78,6 +79,7 @@ agent-team/
     idea-brief.md
     product-plan.md
     task.md
+    task-routing.md
     pr-description.md
     test-report.md
     review-report.md

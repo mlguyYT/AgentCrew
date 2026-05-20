@@ -64,6 +64,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/pr-process.md`
 - [ ] `agent-team/playbooks/rework-loop.md`
 - [ ] `agent-team/playbooks/task-classification.md`
+- [ ] `agent-team/playbooks/request-routing.md`
 - [ ] `agent-team/playbooks/lane-escalation.md`
 - [ ] `agent-team/playbooks/specialist-review-routing.md`
 - [ ] `agent-team/playbooks/default-branch-merge.md`
@@ -113,6 +114,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/skills/professional/llm-pro.md`
 - [ ] `agent-team/skills/professional/researcher-pro.md`
 - [ ] `agent-team/skills/ml/cnn.md`
+- [ ] `agent-team/templates/task-routing.md`
 - [ ] `agent-team/templates/pr-description.md`
 - [ ] `agent-team/templates/test-report.md`
 - [ ] `agent-team/templates/review-report.md`

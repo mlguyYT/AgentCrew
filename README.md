@@ -22,7 +22,7 @@ AgentCrew keeps the useful parts simple:
 
 AgentCrew lets agents do the work, testing, review, and preparation, but keeps final product direction, risk acceptance, PR approval, and merging with the human.
 
-AgentCrew uses staged loading: agents route first, then load only the role, lane, Skills, gates, and templates needed for the task.
+AgentCrew uses staged loading: agents route first, then load only the role, lane, Skills, gates, and templates needed for the task. Normal user requests are routed automatically; users do not need to name roles or lanes.
 
 ## Quick Start
 

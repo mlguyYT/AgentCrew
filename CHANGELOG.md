@@ -43,3 +43,4 @@
 - Token-safe staged loading with route index, context profiles, compact templates, lazy specialist loading, and output budgets
 - `agentcrew doctor` setup-health command and documentation for validating files, loaders, tools, and project context
 - `agentcrew detect-project` read-only project profiling for stack, package managers, validation commands, coverage hints, and suggested Skills
+- Request Routing playbook and compact routing template for automatic role, lane, Skill, and gate selection

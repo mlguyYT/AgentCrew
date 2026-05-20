@@ -13,6 +13,8 @@ Use this file immediately after `AGENTS.md` to route work without loading the wh
 
 ## Route First
 
+For obvious requests, use this table directly. For ambiguous requests or multi-intent work, load `agent-team/playbooks/request-routing.md`.
+
 ```yaml
 small_scoped_task: Developer -> Tester -> Human
 small_task_with_meaningful_risk: Developer -> Tester -> Reviewer -> Human
@@ -33,10 +35,12 @@ Load only:
 
 - selected context profile from `agent-team/context/`
 - selected role file from `agent-team/agents/`
+- `agent-team/playbooks/request-routing.md` only when route is ambiguous
 - selected lane playbook
 - `agent-team/skills/registry.md`
 - matching skill files only
 - triggered gate playbooks only
 - output template for the current phase
+- `agent-team/templates/task-routing.md` when a compact route summary is useful
 
 Do not load `README.md`, `docs/`, `examples/`, or `STRUCTURE.md` during normal target-project work unless editing AgentCrew or debugging installation.

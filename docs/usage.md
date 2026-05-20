@@ -42,6 +42,7 @@ If automatic loading has not been registered yet, run:
 ~/AgentCrew/bin/agentcrew doctor
 ```
 
+---
 
 ## Project detection
 
@@ -76,6 +77,8 @@ AgentCrew should infer them from the request:
 ```
 
 Explicit role prompts are optional. Use them when you want manual control or when an agent ignores routing.
+
+The canonical routing rules live in `agent-team/playbooks/request-routing.md`; use `agent-team/templates/task-routing.md` when a compact route summary helps.
 
 ---
 

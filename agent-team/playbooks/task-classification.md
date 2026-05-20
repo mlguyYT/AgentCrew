@@ -169,7 +169,7 @@ If any answer is yes, consider Full Lane.
 
 ## Default request routing
 
-Users do not need to choose the role or lane.
+Users do not need to choose the role or lane. For full routing rules, use `agent-team/playbooks/request-routing.md`.
 
 When a request does not name a role, classify it and route it:
 

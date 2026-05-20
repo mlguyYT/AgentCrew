@@ -95,25 +95,26 @@ Specialist reviewers and agents include Security Reviewer, UX / Design Reviewer,
 ## How agents should use this folder
 
 If the user does not name a role, lane, or Skill, infer them from the request.
-Use `agent-team/playbooks/task-classification.md` to choose the lane and starting role, then use `agent-team/playbooks/skill-loading.md` to load matching Skills.
+Use `agent-team/context/route-index.md` first. Load `agent-team/playbooks/request-routing.md` when the route, starting role, or gates are not obvious, then use `agent-team/playbooks/skill-loading.md` to load matching Skills.
 
 Before acting, an agent should use staged loading:
 
 1. read `AGENTS.md`
 2. read `agent-team/context/route-index.md`
-3. read one matching context profile in `agent-team/context/`
-4. read the selected role file in `agent-team/agents/`
-5. read the relevant playbook in `agent-team/playbooks/`
-4. use `agent-team/playbooks/specialist-review-routing.md` when specialist review may apply
-5. use `agent-team/playbooks/default-branch-merge.md` before default-branch merge readiness
-6. use `agent-team/playbooks/dependency-supply-chain.md` for dependency, runtime, container, CI, or build-system changes
-7. use `agent-team/playbooks/behavior-preserving-refactor.md` for refactors
-8. use `agent-team/playbooks/compatibility-rollout.md` for protocol, API, auth, config, or client/server compatibility changes
-9. use `agent-team/playbooks/lane-escalation.md` if risk changes
-10. read `agent-team/skills/registry.md` and load matching Skills
-11. use `agent-team/protocols/communication.md` for handoffs
-12. use compact templates by default in Fast Lane
-13. use the relevant full output template in `agent-team/templates/` only when risk requires it
+3. load `agent-team/playbooks/request-routing.md` only when routing is unclear
+4. read one matching context profile in `agent-team/context/`
+5. read the selected role file in `agent-team/agents/`
+6. read the relevant lane or task playbook in `agent-team/playbooks/`
+7. use `agent-team/playbooks/specialist-review-routing.md` when specialist review may apply
+8. use `agent-team/playbooks/default-branch-merge.md` before default-branch merge readiness
+9. use `agent-team/playbooks/dependency-supply-chain.md` for dependency, runtime, container, CI, or build-system changes
+10. use `agent-team/playbooks/behavior-preserving-refactor.md` for refactors
+11. use `agent-team/playbooks/compatibility-rollout.md` for protocol, API, auth, config, or client/server compatibility changes
+12. use `agent-team/playbooks/lane-escalation.md` if risk changes
+13. read `agent-team/skills/registry.md` and load matching Skills
+14. use `agent-team/protocols/communication.md` for handoffs
+15. use compact templates by default in Fast Lane
+16. use the relevant full output template in `agent-team/templates/` only when risk requires it
 
 When saving handoff context, use:
 
@@ -125,6 +126,7 @@ agent-team/templates/memory-summary.md
 The optional local checkpoint utility is:
 
 ```text
+~/AgentCrew/agent-team/tools/detect-project.sh
 ~/AgentCrew/agent-team/tools/save-session.sh
 ~/AgentCrew/agent-team/tools/list-sessions.sh
 ```

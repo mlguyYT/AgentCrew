@@ -19,6 +19,12 @@ agent-team/templates/compact-handoff.md
 ## Conditional Files
 
 ```yaml
+request_routing:
+  load_when: the user request has multiple intents or unclear starting role/gates
+  files:
+    - agent-team/playbooks/request-routing.md
+    - agent-team/templates/task-routing.md
+
 reviewer:
   load_when: meaningful risk, shared module, public API/protocol, dependency/runtime/config, large diff, tester uncertainty
   files:

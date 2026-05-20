@@ -115,6 +115,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       pr-process.md
       rework-loop.md
       task-classification.md
+      request-routing.md
       lane-escalation.md
       specialist-review-routing.md
       skill-loading.md
@@ -145,6 +146,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       idea-brief.md
       product-plan.md
       task.md
+      task-routing.md
       pr-description.md
       test-report.md
       review-report.md

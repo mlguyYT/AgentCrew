@@ -36,7 +36,7 @@ agent-team/context/review-context.md
 agent-team/context/research-context.md
 ```
 
-Load detailed playbooks, role files, Skills, gates, checklists, and templates only after the route, risk, role, and triggers are known.
+Load detailed playbooks, role files, Skills, gates, checklists, and templates only after the route, risk, role, and triggers are known. Load `agent-team/playbooks/request-routing.md` when the route is not obvious from `agent-team/context/route-index.md`.
 Do not eagerly load all AgentCrew files.
 
 Use agent-specific instructions from `agent-team/agents/` only for the selected role.
@@ -88,6 +88,7 @@ When the user asks a normal question or requests an outcome, AgentCrew must:
 request_routing:
   - understand the requested outcome
   - classify risk using agent-team/context/route-index.md first
+  - use agent-team/playbooks/request-routing.md when route, role, or gate selection is unclear
   - choose Fast Lane or Full Lane
   - choose the starting role
   - load the matching context profile
