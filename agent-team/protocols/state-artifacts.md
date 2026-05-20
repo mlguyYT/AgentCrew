@@ -147,6 +147,9 @@ Fast Lane / Full Lane
 ## Risk
 Low / Medium / High / Critical
 
+## Quality Profile
+Light / Standard / Strict / Regulated
+
 ## Owner
 Developer / Tester / Reviewer / Specialist / Human
 

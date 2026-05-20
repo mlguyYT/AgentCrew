@@ -36,7 +36,7 @@ agent-team/context/review-context.md
 agent-team/context/research-context.md
 ```
 
-Load detailed playbooks, role files, Skills, gates, checklists, and templates only after the route, risk, role, and triggers are known. Load `agent-team/playbooks/request-routing.md` when the route is not obvious from `agent-team/context/route-index.md`.
+Load detailed playbooks, role files, Skills, quality profiles, gates, checklists, and templates only after the route, risk, role, and triggers are known. Load `agent-team/playbooks/request-routing.md` when the route is not obvious from `agent-team/context/route-index.md`.
 Do not eagerly load all AgentCrew files.
 
 Use agent-specific instructions from `agent-team/agents/` only for the selected role.
@@ -91,6 +91,7 @@ request_routing:
   - use agent-team/playbooks/request-routing.md when route, role, or gate selection is unclear
   - choose Fast Lane or Full Lane
   - choose the starting role
+  - choose the quality profile using agent-team/playbooks/quality-profile-selection.md when the default is unclear
   - load the matching context profile
   - load relevant Skills from agent-team/skills/registry.md
   - load only triggered gates and specialist files
@@ -190,6 +191,19 @@ risk_levels:
 ```
 
 When unsure, choose the safer lane or ask the human.
+
+## Quality profile
+
+Default to the `standard` quality profile unless task or project context clearly indicates `light`, `strict`, or `regulated`.
+
+Use:
+
+```text
+agent-team/playbooks/quality-profile-selection.md
+agent-team/quality-profiles/
+```
+
+Quality profiles tune validation depth, review depth, and output detail. They never override safety rules, human-only decisions, repository instructions, or required quality gates.
 
 ---
 

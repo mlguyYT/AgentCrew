@@ -37,7 +37,7 @@ The standalone project dashboard is also available inside AgentCrew:
 - global loader registrations for Claude Code, Codex, and OpenClaw
 - project name, git branch, default branch, HEAD, and worktree state
 - whether `.agent-state/` exists
-- current task fields when `.agent-state/current-task.md` exists
+- current task fields, including quality profile, when `.agent-state/current-task.md` exists
 - latest test, review, security, UX, and documentation report presence
 - decisions, handoff, memory, and latest saved session
 - pending human decision queue, open questions, and the human-approval reminder
@@ -62,6 +62,8 @@ Expected sections:
 ## Lane
 
 ## Risk
+
+## Quality Profile
 
 ## Owner
 

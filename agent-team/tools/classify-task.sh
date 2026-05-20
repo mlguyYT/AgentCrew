@@ -87,12 +87,12 @@ print_yaml_list() {
   local var_name="$1"
   eval "local values=(\"\${${var_name}[@]}\")"
   if [ "${#values[@]}" -eq 0 ]; then
-    printf '%s\n' "  - none"
+    printf '%s\n' "    - none"
     return
   fi
   local value
   for value in "${values[@]}"; do
-    printf '  - %s\n' "$(yaml_quote "$value")"
+    printf '    - %s\n' "$(yaml_quote "$value")"
   done
 }
 
@@ -100,6 +100,7 @@ INTENT="implementation_or_bug_fix"
 STARTING_ROLE="Developer"
 RISK="low"
 LANE="Fast Lane"
+QUALITY_PROFILE="standard"
 WORKFLOW="Developer -> Tester -> Human"
 NEXT_ROLES=("Tester")
 REVIEWERS=()
@@ -275,6 +276,20 @@ else
   add_unique REASONS "small or scoped request with no high-risk trigger detected"
 fi
 
+# Quality profile selection. Default to standard unless task risk or wording clearly signals another mode.
+if matches '(regulated|compliance|privacy|legal|audit|financial reporting|contractual|safety-critical|medical|hipaa|pci|gdpr|sox)'; then
+  QUALITY_PROFILE="regulated"
+  add_unique REASONS "regulated quality profile trigger present"
+elif [ "$RISK" = "high" ] || [ "$RISK" = "critical" ] || matches '(enterprise|critical flow|shared platform|shared service|complex refactor|hard-to-rollback|production platform)'; then
+  QUALITY_PROFILE="strict"
+  add_unique REASONS "strict quality profile trigger present"
+elif [ "$RISK" = "low" ] && matches '(typo|docs-only|documentation only|readme|comment|tiny|prototype|experiment|solo)'; then
+  QUALITY_PROFILE="light"
+  add_unique REASONS "light quality profile trigger present"
+else
+  add_unique REASONS "standard quality profile default applies"
+fi
+
 # Role and gate adjustments after risk classification.
 if [ "$RISK" = "high" ] || [ "$RISK" = "critical" ]; then
   if [ "$INTENT" = "implementation_or_bug_fix" ]; then
@@ -357,6 +372,8 @@ else
   add_unique FILES_TO_LOAD "agent-team/playbooks/full-lane.md"
 fi
 add_unique FILES_TO_LOAD "agent-team/agents/$(printf '%s' "$STARTING_ROLE" | tr '[:upper:]' '[:lower:]' | sed 's# / #-#g; s# #\-#g').md"
+add_unique FILES_TO_LOAD "agent-team/playbooks/quality-profile-selection.md"
+add_unique FILES_TO_LOAD "agent-team/quality-profiles/$QUALITY_PROFILE.md"
 add_unique FILES_TO_LOAD "agent-team/skills/registry.md"
 add_unique FILES_TO_LOAD "agent-team/templates/task-routing.md"
 if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
@@ -369,6 +386,7 @@ printf '  project: %s\n' "$(yaml_quote "$(basename "$PROJECT_ROOT")")"
 printf '  intent: %s\n' "$(yaml_quote "$INTENT")"
 printf '  risk: %s\n' "$(yaml_quote "$RISK")"
 printf '  lane: %s\n' "$(yaml_quote "$LANE")"
+printf '  quality_profile: %s\n' "$(yaml_quote "$QUALITY_PROFILE")"
 printf '  starting_role: %s\n' "$(yaml_quote "$STARTING_ROLE")"
 printf '  workflow: %s\n' "$(yaml_quote "$WORKFLOW")"
 printf '%s\n' "  next_roles:"

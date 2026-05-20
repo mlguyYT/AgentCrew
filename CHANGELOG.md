@@ -47,3 +47,4 @@
 - `agentcrew classify` task classifier for previewing lane, starting role, reviewers, specialists, Skill hints, gates, and files to load
 - `agentcrew status` project dashboard for loader registrations, git state, `.agent-state/` artifacts, latest sessions, reports, and human attention
 - Human Decision Queue playbook, template, docs, and status dashboard support for surfacing human-only decisions
+- Quality profiles for Light, Standard, Strict, and Regulated product-builder modes with routing, docs, doctor, and classifier support

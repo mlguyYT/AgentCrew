@@ -165,6 +165,8 @@ questions:
 
 If any answer is yes, consider Full Lane.
 
+Also select a quality profile. Default to `standard`; use `light` only for tiny reversible or docs-only work, `strict` for enterprise/high-impact/shared-platform work, and `regulated` when formal compliance, privacy, safety, financial, contractual, or audit evidence is required.
+
 ---
 
 ## Default request routing

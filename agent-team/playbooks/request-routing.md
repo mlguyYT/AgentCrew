@@ -24,6 +24,7 @@ routing_order:
   - identify whether the user asked for planning, implementation, validation, review, research, or documentation
   - classify risk using route-index and task-classification
   - choose Fast Lane or Full Lane
+  - select the quality profile
   - choose the starting role
   - run project detection when stack context is unclear and the detector is available
   - select candidate Skills from the registry
@@ -96,6 +97,20 @@ full_lane_when:
 
 If risk increases during work, load `agent-team/playbooks/lane-escalation.md` and escalate.
 
+## Quality Profile Selection
+
+Default to `standard` for maintained products and normal production repositories. Use `agent-team/playbooks/quality-profile-selection.md` when the product context, risk level, or output depth is unclear.
+
+```yaml
+quality_profile_defaults:
+  light: solo builders, prototypes, docs-only updates, tiny reversible fixes
+  standard: maintained products, startup teams, normal production repositories
+  strict: enterprise teams, critical flows, shared platforms, complex refactors
+  regulated: compliance, privacy, safety, financial, contractual, or audit-heavy work
+```
+
+Load only the selected profile file from `agent-team/quality-profiles/` when it changes gates, evidence, or output detail.
+
 ---
 
 ## Conditional Fast Lane Steps
@@ -161,6 +176,7 @@ Keep the route summary short:
 
 ```text
 Route: Fast Lane
+Profile: standard
 Start: Developer
 Skills: typescript-pro, react
 Gates: Tester, UX if UI behavior changes

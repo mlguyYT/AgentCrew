@@ -66,6 +66,8 @@ Use the classifier when you want to preview how AgentCrew would route a request:
 
 The classifier prints the likely lane, starting role, reviewers, specialists, Skill hints, gates, and files to load. It is a routing aid; agents still inspect the project before acting.
 
+It also prints a quality profile. `standard` is the default; `light`, `strict`, and `regulated` are selected when project context or task risk calls for different rigor.
+
 ---
 
 ## Status dashboard
@@ -115,6 +117,19 @@ AgentCrew should infer them from the request:
 Explicit role prompts are optional. Use them when you want manual control or when an agent ignores routing.
 
 The canonical routing rules live in `agent-team/playbooks/request-routing.md`; use `agent-team/templates/task-routing.md` when a compact route summary helps.
+
+## Quality profiles
+
+Most users do not need to choose a profile. AgentCrew should select one while routing:
+
+```text
+light      prototypes, docs-only updates, tiny reversible fixes
+standard   normal maintained products and startup teams
+strict     enterprise, high-impact, shared platform, or complex refactor work
+regulated  compliance, privacy, safety, financial, contractual, or audit-heavy work
+```
+
+See `docs/quality-profiles.md` and `agent-team/playbooks/quality-profile-selection.md`.
 
 ---
 

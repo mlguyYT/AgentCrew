@@ -67,6 +67,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/rework-loop.md`
 - [ ] `agent-team/playbooks/task-classification.md`
 - [ ] `agent-team/playbooks/request-routing.md`
+- [ ] `agent-team/playbooks/quality-profile-selection.md`
 - [ ] `agent-team/playbooks/human-decision-queue.md`
 - [ ] `agent-team/playbooks/lane-escalation.md`
 - [ ] `agent-team/playbooks/specialist-review-routing.md`
@@ -78,6 +79,16 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/skill-loading.md`
 - [ ] `agent-team/playbooks/skill-validation.md`
 - [ ] `agent-team/playbooks/memory-saving.md`
+
+---
+
+## Required Quality Profiles
+
+- [ ] `agent-team/quality-profiles/light.md`
+- [ ] `agent-team/quality-profiles/standard.md`
+- [ ] `agent-team/quality-profiles/strict.md`
+- [ ] `agent-team/quality-profiles/regulated.md`
+- [ ] `docs/quality-profiles.md`
 
 ---
 

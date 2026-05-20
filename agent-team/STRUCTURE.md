@@ -44,6 +44,7 @@ agent-team/
     rework-loop.md
     task-classification.md
     request-routing.md
+    quality-profile-selection.md
     human-decision-queue.md
     lane-escalation.md
     specialist-review-routing.md
@@ -55,6 +56,12 @@ agent-team/
     skill-loading.md
     skill-validation.md
     memory-saving.md
+
+  quality-profiles/
+    light.md
+    standard.md
+    strict.md
+    regulated.md
 
   workflows/
     idea-to-task.md

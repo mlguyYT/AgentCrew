@@ -60,6 +60,8 @@ Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer
 
 Specialist reviewers and agents are used only when needed: Security, UX / Design, Documentation, LLM, Researcher, CNN, and Skill Validator.
 
+Quality profiles tune how much rigor AgentCrew applies: Light for prototypes and tiny work, Standard by default, Strict for high-impact teams, and Regulated for compliance-heavy work.
+
 ## What Is Included
 
 ```text
@@ -80,6 +82,7 @@ runtime/               optional future orchestration notes
 - [Task Classifier](docs/task-classifier.md)
 - [Status Dashboard](docs/status-dashboard.md)
 - [Human Decision Queue](docs/human-decision-queue.md)
+- [Quality Profiles](docs/quality-profiles.md)
 - [Automatic Loading](docs/auto-load.md)
 - [Use in an Existing Project](docs/bootstrap-existing-project.md)
 - [Usage Guide](docs/usage.md)

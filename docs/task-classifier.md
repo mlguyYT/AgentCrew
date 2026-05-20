@@ -42,6 +42,7 @@ task_classification:
   intent: 'implementation_or_bug_fix'
   risk: 'high'
   lane: 'Full Lane'
+  quality_profile: 'strict'
   starting_role: 'Advisor'
   workflow: 'Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human'
   specialists:
@@ -64,6 +65,7 @@ The classifier estimates:
 - risk level
 - Fast Lane vs Full Lane
 - starting role
+- selected quality profile
 - likely next roles
 - required reviewers
 - specialist triggers
@@ -99,6 +101,7 @@ Agents must still follow:
 agent-team/context/route-index.md
 agent-team/playbooks/request-routing.md
 agent-team/playbooks/task-classification.md
+agent-team/playbooks/quality-profile-selection.md
 agent-team/playbooks/lane-escalation.md
 ```
 

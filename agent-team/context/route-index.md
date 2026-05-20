@@ -9,6 +9,7 @@ Use this file immediately after `AGENTS.md` to route work without loading the wh
 - Human approval remains final.
 - Agents must not merge, approve as human, bypass protection, hide failures, commit secrets, or make unrelated changes.
 - Default lane is Fast Lane.
+- Default quality profile is standard unless project or task context says otherwise.
 - Load detailed files only after routing confirms they apply.
 
 ## Route First
@@ -37,6 +38,8 @@ Load only:
 - selected role file from `agent-team/agents/`
 - `agent-team/playbooks/request-routing.md` only when route is ambiguous
 - selected lane playbook
+- `agent-team/playbooks/quality-profile-selection.md` when profile choice affects gates or output detail
+- selected `agent-team/quality-profiles/*.md` only when needed
 - `agent-team/skills/registry.md`
 - matching skill files only
 - triggered gate playbooks only

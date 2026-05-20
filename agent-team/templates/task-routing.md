@@ -4,12 +4,14 @@
 
 - lane:
 - starting role:
+- quality profile:
 - next roles:
 
 ## Why
 
 - risk:
 - trigger:
+- profile reason:
 
 ## Skills
 
