@@ -29,5 +29,6 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 
-# Agent handoff artifacts
+# AgentCrew repository-local session artifacts.
+# Downstream projects that use AgentCrew should choose their own .agent-state policy.
 .agent-state/
