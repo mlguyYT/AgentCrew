@@ -45,6 +45,15 @@ agents:
   documentation_agent:
     purpose: create and review documentation, examples, changelogs, and release notes
 
+  llm_agent:
+    purpose: review LLM prompts, RAG, evals, model behavior, tool use, and LLM safety
+
+  researcher_agent:
+    purpose: produce source-backed research with facts, assumptions, confidence, and open questions
+
+  cnn_agent:
+    purpose: review computer vision, CNN datasets, training, evaluation, inference, and deployment risk
+
   skill_validator:
     purpose: validate Skill quality, triggers, safety, and registry entries
 ```
@@ -79,7 +88,7 @@ Idea
   -> Human approval
 ```
 
-Specialist reviewers are Security Reviewer, UX / Design Reviewer, and Documentation Agent. Use them only when the task touches their area.
+Specialist reviewers and agents include Security Reviewer, UX / Design Reviewer, Documentation Agent, LLM Agent, Researcher Agent, and CNN Agent. Use them only when the task touches their area.
 
 ---
 
@@ -88,11 +97,13 @@ Specialist reviewers are Security Reviewer, UX / Design Reviewer, and Documentat
 If the user does not name a role, lane, or Skill, infer them from the request.
 Use `agent-team/playbooks/task-classification.md` to choose the lane and starting role, then use `agent-team/playbooks/skill-loading.md` to load matching Skills.
 
-Before acting, an agent should:
+Before acting, an agent should use staged loading:
 
 1. read `AGENTS.md`
-2. read the relevant role file in `agent-team/agents/`
-3. read the relevant playbook in `agent-team/playbooks/`
+2. read `agent-team/context/route-index.md`
+3. read one matching context profile in `agent-team/context/`
+4. read the selected role file in `agent-team/agents/`
+5. read the relevant playbook in `agent-team/playbooks/`
 4. use `agent-team/playbooks/specialist-review-routing.md` when specialist review may apply
 5. use `agent-team/playbooks/default-branch-merge.md` before default-branch merge readiness
 6. use `agent-team/playbooks/dependency-supply-chain.md` for dependency, runtime, container, CI, or build-system changes
@@ -101,7 +112,8 @@ Before acting, an agent should:
 9. use `agent-team/playbooks/lane-escalation.md` if risk changes
 10. read `agent-team/skills/registry.md` and load matching Skills
 11. use `agent-team/protocols/communication.md` for handoffs
-12. use the relevant output template in `agent-team/templates/`
+12. use compact templates by default in Fast Lane
+13. use the relevant full output template in `agent-team/templates/` only when risk requires it
 
 When saving handoff context, use:
 

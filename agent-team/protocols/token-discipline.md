@@ -15,8 +15,14 @@ token_discipline:
   - link_to_files_instead_of_pasting_content
   - use_templates
   - use_diffs_or_summaries_not_full_files
-  - max_handoff_length: 200_words
-  - max_review_comment: 10_bullets
+  - route_before_loading_details: true
+  - lazy_load_specialists: true
+  - compact_templates_by_default_in_fast_lane: true
+  - max_classification: 5_lines
+  - max_handoff_length: 150_words
+  - max_review_comment: 7_meaningful_findings_in_fast_lane
+  - max_specialist_report: 500_words_unless_high_risk
+  - max_research_sources_default: 3_to_5
   - max_test_report: commands_plus_pass_fail_plus_failures_only
 ```
 
@@ -29,11 +35,13 @@ Do:
 - cite files and line numbers when useful
 - summarize changed behavior
 - include commands and pass/fail results
+- load only the routed context profile, selected role, matching skills, triggered gates, and current template
 - include only blockers in open questions
 - write or update shared artifacts
 
 Do not:
 
+- load every AgentCrew playbook, role, template, or skill by default
 - paste full files
 - paste long logs
 - narrate every step already visible in artifacts
@@ -60,6 +68,7 @@ Prefer artifacts over chat:
 ```
 
 Only update the artifact that changed.
+Use compact templates in Fast Lane unless risk requires full reports.
 
 The next agent should read the relevant artifact instead of asking for a recap.
 
@@ -69,7 +78,7 @@ Use `agent-team/protocols/state-artifacts.md` for artifact schemas.
 
 ## Review comments
 
-Review comments should be at most 10 bullets.
+Review comments should be at most 7 meaningful findings in Fast Lane and at most 10 findings in Full Lane unless the human asks for exhaustive review.
 
 Each finding should include:
 

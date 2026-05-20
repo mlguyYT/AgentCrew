@@ -35,12 +35,14 @@ Implement the task as Developer, using Python and FastAPI best practices.
 Before acting:
 
 1. Read `AGENTS.md`
-2. Read the relevant role file
-3. Read `agent-team/skills/registry.md`
-4. Inspect task and repository context
-5. Select matching skills
-6. Read selected skill files using the paths in the registry
-7. Apply role + skills together
+2. Read `agent-team/context/route-index.md`
+3. Read the selected context profile
+4. Read the relevant role file
+5. Read `agent-team/skills/registry.md`
+6. Inspect task and repository context
+7. Select matching skills
+8. Read selected skill files using the paths in the registry
+9. Apply role + skills together
 
 ---
 
@@ -123,7 +125,7 @@ kubernetes
 
 ## Multiple skills
 
-Multiple skills may apply.
+Multiple skills may apply, but load only skills that directly affect the current task.
 
 Example:
 
@@ -141,6 +143,8 @@ skills:
 ```
 
 Apply each skill only to the relevant part of the task.
+
+By default, avoid loading more than three skill files unless the task clearly spans more domains or the human asks for full coverage.
 
 ---
 
@@ -171,6 +175,7 @@ For bigger tasks, mention Skills applied when useful:
 For small tasks, this is optional.
 
 Do not let `## Skills Applied` become ceremony. Use it when it clarifies which technical guidance affected the work.
+Do not paste skill contents into the response; cite the skill names only when useful.
 
 ---
 

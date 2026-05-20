@@ -46,6 +46,9 @@ Product Manager
 Security Reviewer
 UX / Design Reviewer
 Documentation Agent
+LLM Agent
+Researcher Agent
+CNN Agent
 Skill Validator
 ```
 
@@ -57,8 +60,17 @@ agent-team/agents/product-manager.md
 agent-team/agents/security-reviewer.md
 agent-team/agents/ux-design-reviewer.md
 agent-team/agents/documentation-agent.md
+agent-team/agents/llm-agent.md
+agent-team/agents/researcher-agent.md
+agent-team/agents/cnn-agent.md
 agent-team/agents/skill-validator.md
 ```
+
+---
+
+## Role Naming Rule
+
+Use `Agent` for roles. Avoid `Expert` in role names because it can imply authority beyond the workflow. Agents recommend, validate, and prepare work. Humans remain final decision-makers.
 
 ---
 

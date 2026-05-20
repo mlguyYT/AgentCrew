@@ -217,9 +217,9 @@ Reviewer may not merge.
 
 ---
 
-## Specialist reviewer responsibilities
+## Specialist reviewer and agent responsibilities
 
-Specialist reviewers are used only when the PR touches their area.
+Specialist reviewers and agents are used only when the PR touches their area.
 
 ```yaml
 specialist_reviewers:
@@ -245,10 +245,30 @@ specialist_reviewers:
       - examples are current
       - changelog or release notes are updated if needed
       - links and file paths are current
+
+  llm_agent:
+    checks:
+      - prompt, RAG, model, eval, tool-call, and structured-output risk
+      - hallucination, prompt injection, and data leakage risk
+      - model/provider rollout notes when behavior changes
+
+  researcher_agent:
+    checks:
+      - source quality
+      - facts separated from assumptions
+      - confidence and limitations stated
+      - current information verified when recency matters
+
+  cnn_agent:
+    checks:
+      - dataset split and leakage risk
+      - label quality and metrics
+      - overfitting and reproducibility
+      - inference and deployment constraints
 ```
 
-Specialist reviewers may request rework.
-Specialist reviewers may not approve as the human or merge.
+Specialist reviewers and agents may request rework.
+Specialist reviewers and agents may not approve as the human or merge.
 
 ---
 

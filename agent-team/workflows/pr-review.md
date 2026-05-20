@@ -11,7 +11,7 @@ Ensure PR quality before merge.
 PR
   -> Tester
   -> Reviewer (optional or required)
-  -> Specialist Reviewer if needed
+  -> Specialist Reviewer / Agent if needed
   -> Human approval
 ```
 
@@ -43,11 +43,14 @@ agent-team/templates/review-report.md
 
 ## Step 3 — Specialist review if needed
 
-Use specialist reviewers when the PR touches their area:
+Use specialist reviewers and agents when the PR touches their area:
 
 - Security Reviewer: `agent-team/templates/security-review-report.md`
 - UX / Design Reviewer: `agent-team/templates/ux-design-review-report.md`
 - Documentation Agent: `agent-team/templates/documentation-report.md`
+- LLM Agent: `agent-team/templates/llm-report.md`
+- Researcher Agent: `agent-team/templates/research-report.md`
+- CNN Agent: `agent-team/templates/cnn-report.md`
 
 ---
 

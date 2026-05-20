@@ -22,6 +22,8 @@ AgentCrew keeps the useful parts simple:
 
 AgentCrew lets agents do the work, testing, review, and preparation, but keeps final product direction, risk acceptance, PR approval, and merging with the human.
 
+AgentCrew uses staged loading: agents route first, then load only the role, lane, Skills, gates, and templates needed for the task.
+
 ## Quick Start
 
 Clone AgentCrew once outside your projects:
@@ -55,7 +57,7 @@ Full Lane is for risky or ambiguous work:
 Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Human
 ```
 
-Specialist reviewers are used only when needed: Security, UX / Design, Documentation, and Skill Validator.
+Specialist reviewers and agents are used only when needed: Security, UX / Design, Documentation, LLM, Researcher, CNN, and Skill Validator.
 
 ## What Is Included
 

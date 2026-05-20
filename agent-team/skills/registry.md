@@ -45,6 +45,9 @@ rules:
 | Kubernetes | `platform/kubernetes.md` | Kubernetes, `k8s/`, `deployment.yaml`, `service.yaml`, `ingress.yaml`, Helm, Kustomize, `Chart.yaml`, `kustomization.yaml` |
 | Reviewer Pro | `professional/reviewer-pro.md` | reviewer, review, code review, PR review, merge request review, maintainability, test adequacy, edge cases, approval readiness, rework request |
 | Product Owner Pro | `professional/product-owner-pro.md` | Product Owner, PO, product ownership, product goal, product backlog, backlog, acceptance criteria, stakeholder, prioritization, roadmap, MVP, scope |
+| LLM Pro | `professional/llm-pro.md` | LLM, prompts, system messages, RAG, embeddings, vector search, tool calling, function calling, structured output, evals, hallucination, prompt injection, model selection |
+| Researcher Pro | `professional/researcher-pro.md` | research, source-backed, citations, latest/current information, technology comparison, standards, regulations, market research, primary sources |
+| CNN | `ml/cnn.md` | CNN, convolutional neural network, computer vision, image classification, object detection, segmentation, image dataset, augmentation, preprocessing, model training, inference optimization |
 
 ---
 
@@ -169,6 +172,18 @@ priority_examples:
   professional_reviewer_over_general_review:
     broader: reviewer_role
     specific: reviewer-pro
+
+  llm_pro_over_general_backend:
+    broader: developer_role
+    specific: llm-pro
+
+  cnn_over_general_ml:
+    broader: developer_role
+    specific: cnn
+
+  researcher_pro_over_general_planning:
+    broader: product_manager_role
+    specific: researcher-pro
 ```
 
 ---

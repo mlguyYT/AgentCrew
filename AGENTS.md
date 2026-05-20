@@ -18,62 +18,31 @@ agent-team/
 
 If this file is loaded from an external AgentCrew checkout, resolve relative AgentCrew paths from the checkout that contains this `AGENTS.md`, not from the target project. The target project remains the working repository for application code.
 
-Read these files before performing work:
+Use staged loading to preserve quality while reducing token usage.
+
+Always read first:
 
 ```text
-agent-team/README.md
-agent-team/playbooks/fast-lane.md
-agent-team/playbooks/full-lane.md
-agent-team/playbooks/pr-process.md
-agent-team/playbooks/rework-loop.md
-agent-team/playbooks/task-classification.md
-agent-team/playbooks/lane-escalation.md
-agent-team/playbooks/specialist-review-routing.md
-agent-team/playbooks/default-branch-merge.md
-agent-team/playbooks/dependency-supply-chain.md
-agent-team/playbooks/behavior-preserving-refactor.md
-agent-team/playbooks/compatibility-rollout.md
-agent-team/playbooks/skill-loading.md
-agent-team/playbooks/skill-validation.md
-agent-team/playbooks/memory-saving.md
-agent-team/protocols/communication.md
-agent-team/protocols/handoff-format.md
-agent-team/protocols/state-artifacts.md
+agent-team/context/route-index.md
 agent-team/protocols/token-discipline.md
 ```
 
-Use agent-specific instructions from:
+Then load only the files needed for the routed task:
 
 ```text
-agent-team/agents/
+agent-team/context/fast-lane-context.md
+agent-team/context/full-lane-context.md
+agent-team/context/review-context.md
+agent-team/context/research-context.md
 ```
 
-Use output templates from:
+Load detailed playbooks, role files, Skills, gates, checklists, and templates only after the route, risk, role, and triggers are known.
+Do not eagerly load all AgentCrew files.
 
-```text
-agent-team/templates/
-```
-
-Use technical Skills from:
-
-```text
-agent-team/skills/registry.md
-agent-team/skills/authoring-guide.md
-```
-
-Use policies and checklists from:
-
-```text
-agent-team/policies/
-agent-team/checklists/
-agent-team/conventions/
-```
-
-Use communication protocols from:
-
-```text
-agent-team/protocols/
-```
+Use agent-specific instructions from `agent-team/agents/` only for the selected role.
+Use output templates from `agent-team/templates/` only for the current phase.
+Use `agent-team/skills/registry.md` to identify matching Skills, then load matching skill files only.
+Use policies, checklists, conventions, and protocols only when they are triggered by the task.
 
 Use tool adapters and installer guidance from:
 
@@ -118,10 +87,12 @@ When the user asks a normal question or requests an outcome, AgentCrew must:
 ```yaml
 request_routing:
   - understand the requested outcome
-  - classify risk using agent-team/playbooks/task-classification.md
+  - classify risk using agent-team/context/route-index.md first
   - choose Fast Lane or Full Lane
   - choose the starting role
+  - load the matching context profile
   - load relevant Skills from agent-team/skills/registry.md
+  - load only triggered gates and specialist files
   - run the workflow until human approval is needed
 ```
 
@@ -187,6 +158,9 @@ roles:
   security_reviewer: agent-team/agents/security-reviewer.md
   ux_design_reviewer: agent-team/agents/ux-design-reviewer.md
   documentation_agent: agent-team/agents/documentation-agent.md
+  llm_agent: agent-team/agents/llm-agent.md
+  researcher_agent: agent-team/agents/researcher-agent.md
+  cnn_agent: agent-team/agents/cnn-agent.md
   skill_validator: agent-team/agents/skill-validator.md
 ```
 
@@ -218,11 +192,8 @@ When unsure, choose the safer lane or ask the human.
 
 Before implementation, testing, or review, inspect the task and repository context for matching Skills.
 
-Load Skills from:
-
-```text
-agent-team/skills/registry.md
-```
+Load `agent-team/skills/registry.md`, then load only matching skill files.
+Do not load all skill files.
 
 Skills may be selected by:
 
@@ -411,6 +382,15 @@ ux_design_reviewer:
 
 documentation_agent:
   use: agent-team/templates/documentation-report.md
+
+llm_agent:
+  use: agent-team/templates/llm-report.md
+
+researcher_agent:
+  use: agent-team/templates/research-report.md
+
+cnn_agent:
+  use: agent-team/templates/cnn-report.md
 
 product_manager:
   use: agent-team/templates/task.md

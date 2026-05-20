@@ -74,6 +74,7 @@ agent-team/skills/frameworks/
 agent-team/skills/frontend/
 agent-team/skills/platform/
 agent-team/skills/professional/
+agent-team/skills/ml/
 ```
 
 Example:

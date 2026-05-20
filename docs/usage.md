@@ -6,6 +6,19 @@ This guide explains how to use the AgentCrew workflow in day-to-day development.
 
 ---
 
+## Token-safe loading
+
+AgentCrew routes first and loads details only when needed. Normal work should start from:
+
+```text
+AGENTS.md
+agent-team/context/route-index.md
+```
+
+Then the agent should load one context profile, one role file, matching Skills, triggered gates, and the current output template. Do not load every AgentCrew file for small tasks.
+
+---
+
 ## Basic usage
 
 Use natural language with your coding agent.
@@ -131,6 +144,30 @@ Review and update docs, examples, changelog, or release notes affected by this c
 Use agent-team/templates/documentation-report.md.
 ```
 
+### LLM Agent
+
+```text
+Act as the LLM Agent.
+Review this prompt, RAG, tool-calling, model behavior, eval coverage, and LLM safety risk.
+Use agent-team/templates/llm-report.md.
+```
+
+### Researcher Agent
+
+```text
+Act as the Researcher Agent.
+Research this question with source-backed evidence, separate facts from assumptions, state confidence, and list open questions.
+Use agent-team/templates/research-report.md.
+```
+
+### CNN Agent
+
+```text
+Act as the CNN Agent.
+Review this computer vision or CNN work for dataset quality, leakage, metrics, overfitting, reproducibility, and inference constraints.
+Use agent-team/templates/cnn-report.md.
+```
+
 ### Skill Validator
 
 ```text
@@ -187,6 +224,9 @@ Use specialist reviewers only when their area is touched:
 Security Reviewer: security, privacy, data, auth, secrets, dependency or infrastructure risk
 UX / Design Reviewer: UI, UX, accessibility, responsive behavior, visual quality
 Documentation Agent: docs, examples, changelog, release notes
+LLM Agent: prompts, RAG, evals, model behavior, tool use, LLM safety
+Researcher Agent: source-backed research, current information, comparisons, uncertainty
+CNN Agent: computer vision, CNNs, image datasets, training, evaluation, inference
 ```
 
 For explicit trigger rules, use:

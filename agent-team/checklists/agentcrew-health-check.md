@@ -19,6 +19,16 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 
 ---
 
+## Required Context Files
+
+- [ ] `agent-team/context/route-index.md`
+- [ ] `agent-team/context/fast-lane-context.md`
+- [ ] `agent-team/context/full-lane-context.md`
+- [ ] `agent-team/context/review-context.md`
+- [ ] `agent-team/context/research-context.md`
+
+---
+
 ## Required Role Files
 
 - [ ] `agent-team/agents/advisor.md`
@@ -30,6 +40,9 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/agents/security-reviewer.md`
 - [ ] `agent-team/agents/ux-design-reviewer.md`
 - [ ] `agent-team/agents/documentation-agent.md`
+- [ ] `agent-team/agents/llm-agent.md`
+- [ ] `agent-team/agents/researcher-agent.md`
+- [ ] `agent-team/agents/cnn-agent.md`
 - [ ] `agent-team/agents/skill-validator.md`
 
 ---
@@ -47,6 +60,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/dependency-supply-chain.md`
 - [ ] `agent-team/playbooks/behavior-preserving-refactor.md`
 - [ ] `agent-team/playbooks/compatibility-rollout.md`
+- [ ] `agent-team/playbooks/token-safe-mode.md`
 - [ ] `agent-team/playbooks/skill-loading.md`
 - [ ] `agent-team/playbooks/skill-validation.md`
 - [ ] `agent-team/playbooks/memory-saving.md`
@@ -62,6 +76,9 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/conventions/naming.md`
 - [ ] `agent-team/checklists/shared-memory-refresh.md`
 - [ ] `agent-team/checklists/integration-test-escalation.md`
+- [ ] `agent-team/checklists/llm-review.md`
+- [ ] `agent-team/checklists/research-quality.md`
+- [ ] `agent-team/checklists/cnn-review.md`
 
 ---
 
@@ -81,12 +98,22 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 
 - [ ] `agent-team/skills/registry.md`
 - [ ] `agent-team/skills/authoring-guide.md`
+- [ ] `agent-team/skills/professional/llm-pro.md`
+- [ ] `agent-team/skills/professional/researcher-pro.md`
+- [ ] `agent-team/skills/ml/cnn.md`
 - [ ] `agent-team/templates/pr-description.md`
 - [ ] `agent-team/templates/test-report.md`
 - [ ] `agent-team/templates/review-report.md`
 - [ ] `agent-team/templates/security-review-report.md`
 - [ ] `agent-team/templates/ux-design-review-report.md`
 - [ ] `agent-team/templates/documentation-report.md`
+- [ ] `agent-team/templates/compact-handoff.md`
+- [ ] `agent-team/templates/compact-test-report.md`
+- [ ] `agent-team/templates/compact-review-report.md`
+- [ ] `agent-team/templates/compact-research-report.md`
+- [ ] `agent-team/templates/llm-report.md`
+- [ ] `agent-team/templates/research-report.md`
+- [ ] `agent-team/templates/cnn-report.md`
 - [ ] `agent-team/templates/memory-summary.md`
 - [ ] `agent-team/templates/skill-validation-report.md`
 

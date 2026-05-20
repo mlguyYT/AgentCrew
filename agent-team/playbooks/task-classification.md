@@ -158,6 +158,9 @@ questions:
   - Does this refactor behavior that must be preserved?
   - Does this require compatibility rollout?
   - Do integration tests become necessary because behavior spans components or external systems?
+  - Does this involve LLM prompts, RAG, evals, model behavior, or tool calling?
+  - Does this require source-backed research or current information?
+  - Does this involve computer vision, CNNs, image datasets, training, evaluation, or inference?
 ```
 
 If any answer is yes, consider Full Lane.
@@ -180,6 +183,9 @@ route_request:
   security_sensitive_change: Security Reviewer after normal review
   user_facing_flow_or_design: UX / Design Reviewer after normal review
   docs_or_examples_change: Documentation Agent when useful
+  llm_or_rag_change: LLM Agent after normal review when useful
+  uncertain_or_source_backed_question: Researcher Agent before planning or decision
+  computer_vision_or_cnn_change: CNN Agent after normal review when useful
   skill_change: Skill Validator
 ```
 

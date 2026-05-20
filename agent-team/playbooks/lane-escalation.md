@@ -27,6 +27,9 @@ escalate_to_full_lane_if:
   - dependency, lockfile, runtime, container, CI, or build-system risk appears
   - default-branch merge risk appears
   - integration behavior spans external services, messaging, sockets, queues, timers, databases, caches, filesystems, or distributed state
+  - LLM safety, hallucination, prompt injection, or sensitive model-data risk appears
+  - research evidence is low-confidence but decision impact is high
+  - CNN dataset quality, leakage, fairness, safety, or deployment-confidence risk appears
   - rollback becomes difficult
   - task becomes vague or product-heavy
   - PR becomes too large

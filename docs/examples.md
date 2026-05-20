@@ -198,3 +198,51 @@ Use agent-team/templates/ux-design-review-report.md.
 Update README and usage docs for this workflow change.
 Use agent-team/templates/documentation-report.md.
 ```
+
+---
+
+## Example 11 — LLM review
+
+### Prompt
+
+```text
+Review this RAG prompt and tool-calling flow for hallucination, prompt injection, eval coverage, and structured output validation.
+```
+
+Expected specialist:
+
+```text
+LLM Agent
+```
+
+---
+
+## Example 12 — Source-backed research
+
+### Prompt
+
+```text
+Research the current tradeoffs between these two API providers and summarize facts, assumptions, confidence, and open questions.
+```
+
+Expected specialist:
+
+```text
+Researcher Agent
+```
+
+---
+
+## Example 13 — CNN model review
+
+### Prompt
+
+```text
+Review this image classification training pipeline for dataset leakage, label quality, metrics, overfitting, and inference constraints.
+```
+
+Expected specialist:
+
+```text
+CNN Agent
+```

@@ -39,3 +39,5 @@
 - Conditional Fast Lane Reviewer and Product Manager routing triggers
 - Default-branch merge, dependency supply-chain, behavior-preserving refactor, compatibility rollout, shared-memory refresh, and integration-test escalation guidance
 - Review report output discipline for blocking issues, risks, preserved legacy issues, test gaps, product decisions, and next phase
+- LLM Agent, Researcher Agent, and CNN Agent roles with templates, checklists, skills, and routing triggers
+- Token-safe staged loading with route index, context profiles, compact templates, lazy specialist loading, and output budgets

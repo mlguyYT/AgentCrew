@@ -79,7 +79,7 @@ Reviews quality, architecture, and risk.
 
 ### Specialist Reviewers
 
-Security Reviewer, UX / Design Reviewer, and Documentation Agent review their areas when the task touches them.
+Security Reviewer, UX / Design Reviewer, Documentation Agent, LLM Agent, Researcher Agent, and CNN Agent review their areas when the task touches them.
 
 ### Human
 

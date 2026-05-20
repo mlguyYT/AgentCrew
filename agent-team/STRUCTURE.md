@@ -15,6 +15,13 @@ agent-team/
     cursor.md
     copilot.md
 
+  context/
+    route-index.md
+    fast-lane-context.md
+    full-lane-context.md
+    review-context.md
+    research-context.md
+
   agents/
     advisor.md
     idea-consultant.md
@@ -25,6 +32,9 @@ agent-team/
     security-reviewer.md
     ux-design-reviewer.md
     documentation-agent.md
+    llm-agent.md
+    researcher-agent.md
+    cnn-agent.md
     skill-validator.md
 
   playbooks/
@@ -39,6 +49,7 @@ agent-team/
     dependency-supply-chain.md
     behavior-preserving-refactor.md
     compatibility-rollout.md
+    token-safe-mode.md
     skill-loading.md
     skill-validation.md
     memory-saving.md
@@ -72,6 +83,13 @@ agent-team/
     security-review-report.md
     ux-design-review-report.md
     documentation-report.md
+    compact-handoff.md
+    compact-test-report.md
+    compact-review-report.md
+    compact-research-report.md
+    llm-report.md
+    research-report.md
+    cnn-report.md
     memory-summary.md
     skill-validation-report.md
 
@@ -100,6 +118,10 @@ agent-team/
     professional/
       reviewer-pro.md
       product-owner-pro.md
+      llm-pro.md
+      researcher-pro.md
+    ml/
+      cnn.md
 
   policies/
     human-in-the-loop.md
@@ -114,6 +136,9 @@ agent-team/
     code-review.md
     design-review.md
     documentation.md
+    llm-review.md
+    research-quality.md
+    cnn-review.md
     human-approval.md
     release-readiness.md
     security.md
