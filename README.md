@@ -79,6 +79,7 @@ runtime/               optional future orchestration notes
 - [Project Detection](docs/project-detection.md)
 - [Task Classifier](docs/task-classifier.md)
 - [Status Dashboard](docs/status-dashboard.md)
+- [Human Decision Queue](docs/human-decision-queue.md)
 - [Automatic Loading](docs/auto-load.md)
 - [Use in an Existing Project](docs/bootstrap-existing-project.md)
 - [Usage Guide](docs/usage.md)

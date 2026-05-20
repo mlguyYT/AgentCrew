@@ -62,6 +62,16 @@ first_heading() {
   sed -n 's/^# //p' "$file" | head -n 1
 }
 
+first_pending_decision() {
+  local file="$1"
+  [ -f "$file" ] || return 1
+  awk '
+    /^## Pending Decisions/ { in_pending = 1; next }
+    in_pending && /^## / { exit }
+    in_pending && /^### / { sub(/^### /, ""); print; exit }
+  ' "$file"
+}
+
 file_status() {
   local label="$1"
   local file="$2"
@@ -180,6 +190,14 @@ fi
 
 printf '%s\n' ""
 printf '%s\n' "Human Attention"
+HUMAN_DECISIONS="$STATE_DIR/human-decisions.md"
+if [ -f "$HUMAN_DECISIONS" ]; then
+  PENDING_DECISION="$(first_pending_decision "$HUMAN_DECISIONS")"
+  print_value "decision_queue" "present"
+  print_value "first_pending_decision" "$PENDING_DECISION"
+else
+  print_value "decision_queue" "not set"
+fi
 if [ -f "$CURRENT_TASK" ]; then
   OPEN_QUESTIONS="$(section_value "$CURRENT_TASK" "Open Questions")"
   print_value "open_questions" "$OPEN_QUESTIONS"

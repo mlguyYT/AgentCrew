@@ -80,6 +80,18 @@ It summarizes loader registration, git state, `.agent-state/` artifacts, latest 
 
 ---
 
+## Human decision queue
+
+When work needs human approval or risk acceptance, record a short queue in the target project:
+
+```text
+.agent-state/human-decisions.md
+```
+
+Use `agent-team/templates/human-decision-queue.md`. `agentcrew status` surfaces the first pending decision under Human Attention.
+
+---
+
 ## Automatic routing
 
 You do not need to choose the role, lane, or Skill.

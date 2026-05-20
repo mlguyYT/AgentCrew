@@ -56,6 +56,15 @@ Only the human may approve:
 
 ---
 
+## Decision Queue
+
+- [ ] pending human-only decisions are listed in `.agent-state/human-decisions.md` when needed
+- [ ] each decision has options and agent recommendation separated
+- [ ] risk acceptance is explicit
+- [ ] no agent has marked a human-only decision approved
+
+---
+
 ## Human decision options
 
 ```yaml

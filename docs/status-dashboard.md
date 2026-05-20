@@ -40,7 +40,7 @@ The standalone project dashboard is also available inside AgentCrew:
 - current task fields when `.agent-state/current-task.md` exists
 - latest test, review, security, UX, and documentation report presence
 - decisions, handoff, memory, and latest saved session
-- open questions and the human-approval reminder
+- pending human decision queue, open questions, and the human-approval reminder
 
 ---
 
@@ -73,6 +73,25 @@ Expected sections:
 ```
 
 Missing files or sections are reported as `not set`. That is normal for projects that have not saved AgentCrew state yet.
+
+---
+
+## Human Decision Queue
+
+The dashboard also reads:
+
+```text
+.agent-state/human-decisions.md
+```
+
+When present, it shows whether the decision queue exists and the first pending decision under Human Attention.
+
+Use:
+
+```text
+agent-team/templates/human-decision-queue.md
+agent-team/playbooks/human-decision-queue.md
+```
 
 ---
 

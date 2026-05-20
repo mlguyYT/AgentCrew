@@ -22,6 +22,7 @@ Only humans may:
 - enable legacy insecure compatibility
 - force-push or rewrite shared history
 - override quality gates
+- resolve pending decision queue items involving risk acceptance
 
 ---
 
@@ -51,3 +52,22 @@ Agents may not:
 Agents accelerate work.
 Humans own judgment.
 ```
+
+---
+
+## Decision queue
+
+When a human-only decision is needed, agents should record it in:
+
+```text
+.agent-state/human-decisions.md
+```
+
+Use:
+
+```text
+agent-team/playbooks/human-decision-queue.md
+agent-team/templates/human-decision-queue.md
+```
+
+Agents may recommend an option, but only the human may approve, reject, defer, or accept risk.

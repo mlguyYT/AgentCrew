@@ -44,6 +44,7 @@ agent-team/
     rework-loop.md
     task-classification.md
     request-routing.md
+    human-decision-queue.md
     lane-escalation.md
     specialist-review-routing.md
     default-branch-merge.md
@@ -82,6 +83,7 @@ agent-team/
     product-plan.md
     task.md
     task-routing.md
+    human-decision-queue.md
     pr-description.md
     test-report.md
     review-report.md
@@ -174,6 +176,7 @@ Recommended project-state artifact structure:
   sessions/
   current-task.md
   decisions.md
+  human-decisions.md
   handoff.md
   test-report.md
   review-report.md

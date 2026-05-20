@@ -46,3 +46,4 @@
 - Request Routing playbook and compact routing template for automatic role, lane, Skill, and gate selection
 - `agentcrew classify` task classifier for previewing lane, starting role, reviewers, specialists, Skill hints, gates, and files to load
 - `agentcrew status` project dashboard for loader registrations, git state, `.agent-state/` artifacts, latest sessions, reports, and human attention
+- Human Decision Queue playbook, template, docs, and status dashboard support for surfacing human-only decisions

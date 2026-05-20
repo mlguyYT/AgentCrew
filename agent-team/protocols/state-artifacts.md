@@ -37,6 +37,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   sessions/
   current-task.md
   decisions.md
+  human-decisions.md
   handoff.md
   test-report.md
   review-report.md
@@ -61,6 +62,9 @@ current-task.md:
 
 decisions.md:
   purpose: durable human or agent decisions with dates
+
+human-decisions.md:
+  purpose: pending and resolved human-only decisions surfaced by `agentcrew status`
 
 handoff.md:
   purpose: compact current handoff between roles
@@ -109,6 +113,24 @@ Exactly what the next agent should do.
 ### Open Questions
 Only blockers.
 ```
+
+---
+
+## Human Decision Queue Schema
+
+Use:
+
+```text
+agent-team/templates/human-decision-queue.md
+```
+
+Store project-specific queues at:
+
+```text
+.agent-state/human-decisions.md
+```
+
+Only the human may mark risk-acceptance decisions as approved, rejected, or deferred.
 
 ---
 

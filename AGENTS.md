@@ -94,6 +94,7 @@ request_routing:
   - load the matching context profile
   - load relevant Skills from agent-team/skills/registry.md
   - load only triggered gates and specialist files
+  - record human-only decisions in .agent-state/human-decisions.md when needed
   - run the workflow until human approval is needed
 ```
 
@@ -128,6 +129,8 @@ rules:
 
 Only the human may:
 
+When a human-only decision is pending, record it in `.agent-state/human-decisions.md` using `agent-team/templates/human-decision-queue.md`.
+
 ```yaml
 human_only:
   - approve final product direction
@@ -140,6 +143,7 @@ human_only:
   - enable legacy insecure compatibility
   - force-push or rewrite shared history
   - override quality gates
+  - resolve pending human decision queue items involving risk acceptance
 ```
 
 ---
@@ -286,6 +290,7 @@ Preferred shared project artifacts:
 .agent-state/current-task.md
 .agent-state/decisions.md
 .agent-state/handoff.md
+.agent-state/human-decisions.md
 .agent-state/test-report.md
 .agent-state/review-report.md
 .agent-state/security-review-report.md
@@ -401,6 +406,9 @@ skill_validator:
 
 memory_saving:
   use: agent-team/templates/memory-summary.md
+
+human_decision_queue:
+  use: agent-team/templates/human-decision-queue.md
 ```
 
 ---
