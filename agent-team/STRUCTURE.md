@@ -70,6 +70,7 @@ agent-team/
     naming.md
 
   tools/
+    detect-project.sh
     list-sessions.sh
     save-session.sh
 

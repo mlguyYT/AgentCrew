@@ -20,6 +20,8 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 
 - [ ] `AGENTS.md` exists
 - [ ] `bin/agentcrew` exists and is executable
+- [ ] `bin/agentcrew doctor` reports zero failures
+- [ ] `bin/agentcrew detect-project --project .` runs from a target project
 - [ ] `agent-team/` exists
 - [ ] `README.md` or project docs explain how to use AgentCrew
 - [ ] Optional tool adapters point to `AGENTS.md` and `agent-team/`
@@ -99,6 +101,8 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/adapters/cursor.md`
 - [ ] `agent-team/adapters/copilot.md`
 - [ ] `docs/auto-load.md`
+- [ ] `docs/doctor.md`
+- [ ] `docs/project-detection.md`
 
 ---
 
@@ -124,6 +128,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/templates/cnn-report.md`
 - [ ] `agent-team/templates/memory-summary.md`
 - [ ] `agent-team/templates/skill-validation-report.md`
+- [ ] `agent-team/tools/detect-project.sh`
 
 ---
 

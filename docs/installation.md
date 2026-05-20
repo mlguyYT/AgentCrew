@@ -29,6 +29,12 @@ Do not copy `AGENTS.md` or `agent-team/` into each project by default.
 
 From the target project, ask normally and enjoy development with your AgentCrew.
 
+Optional: inspect a target project profile without changing it:
+
+```bash
+~/AgentCrew/bin/agentcrew detect-project --project /path/to/your-project
+```
+
 For an existing repository, follow:
 
 ```text
@@ -131,6 +137,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       naming.md
 
     tools/
+      detect-project.sh
       list-sessions.sh
       save-session.sh
 

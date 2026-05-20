@@ -14,10 +14,12 @@ usage() {
   printf '%s\n' "  install             Register AgentCrew with supported coding agents"
   printf '%s\n' "  status              Show detected AgentCrew registrations"
   printf '%s\n' "  doctor              Check AgentCrew setup health"
+  printf '%s\n' "  detect-project      Detect project stack, tools, and suggested Skills"
   printf '%s\n' ""
   printf '%s\n' "Options:"
   printf '%s\n' "  --agent NAME        all, claude, codex, or openclaw. Default: all"
   printf '%s\n' "  --root PATH         AgentCrew checkout path. Default: this checkout"
+  printf '%s\n' "  --project PATH      Target project path. Default: current directory"
   printf '%s\n' "  --dry-run           Print planned changes without writing files"
   printf '%s\n' "  -h, --help          Show help"
 }
@@ -293,6 +295,8 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/protocols/state-artifacts.md" "state artifacts protocol exists"
   check_file_exists "$root/agent-team/checklists/agentcrew-health-check.md" "AgentCrew health checklist exists"
   check_file_exists "$root/docs/auto-load.md" "auto-load documentation exists"
+  check_file_exists "$root/docs/doctor.md" "doctor documentation exists"
+  check_file_exists "$root/docs/project-detection.md" "project detection documentation exists"
   check_file_exists "$root/docs/installation.md" "installation documentation exists"
 }
 
@@ -370,6 +374,12 @@ doctor_tools() {
   else
     check_warn "agentcrew CLI is not executable"
   fi
+
+  if [ -x "$root/agent-team/tools/detect-project.sh" ]; then
+    check_pass "project detector is executable"
+  else
+    check_warn "project detector is not executable"
+  fi
 }
 
 run_doctor() {
@@ -419,12 +429,25 @@ run_doctor() {
   fi
 }
 
+
+run_detect_project() {
+  local root="$1"
+  local project="$2"
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+
+  local detector="$root/agent-team/tools/detect-project.sh"
+  [ -x "$detector" ] || die "Missing executable project detector: $detector"
+  "$detector" --project "$project"
+}
+
 COMMAND="${1:-}"
 [ "$#" -gt 0 ] && shift || true
 
 AGENT="all"
 ROOT="$DEFAULT_ROOT"
 DRY_RUN="false"
+PROJECT="."
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -436,6 +459,11 @@ while [ "$#" -gt 0 ]; do
     --root)
       [ "$#" -ge 2 ] || die "Missing value for --root" 2
       ROOT="$2"
+      shift 2
+      ;;
+    --project)
+      [ "$#" -ge 2 ] || die "Missing value for --project" 2
+      PROJECT="$2"
       shift 2
       ;;
     --dry-run)
@@ -468,6 +496,9 @@ case "$COMMAND" in
     ;;
   doctor)
     run_doctor "$ROOT"
+    ;;
+  detect-project)
+    run_detect_project "$ROOT" "$PROJECT"
     ;;
   -h|--help|"")
     usage

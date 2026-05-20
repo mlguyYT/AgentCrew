@@ -180,3 +180,9 @@ A successful setup means:
 - a new agent session can respond to a normal task without a `Load AgentCrew` prompt
 
 If a tool does not appear to load AgentCrew, ask it which instruction files were loaded at session start, then use the relevant adapter file.
+
+To inspect the project stack that AgentCrew should route against, run:
+
+```bash
+~/AgentCrew/bin/agentcrew detect-project --project .
+```

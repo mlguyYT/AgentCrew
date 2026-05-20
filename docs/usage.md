@@ -42,6 +42,17 @@ If automatic loading has not been registered yet, run:
 ~/AgentCrew/bin/agentcrew doctor
 ```
 
+
+## Project detection
+
+Use the detector when you want a quick read-only profile of a project before routing work:
+
+```bash
+~/AgentCrew/bin/agentcrew detect-project --project .
+```
+
+The profile lists likely languages, frameworks, package managers, validation commands, coverage hints, and suggested Skills. Agents should use it as a starting point and still inspect the task-specific files.
+
 ---
 
 ## Automatic routing

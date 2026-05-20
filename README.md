@@ -64,7 +64,7 @@ Specialist reviewers and agents are used only when needed: Security, UX / Design
 
 ```text
 AGENTS.md              entry point for agents
-bin/                   one-time registration command
+bin/                   registration, diagnostics, and project detection commands
 agent-team/            roles, playbooks, skills, templates, policies
 docs/                  install, usage, examples, customization
 examples/              example prompts and workflows
@@ -76,6 +76,7 @@ runtime/               optional future orchestration notes
 
 - [Installation](docs/installation.md)
 - [Setup Doctor](docs/doctor.md)
+- [Project Detection](docs/project-detection.md)
 - [Automatic Loading](docs/auto-load.md)
 - [Use in an Existing Project](docs/bootstrap-existing-project.md)
 - [Usage Guide](docs/usage.md)

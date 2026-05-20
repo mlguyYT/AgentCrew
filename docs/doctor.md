@@ -32,7 +32,7 @@ The doctor checks:
 - required Agent role files
 - required output templates
 - Claude Code, Codex, and OpenClaw global loader registrations
-- local tool availability such as `git`
+- local tool availability such as `git` and the project detector
 - whether AgentCrew's own repository ignores its local `.agent-state/`
 - whether AgentCrew is external to the current project when run from a target project
 
