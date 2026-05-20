@@ -70,10 +70,10 @@ Explicit role prompts are still useful when you want manual control.
 
 Make the root `AGENTS.md` shorter and more explicit.
 
-First check whether automatic loading is registered:
+First check whether automatic loading is registered and the project dashboard is visible:
 
 ```bash
-~/AgentCrew/bin/agentcrew status
+~/AgentCrew/bin/agentcrew status --project .
 ```
 
 If the tool still ignores AgentCrew, use the relevant adapter in:

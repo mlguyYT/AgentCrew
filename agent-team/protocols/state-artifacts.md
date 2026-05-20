@@ -46,7 +46,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   memory.md
 ```
 
-Use only the files that are useful for the current project.
+Use only the files that are useful for the current project. `agentcrew status` reads these files when present and reports missing files as `not set`.
 
 `sessions/` stores timestamped local session checkpoints created by the optional AgentCrew save-session utility.
 The save-session utility resolves the target git repository root automatically, so checkpoints from different projects do not conflict.

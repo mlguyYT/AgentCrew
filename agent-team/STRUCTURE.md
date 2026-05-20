@@ -73,6 +73,7 @@ agent-team/
   tools/
     classify-task.sh
     detect-project.sh
+    project-status.sh
     list-sessions.sh
     save-session.sh
 

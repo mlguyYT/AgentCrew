@@ -91,7 +91,7 @@ Bootstrap is complete when:
 
 - external `~/AgentCrew/AGENTS.md` exists
 - external `~/AgentCrew/agent-team/` exists
-- `~/AgentCrew/bin/agentcrew status` shows the expected registration
+- `~/AgentCrew/bin/agentcrew status --project .` shows expected registrations and project dashboard
 - required roles, playbooks, templates, policies, and Skills registry exist
 - any optional project-local adapter points to external AgentCrew files
 - no required runtime, container platform, or custom service assumption remains

@@ -12,7 +12,7 @@ usage() {
   printf '%s\n' ""
   printf '%s\n' "Commands:"
   printf '%s\n' "  install             Register AgentCrew with supported coding agents"
-  printf '%s\n' "  status              Show detected AgentCrew registrations"
+  printf '%s\n' "  status              Show registrations and project dashboard"
   printf '%s\n' "  doctor              Check AgentCrew setup health"
   printf '%s\n' "  detect-project      Detect project stack, tools, and suggested Skills"
   printf '%s\n' "  classify            Classify a request into lane, role, Skills, and gates"
@@ -301,6 +301,7 @@ doctor_required_files() {
   check_file_exists "$root/docs/doctor.md" "doctor documentation exists"
   check_file_exists "$root/docs/project-detection.md" "project detection documentation exists"
   check_file_exists "$root/docs/task-classifier.md" "task classifier documentation exists"
+  check_file_exists "$root/docs/status-dashboard.md" "status dashboard documentation exists"
   check_file_exists "$root/docs/installation.md" "installation documentation exists"
 }
 
@@ -390,6 +391,12 @@ doctor_tools() {
   else
     check_warn "task classifier is not executable"
   fi
+
+  if [ -x "$root/agent-team/tools/project-status.sh" ]; then
+    check_pass "project status dashboard is executable"
+  else
+    check_warn "project status dashboard is not executable"
+  fi
 }
 
 run_doctor() {
@@ -464,6 +471,25 @@ run_classify() {
   "$classifier" --project "$project" --task "$task"
 }
 
+run_status() {
+  local root="$1"
+  local project="$2"
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+
+  printf '%s\n' "AgentCrew Status"
+  printf '%s\n' ""
+  printf '%s\n' "Global Loaders"
+  status_agent "Claude Code" "$(claude_file)"
+  status_agent "Codex" "$(codex_file)"
+  status_agent "OpenClaw" "$(openclaw_file)"
+  printf '%s\n' ""
+
+  local status_tool="$root/agent-team/tools/project-status.sh"
+  [ -x "$status_tool" ] || die "Missing executable project status dashboard: $status_tool"
+  "$status_tool" --project "$project"
+}
+
 COMMAND="${1:-}"
 [ "$#" -gt 0 ] && shift || true
 
@@ -529,9 +555,7 @@ case "$COMMAND" in
     printf '%s\n' "Open any project and enjoy development with your AgentCrew."
     ;;
   status)
-    status_agent "Claude Code" "$(claude_file)"
-    status_agent "Codex" "$(codex_file)"
-    status_agent "OpenClaw" "$(openclaw_file)"
+    run_status "$ROOT" "$PROJECT"
     ;;
   doctor)
     run_doctor "$ROOT"

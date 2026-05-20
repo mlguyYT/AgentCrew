@@ -23,6 +23,7 @@ Example:
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ~/AgentCrew/bin/agentcrew install
 ~/AgentCrew/bin/agentcrew doctor
+~/AgentCrew/bin/agentcrew status
 ```
 
 Do not copy `AGENTS.md` or `agent-team/` into each project by default.
@@ -34,6 +35,7 @@ Optional: inspect a target project profile and classify a request without changi
 ```bash
 ~/AgentCrew/bin/agentcrew detect-project --project /path/to/your-project
 ~/AgentCrew/bin/agentcrew classify --project /path/to/your-project --task "Add OAuth login"
+~/AgentCrew/bin/agentcrew status --project /path/to/your-project
 ```
 
 For an existing repository, follow:
@@ -141,6 +143,7 @@ After installation, AgentCrew should live outside the project it is guiding:
     tools/
       classify-task.sh
       detect-project.sh
+      project-status.sh
       list-sessions.sh
       save-session.sh
 

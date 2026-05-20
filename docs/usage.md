@@ -68,6 +68,18 @@ The classifier prints the likely lane, starting role, reviewers, specialists, Sk
 
 ---
 
+## Status dashboard
+
+Use status to check AgentCrew registrations and the current project state:
+
+```bash
+~/AgentCrew/bin/agentcrew status --project .
+```
+
+It summarizes loader registration, git state, `.agent-state/` artifacts, latest saved session, reports, and open human attention items.
+
+---
+
 ## Automatic routing
 
 You do not need to choose the role, lane, or Skill.
