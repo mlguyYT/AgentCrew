@@ -22,6 +22,7 @@ Example:
 ```bash
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ~/AgentCrew/bin/agentcrew install
+~/AgentCrew/bin/agentcrew doctor
 ```
 
 Do not copy `AGENTS.md` or `agent-team/` into each project by default.
@@ -62,24 +63,15 @@ docs/auto-load.md
 
 ## Verify external installation
 
-Check that these files exist:
+Run the setup doctor:
 
 ```bash
-test -f ~/AgentCrew/AGENTS.md
-test -d ~/AgentCrew/agent-team
-test -f ~/AgentCrew/agent-team/playbooks/fast-lane.md
-test -f ~/AgentCrew/agent-team/agents/developer.md
-test -f ~/AgentCrew/agent-team/skills/registry.md
-test -f ~/AgentCrew/agent-team/skills/authoring-guide.md
-test -f ~/AgentCrew/agent-team/playbooks/memory-saving.md
-test -f ~/AgentCrew/agent-team/playbooks/skill-validation.md
-test -f ~/AgentCrew/agent-team/playbooks/lane-escalation.md
-test -f ~/AgentCrew/agent-team/playbooks/specialist-review-routing.md
-test -f ~/AgentCrew/agent-team/protocols/communication.md
-test -f ~/AgentCrew/agent-team/protocols/state-artifacts.md
-test -f ~/AgentCrew/agent-team/templates/pr-description.md
-test -f ~/AgentCrew/agent-team/checklists/agentcrew-health-check.md
+~/AgentCrew/bin/agentcrew doctor
 ```
+
+A healthy setup reports zero failures. Warnings are useful context, such as a missing optional tool loader or a loader that points to a different checkout.
+
+See `docs/doctor.md` for details.
 
 ---
 

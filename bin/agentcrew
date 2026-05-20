@@ -13,6 +13,7 @@ usage() {
   printf '%s\n' "Commands:"
   printf '%s\n' "  install             Register AgentCrew with supported coding agents"
   printf '%s\n' "  status              Show detected AgentCrew registrations"
+  printf '%s\n' "  doctor              Check AgentCrew setup health"
   printf '%s\n' ""
   printf '%s\n' "Options:"
   printf '%s\n' "  --agent NAME        all, claude, codex, or openclaw. Default: all"
@@ -216,6 +217,208 @@ status_agent() {
   fi
 }
 
+
+DOCTOR_FAILS=0
+DOCTOR_WARNINGS=0
+
+check_pass() {
+  printf 'PASS %s\n' "$1"
+}
+
+check_warn() {
+  DOCTOR_WARNINGS=$((DOCTOR_WARNINGS + 1))
+  printf 'WARN %s\n' "$1"
+}
+
+check_fail() {
+  DOCTOR_FAILS=$((DOCTOR_FAILS + 1))
+  printf 'FAIL %s\n' "$1"
+}
+
+check_file_exists() {
+  local path="$1"
+  if [ -f "$path" ]; then
+    check_pass "$2"
+  else
+    check_fail "$2 (missing: $path)"
+  fi
+}
+
+check_dir_exists() {
+  local path="$1"
+  if [ -d "$path" ]; then
+    check_pass "$2"
+  else
+    check_fail "$2 (missing: $path)"
+  fi
+}
+
+registration_root_matches() {
+  local file="$1"
+  local root="$2"
+  [ -f "$file" ] || return 1
+  grep -Fq "$START_MARKER" "$file" || return 1
+  grep -Fq "$root/AGENTS.md" "$file" || grep -Fq "$root/agent-team" "$file" || grep -Fq "$root" "$file"
+}
+
+doctor_registration() {
+  local name="$1"
+  local file="$2"
+  local root="$3"
+
+  if has_registration "$file"; then
+    if registration_root_matches "$file" "$root"; then
+      check_pass "$name loader is installed and points to this AgentCrew checkout"
+    else
+      check_warn "$name loader exists but may point to a different AgentCrew checkout ($file)"
+    fi
+  else
+    check_warn "$name loader is not installed ($file)"
+  fi
+}
+
+doctor_required_files() {
+  local root="$1"
+
+  check_file_exists "$root/AGENTS.md" "AGENTS.md exists"
+  check_dir_exists "$root/agent-team" "agent-team/ exists"
+  check_file_exists "$root/agent-team/README.md" "agent-team README exists"
+  check_file_exists "$root/agent-team/context/route-index.md" "route index exists"
+  check_file_exists "$root/agent-team/playbooks/fast-lane.md" "Fast Lane playbook exists"
+  check_file_exists "$root/agent-team/playbooks/full-lane.md" "Full Lane playbook exists"
+  check_file_exists "$root/agent-team/playbooks/task-classification.md" "task classification playbook exists"
+  check_file_exists "$root/agent-team/playbooks/token-safe-mode.md" "Token-Safe Mode playbook exists"
+  check_file_exists "$root/agent-team/skills/registry.md" "Skills registry exists"
+  check_file_exists "$root/agent-team/protocols/communication.md" "communication protocol exists"
+  check_file_exists "$root/agent-team/protocols/state-artifacts.md" "state artifacts protocol exists"
+  check_file_exists "$root/agent-team/checklists/agentcrew-health-check.md" "AgentCrew health checklist exists"
+  check_file_exists "$root/docs/auto-load.md" "auto-load documentation exists"
+  check_file_exists "$root/docs/installation.md" "installation documentation exists"
+}
+
+doctor_agent_roles() {
+  local root="$1"
+  local role
+
+  for role in \
+    advisor idea-consultant product-manager developer tester reviewer \
+    security-reviewer ux-design-reviewer documentation-agent skill-validator \
+    llm-agent researcher-agent cnn-agent
+  do
+    check_file_exists "$root/agent-team/agents/$role.md" "role exists: $role"
+  done
+}
+
+doctor_templates() {
+  local root="$1"
+  local template
+
+  for template in \
+    pr-description test-report review-report security-review-report \
+    ux-design-review-report documentation-report skill-validation-report \
+    memory-summary compact-handoff compact-test-report compact-review-report
+  do
+    check_file_exists "$root/agent-team/templates/$template.md" "template exists: $template"
+  done
+}
+
+doctor_project_context() {
+  local root="$1"
+  local current
+  current="$(pwd -P)" || current="."
+
+  printf '\nProject context:\n'
+  printf '  current directory: %s\n' "$current"
+
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    local git_root
+    git_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+    if [ -n "$git_root" ]; then
+      printf '  git root: %s\n' "$git_root"
+    fi
+  else
+    check_warn "current directory is not inside a git worktree"
+  fi
+
+  if [ "$current" = "$root" ]; then
+    if [ -f "$root/.gitignore" ] && grep -Eq '(^|/)[.]agent-state/ *$|^[.]agent-state/ *$' "$root/.gitignore"; then
+      check_pass "AgentCrew repository ignores its own .agent-state/"
+    else
+      check_warn "AgentCrew repository should ignore its own .agent-state/"
+    fi
+  else
+    check_pass "AgentCrew is external to the current project"
+    if [ -d ".agent-state" ]; then
+      check_pass "current project has .agent-state/ for project-local memory"
+    else
+      check_warn "current project has no .agent-state/ yet; this is normal until session memory is saved"
+    fi
+  fi
+}
+
+doctor_tools() {
+  local root="$1"
+
+  if command -v git >/dev/null 2>&1; then
+    check_pass "git is available"
+  else
+    check_warn "git is not available"
+  fi
+
+  if [ -x "$root/bin/agentcrew" ]; then
+    check_pass "agentcrew CLI is executable"
+  else
+    check_warn "agentcrew CLI is not executable"
+  fi
+}
+
+run_doctor() {
+  local root="$1"
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+
+  printf 'AgentCrew Doctor\n'
+  printf 'Root: %s\n\n' "$root"
+
+  printf 'Core files:\n'
+  doctor_required_files "$root"
+
+  printf '\nAgent roles:\n'
+  doctor_agent_roles "$root"
+
+  printf '\nTemplates:\n'
+  doctor_templates "$root"
+
+  printf '\nGlobal loaders:\n'
+  doctor_registration "Claude Code" "$(claude_file)" "$root"
+  doctor_registration "Codex" "$(codex_file)" "$root"
+  if openclaw_detected; then
+    doctor_registration "OpenClaw" "$(openclaw_file)" "$root"
+  else
+    check_warn "OpenClaw not detected; loader check skipped"
+  fi
+
+  printf '\nLocal tools:\n'
+  doctor_tools "$root"
+
+  doctor_project_context "$root"
+
+  printf '\nSummary:\n'
+  printf '  failures: %s\n' "$DOCTOR_FAILS"
+  printf '  warnings: %s\n' "$DOCTOR_WARNINGS"
+
+  if [ "$DOCTOR_FAILS" -gt 0 ]; then
+    printf '\nAgentCrew doctor found blocking setup issues.\n'
+    return 1
+  fi
+
+  if [ "$DOCTOR_WARNINGS" -gt 0 ]; then
+    printf '\nAgentCrew doctor completed with warnings.\n'
+  else
+    printf '\nAgentCrew doctor passed.\n'
+  fi
+}
+
 COMMAND="${1:-}"
 [ "$#" -gt 0 ] && shift || true
 
@@ -262,6 +465,9 @@ case "$COMMAND" in
     status_agent "Claude Code" "$(claude_file)"
     status_agent "Codex" "$(codex_file)"
     status_agent "OpenClaw" "$(openclaw_file)"
+    ;;
+  doctor)
+    run_doctor "$ROOT"
     ;;
   -h|--help|"")
     usage

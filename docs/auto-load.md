@@ -32,10 +32,11 @@ Register AgentCrew with supported agents:
 
 This registers Claude Code and Codex, and registers OpenClaw when OpenClaw is detected on the machine.
 
-Check registration:
+Check registration and setup health:
 
 ```bash
 ~/AgentCrew/bin/agentcrew status
+~/AgentCrew/bin/agentcrew doctor
 ```
 
 After that, from any project, ask normally:
@@ -174,6 +175,7 @@ A successful setup means:
 
 - `~/AgentCrew/AGENTS.md` exists
 - `~/AgentCrew/agent-team/` exists
+- `~/AgentCrew/bin/agentcrew doctor` reports zero failures
 - `~/AgentCrew/bin/agentcrew status` shows the expected registration
 - a new agent session can respond to a normal task without a `Load AgentCrew` prompt
 

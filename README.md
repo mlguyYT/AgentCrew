@@ -31,6 +31,7 @@ Clone AgentCrew once outside your projects:
 ```bash
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ~/AgentCrew/bin/agentcrew install
+~/AgentCrew/bin/agentcrew doctor
 ```
 
 From any project, ask normally:
@@ -74,6 +75,7 @@ runtime/               optional future orchestration notes
 ## Useful Docs
 
 - [Installation](docs/installation.md)
+- [Setup Doctor](docs/doctor.md)
 - [Automatic Loading](docs/auto-load.md)
 - [Use in an Existing Project](docs/bootstrap-existing-project.md)
 - [Usage Guide](docs/usage.md)

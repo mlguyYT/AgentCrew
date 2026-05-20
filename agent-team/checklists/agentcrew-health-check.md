@@ -8,6 +8,14 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 
 ---
 
+## Automated Check
+
+- [ ] Run `bin/agentcrew doctor` from the AgentCrew checkout
+- [ ] Confirm the summary reports zero failures
+- [ ] Review warnings and decide whether they are expected for the environment
+
+---
+
 ## Root Files
 
 - [ ] `AGENTS.md` exists

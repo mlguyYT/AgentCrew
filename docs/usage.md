@@ -39,6 +39,7 @@ If automatic loading has not been registered yet, run:
 
 ```bash
 ~/AgentCrew/bin/agentcrew install
+~/AgentCrew/bin/agentcrew doctor
 ```
 
 ---

@@ -41,3 +41,4 @@
 - Review report output discipline for blocking issues, risks, preserved legacy issues, test gaps, product decisions, and next phase
 - LLM Agent, Researcher Agent, and CNN Agent roles with templates, checklists, skills, and routing triggers
 - Token-safe staged loading with route index, context profiles, compact templates, lazy specialist loading, and output budgets
+- `agentcrew doctor` setup-health command and documentation for validating files, loaders, tools, and project context
