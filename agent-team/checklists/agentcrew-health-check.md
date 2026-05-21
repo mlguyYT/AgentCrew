@@ -25,6 +25,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `bin/agentcrew classify "Fix a small bug" --project .` returns a route
 - [ ] `bin/agentcrew start --dry-run "Fix a small bug" --project .` previews a current-task artifact
 - [ ] `bin/agentcrew brief --dry-run "Fix a small bug" --project .` previews a task brief
+- [ ] `bin/agentcrew plan --dry-run "Add a small feature" --project .` previews a work plan
 - [ ] `bin/agentcrew status --project .` shows registrations and project dashboard
 - [ ] `agent-team/` exists
 - [ ] `README.md` or project docs explain how to use AgentCrew
@@ -71,6 +72,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/request-routing.md`
 - [ ] `agent-team/playbooks/task-intake.md`
 - [ ] `agent-team/playbooks/acceptance-criteria.md`
+- [ ] `agent-team/playbooks/work-planning.md`
 - [ ] `agent-team/playbooks/quality-profile-selection.md`
 - [ ] `agent-team/playbooks/human-decision-queue.md`
 - [ ] `agent-team/playbooks/lane-escalation.md`
@@ -123,6 +125,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/checklists/shared-memory-refresh.md`
 - [ ] `agent-team/checklists/integration-test-escalation.md`
 - [ ] `agent-team/checklists/acceptance-criteria.md`
+- [ ] `agent-team/checklists/work-planning.md`
 - [ ] `agent-team/checklists/llm-review.md`
 - [ ] `agent-team/checklists/research-quality.md`
 - [ ] `agent-team/checklists/cnn-review.md`
@@ -143,6 +146,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `docs/task-classifier.md`
 - [ ] `docs/task-intake.md`
 - [ ] `docs/acceptance-criteria.md`
+- [ ] `docs/work-planning.md`
 - [ ] `docs/status-dashboard.md`
 - [ ] `docs/human-decision-queue.md`
 
@@ -158,6 +162,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/templates/task-routing.md`
 - [ ] `agent-team/templates/current-task.md`
 - [ ] `agent-team/templates/task-brief.md`
+- [ ] `agent-team/templates/work-plan.md`
 - [ ] `agent-team/templates/human-decision-queue.md`
 - [ ] `agent-team/templates/pr-description.md`
 - [ ] `agent-team/templates/test-report.md`
@@ -177,6 +182,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/tools/classify-task.sh`
 - [ ] `agent-team/tools/start-task.sh`
 - [ ] `agent-team/tools/brief-task.sh`
+- [ ] `agent-team/tools/plan-task.sh`
 - [ ] `agent-team/tools/detect-project.sh`
 - [ ] `agent-team/tools/project-status.sh`
 

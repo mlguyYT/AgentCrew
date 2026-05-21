@@ -37,6 +37,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   sessions/
   current-task.md
   task-brief.md
+  work-plan.md
   decisions.md
   human-decisions.md
   handoff.md
@@ -63,6 +64,9 @@ current-task.md:
 
 task-brief.md:
   purpose: scoped task brief with provisional acceptance criteria, scope, test plan, gates, and open questions
+
+work-plan.md:
+  purpose: PR-sized implementation phases, owners, validation, gates, risks, and next action
 
 decisions.md:
   purpose: durable human or agent decisions with dates

@@ -51,3 +51,4 @@
 - Task intake playbook, current-task template, docs, and `agentcrew start` command for turning plain requests into `.agent-state/current-task.md`
 - Workflow recipes for common product-builder outcomes with classifier, task intake, status, docs, and doctor support
 - Acceptance criteria playbook, task brief template, checklist, docs, and `agentcrew brief` command for creating testable task briefs
+- Work planning playbook, template, checklist, docs, status support, and `agentcrew plan` command for PR-sized implementation slicing

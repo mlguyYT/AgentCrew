@@ -33,6 +33,7 @@ routing_order:
   - produce a compact route summary
   - create `.agent-state/current-task.md` when a durable current task artifact is useful
   - create `.agent-state/task-brief.md` when acceptance criteria are missing or vague
+  - create `.agent-state/work-plan.md` when work needs sequencing or PR slicing
   - start the workflow
 ```
 

@@ -18,13 +18,14 @@ usage() {
   printf '%s\n' "  classify            Classify a request into lane, role, Skills, and gates"
   printf '%s\n' "  start               Start a task and write .agent-state/current-task.md"
   printf '%s\n' "  brief               Create a task brief with acceptance criteria"
+  printf '%s\n' "  plan                Create a PR-sized work plan"
   printf '%s\n' ""
   printf '%s\n' "Options:"
   printf '%s\n' "  --agent NAME        all, claude, codex, or openclaw. Default: all"
   printf '%s\n' "  --root PATH         AgentCrew checkout path. Default: this checkout"
   printf '%s\n' "  --project PATH      Target project path. Default: current directory"
-  printf '%s\n' "  --task TEXT         Request text for classify, start, or brief"
-  printf '%s\n' "  --force             Overwrite current task or brief when using start/brief"
+  printf '%s\n' "  --task TEXT         Request text for classify, start, brief, or plan"
+  printf '%s\n' "  --force             Overwrite current task, brief, or plan when using start/brief/plan"
   printf '%s\n' "  --dry-run           Print planned changes without writing files"
   printf '%s\n' "  -h, --help          Show help"
 }
@@ -297,6 +298,7 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/playbooks/request-routing.md" "request routing playbook exists"
   check_file_exists "$root/agent-team/playbooks/task-intake.md" "task intake playbook exists"
   check_file_exists "$root/agent-team/playbooks/acceptance-criteria.md" "acceptance criteria playbook exists"
+  check_file_exists "$root/agent-team/playbooks/work-planning.md" "work planning playbook exists"
   check_file_exists "$root/agent-team/playbooks/quality-profile-selection.md" "quality profile selection playbook exists"
   check_file_exists "$root/agent-team/playbooks/human-decision-queue.md" "human decision queue playbook exists"
   check_file_exists "$root/agent-team/playbooks/token-safe-mode.md" "Token-Safe Mode playbook exists"
@@ -325,6 +327,7 @@ doctor_required_files() {
   check_file_exists "$root/docs/task-classifier.md" "task classifier documentation exists"
   check_file_exists "$root/docs/task-intake.md" "task intake documentation exists"
   check_file_exists "$root/docs/acceptance-criteria.md" "acceptance criteria documentation exists"
+  check_file_exists "$root/docs/work-planning.md" "work planning documentation exists"
   check_file_exists "$root/docs/status-dashboard.md" "status dashboard documentation exists"
   check_file_exists "$root/docs/human-decision-queue.md" "human decision queue documentation exists"
   check_file_exists "$root/docs/quality-profiles.md" "quality profiles documentation exists"
@@ -352,7 +355,7 @@ doctor_templates() {
   for template in \
     pr-description test-report review-report security-review-report \
     ux-design-review-report documentation-report skill-validation-report \
-    memory-summary task-routing current-task task-brief human-decision-queue compact-handoff compact-test-report compact-review-report
+    memory-summary task-routing current-task task-brief work-plan human-decision-queue compact-handoff compact-test-report compact-review-report
   do
     check_file_exists "$root/agent-team/templates/$template.md" "template exists: $template"
   done
@@ -429,6 +432,12 @@ doctor_tools() {
     check_pass "task brief tool is executable"
   else
     check_warn "task brief tool is not executable"
+  fi
+
+  if [ -x "$root/agent-team/tools/plan-task.sh" ]; then
+    check_pass "work plan tool is executable"
+  else
+    check_warn "work plan tool is not executable"
   fi
 
   if [ -x "$root/agent-team/tools/project-status.sh" ]; then
@@ -548,6 +557,25 @@ run_brief() {
   "$briefer" "${args[@]}"
 }
 
+run_plan() {
+  local root="$1"
+  local project="$2"
+  local task="$3"
+  local dry_run="$4"
+  local force="$5"
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+
+  [ -n "$task" ] || die 'Missing request text. Use: agentcrew plan "Add OAuth login"' 2
+  local planner="$root/agent-team/tools/plan-task.sh"
+  [ -x "$planner" ] || die "Missing executable work plan tool: $planner"
+
+  local args=(--project "$project" --task "$task")
+  [ "$dry_run" = "true" ] && args+=(--dry-run)
+  [ "$force" = "true" ] && args+=(--force)
+  "$planner" "${args[@]}"
+}
+
 run_status() {
   local root="$1"
   local project="$2"
@@ -613,7 +641,7 @@ while [ "$#" -gt 0 ]; do
       exit 0
       ;;
     *)
-      if [ "$COMMAND" = "classify" ] || [ "$COMMAND" = "start" ] || [ "$COMMAND" = "brief" ]; then
+      if [ "$COMMAND" = "classify" ] || [ "$COMMAND" = "start" ] || [ "$COMMAND" = "brief" ] || [ "$COMMAND" = "plan" ]; then
         POSITIONAL_ARGS+=("$1")
         shift
       else
@@ -623,7 +651,7 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-if { [ "$COMMAND" = "classify" ] || [ "$COMMAND" = "start" ] || [ "$COMMAND" = "brief" ]; } && [ -z "$TASK" ] && [ "${#POSITIONAL_ARGS[@]}" -gt 0 ]; then
+if { [ "$COMMAND" = "classify" ] || [ "$COMMAND" = "start" ] || [ "$COMMAND" = "brief" ] || [ "$COMMAND" = "plan" ]; } && [ -z "$TASK" ] && [ "${#POSITIONAL_ARGS[@]}" -gt 0 ]; then
   TASK="${POSITIONAL_ARGS[*]}"
 fi
 
@@ -653,6 +681,9 @@ case "$COMMAND" in
     ;;
   brief)
     run_brief "$ROOT" "$PROJECT" "$TASK" "$DRY_RUN" "$FORCE"
+    ;;
+  plan)
+    run_plan "$ROOT" "$PROJECT" "$TASK" "$DRY_RUN" "$FORCE"
     ;;
   -h|--help|"")
     usage

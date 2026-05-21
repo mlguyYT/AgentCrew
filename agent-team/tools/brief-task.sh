@@ -208,7 +208,7 @@ fi
 mkdir -p "$STATE_DIR" || exit 1
 artifact > "$TASK_BRIEF" || exit 1
 
-SENSITIVE_PATTERN='[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}|/home/[^[:space:]]+|/Users/[^[:space:]]+|[A-Za-z]:\Users\|\.ssh/|id_rsa|id_ed25519|deploy[-_ ]?key'
+SENSITIVE_PATTERN='[[:alnum:]._%+-]+@[[:alnum:].-]+\.[[:alpha:]]{2,}|/home/[^[:space:]]+|/Users/[^[:space:]]+|[A-Za-z]:\\Users\\|\.ssh/|id_rsa|id_ed25519|deploy[-_ ]?key'
 if grep -Eiq "$SENSITIVE_PATTERN" "$TASK_BRIEF"; then
   rm -f "$TASK_BRIEF"
   printf '%s\n' 'Refusing to save task brief: generated artifact contains personal identifiers, private key paths, deploy-key paths, or local machine paths.' >&2

@@ -46,6 +46,7 @@ agent-team/
     request-routing.md
     task-intake.md
     acceptance-criteria.md
+    work-planning.md
     quality-profile-selection.md
     human-decision-queue.md
     lane-escalation.md
@@ -97,6 +98,7 @@ agent-team/
     classify-task.sh
     start-task.sh
     brief-task.sh
+    plan-task.sh
     detect-project.sh
     project-status.sh
     list-sessions.sh
@@ -109,6 +111,7 @@ agent-team/
     task-routing.md
     current-task.md
     task-brief.md
+    work-plan.md
     human-decision-queue.md
     pr-description.md
     test-report.md
@@ -166,6 +169,7 @@ agent-team/
     agentcrew-health-check.md
     definition-of-done.md
     acceptance-criteria.md
+    work-planning.md
     testing.md
     code-review.md
     design-review.md
@@ -203,6 +207,7 @@ Recommended project-state artifact structure:
   sessions/
   current-task.md
   task-brief.md
+  work-plan.md
   decisions.md
   human-decisions.md
   handoff.md

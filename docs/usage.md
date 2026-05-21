@@ -94,6 +94,18 @@ This creates `.agent-state/task-brief.md` with provisional acceptance criteria, 
 
 ---
 
+## Work planning
+
+Use a work plan when the request should be sliced into PR-sized phases:
+
+```bash
+~/AgentCrew/bin/agentcrew plan --task "Add OAuth login"
+```
+
+This creates `.agent-state/work-plan.md` with phases, owners, acceptance, validation, gates, risks, and next action. Use `--dry-run` to preview.
+
+---
+
 ## Status dashboard
 
 Use status to check AgentCrew registrations and the current project state:

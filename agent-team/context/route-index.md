@@ -39,6 +39,7 @@ Load only:
 - `agent-team/playbooks/request-routing.md` only when route is ambiguous
 - `agent-team/playbooks/task-intake.md` when creating `.agent-state/current-task.md`
 - `agent-team/playbooks/acceptance-criteria.md` when creating `.agent-state/task-brief.md`
+- `agent-team/playbooks/work-planning.md` when creating `.agent-state/work-plan.md`
 - selected `agent-team/recipes/*.md` when a recipe changes handling
 - selected lane playbook
 - `agent-team/playbooks/quality-profile-selection.md` when profile choice affects gates or output detail
