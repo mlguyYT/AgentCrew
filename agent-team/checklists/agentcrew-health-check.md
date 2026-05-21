@@ -27,6 +27,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `bin/agentcrew brief --dry-run "Fix a small bug" --project .` previews a task brief
 - [ ] `bin/agentcrew plan --dry-run "Add a small feature" --project .` previews a work plan
 - [ ] `bin/agentcrew ready --dry-run --project .` previews an implementation-readiness report
+- [ ] `bin/agentcrew pr-pack --dry-run --project .` previews a PR packet
 - [ ] `bin/agentcrew status --project .` shows registrations and project dashboard
 - [ ] `agent-team/` exists
 - [ ] `README.md` or project docs explain how to use AgentCrew
@@ -75,6 +76,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/acceptance-criteria.md`
 - [ ] `agent-team/playbooks/work-planning.md`
 - [ ] `agent-team/playbooks/implementation-readiness.md`
+- [ ] `agent-team/playbooks/pr-preparation.md`
 - [ ] `agent-team/playbooks/quality-profile-selection.md`
 - [ ] `agent-team/playbooks/human-decision-queue.md`
 - [ ] `agent-team/playbooks/lane-escalation.md`
@@ -129,6 +131,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/checklists/acceptance-criteria.md`
 - [ ] `agent-team/checklists/work-planning.md`
 - [ ] `agent-team/checklists/implementation-readiness.md`
+- [ ] `agent-team/checklists/pr-preparation.md`
 - [ ] `agent-team/checklists/llm-review.md`
 - [ ] `agent-team/checklists/research-quality.md`
 - [ ] `agent-team/checklists/cnn-review.md`
@@ -151,6 +154,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `docs/acceptance-criteria.md`
 - [ ] `docs/work-planning.md`
 - [ ] `docs/implementation-readiness.md`
+- [ ] `docs/pr-preparation.md`
 - [ ] `docs/status-dashboard.md`
 - [ ] `docs/human-decision-queue.md`
 
@@ -168,6 +172,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/templates/task-brief.md`
 - [ ] `agent-team/templates/work-plan.md`
 - [ ] `agent-team/templates/readiness-report.md`
+- [ ] `agent-team/templates/pr-pack.md`
 - [ ] `agent-team/templates/human-decision-queue.md`
 - [ ] `agent-team/templates/pr-description.md`
 - [ ] `agent-team/templates/test-report.md`
@@ -189,6 +194,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/tools/brief-task.sh`
 - [ ] `agent-team/tools/plan-task.sh`
 - [ ] `agent-team/tools/ready-check.sh`
+- [ ] `agent-team/tools/prepare-pr-pack.sh`
 - [ ] `agent-team/tools/detect-project.sh`
 - [ ] `agent-team/tools/project-status.sh`
 

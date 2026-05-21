@@ -23,6 +23,9 @@ current:
   - lane escalation rules
   - Skill authoring guide
   - state artifact schema
+  - project detection and setup doctor
+  - task classifier, intake, briefs, work planning, readiness, and PR preparation
+  - project status dashboard
 ```
 
 ---

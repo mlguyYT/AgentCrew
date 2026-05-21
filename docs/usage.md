@@ -118,6 +118,18 @@ This creates `.agent-state/readiness-report.md` with blockers, warnings, recomme
 
 ---
 
+## PR preparation
+
+Prepare a compact packet for human PR review:
+
+```bash
+~/AgentCrew/bin/agentcrew pr-pack
+```
+
+This creates `.agent-state/pr-pack.md` with task, readiness, validation, review, risk, and human-decision evidence. Use `--dry-run` to preview.
+
+---
+
 ## Status dashboard
 
 Use status to check AgentCrew registrations and the current project state:

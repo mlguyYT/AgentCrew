@@ -132,6 +132,7 @@ The optional local checkpoint utility is:
 ~/AgentCrew/agent-team/tools/brief-task.sh
 ~/AgentCrew/agent-team/tools/plan-task.sh
 ~/AgentCrew/agent-team/tools/ready-check.sh
+~/AgentCrew/agent-team/tools/prepare-pr-pack.sh
 ~/AgentCrew/agent-team/tools/detect-project.sh
 ~/AgentCrew/agent-team/tools/project-status.sh
 ~/AgentCrew/agent-team/tools/save-session.sh

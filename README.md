@@ -50,6 +50,8 @@ Optional: create a PR-sized work plan with `~/AgentCrew/bin/agentcrew plan --tas
 
 Optional: check implementation readiness with `~/AgentCrew/bin/agentcrew ready`.
 
+Optional: prepare a human-review PR packet with `~/AgentCrew/bin/agentcrew pr-pack`.
+
 No AgentCrew files need to be copied into the project.
 
 ## Workflows
@@ -94,6 +96,7 @@ runtime/               optional future orchestration notes
 - [Acceptance Criteria](docs/acceptance-criteria.md)
 - [Work Planning](docs/work-planning.md)
 - [Implementation Readiness](docs/implementation-readiness.md)
+- [PR Preparation](docs/pr-preparation.md)
 - [Status Dashboard](docs/status-dashboard.md)
 - [Human Decision Queue](docs/human-decision-queue.md)
 - [Quality Profiles](docs/quality-profiles.md)

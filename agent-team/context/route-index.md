@@ -41,6 +41,7 @@ Load only:
 - `agent-team/playbooks/acceptance-criteria.md` when creating `.agent-state/task-brief.md`
 - `agent-team/playbooks/work-planning.md` when creating `.agent-state/work-plan.md`
 - `agent-team/playbooks/implementation-readiness.md` before Developer starts non-trivial work
+- `agent-team/playbooks/pr-preparation.md` before human PR review when a compact approval packet is useful
 - selected `agent-team/recipes/*.md` when a recipe changes handling
 - selected lane playbook
 - `agent-team/playbooks/quality-profile-selection.md` when profile choice affects gates or output detail

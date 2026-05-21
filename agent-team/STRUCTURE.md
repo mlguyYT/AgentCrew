@@ -48,6 +48,7 @@ agent-team/
     acceptance-criteria.md
     work-planning.md
     implementation-readiness.md
+    pr-preparation.md
     quality-profile-selection.md
     human-decision-queue.md
     lane-escalation.md
@@ -101,6 +102,7 @@ agent-team/
     brief-task.sh
     plan-task.sh
     ready-check.sh
+    prepare-pr-pack.sh
     detect-project.sh
     project-status.sh
     list-sessions.sh
@@ -115,6 +117,7 @@ agent-team/
     task-brief.md
     work-plan.md
     readiness-report.md
+    pr-pack.md
     human-decision-queue.md
     pr-description.md
     test-report.md
@@ -174,6 +177,7 @@ agent-team/
     acceptance-criteria.md
     work-planning.md
     implementation-readiness.md
+    pr-preparation.md
     testing.md
     code-review.md
     design-review.md
@@ -213,6 +217,7 @@ Recommended project-state artifact structure:
   task-brief.md
   work-plan.md
   readiness-report.md
+  pr-pack.md
   decisions.md
   human-decisions.md
   handoff.md

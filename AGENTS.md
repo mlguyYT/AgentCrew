@@ -97,6 +97,7 @@ request_routing:
   - create .agent-state/task-brief.md with agent-team/playbooks/acceptance-criteria.md when acceptance criteria are missing or vague
   - create .agent-state/work-plan.md with agent-team/playbooks/work-planning.md when work needs sequencing or PR slicing
   - run implementation readiness with agent-team/playbooks/implementation-readiness.md before Developer starts non-trivial work
+  - prepare .agent-state/pr-pack.md with agent-team/playbooks/pr-preparation.md before human PR review when useful
   - load the matching context profile
   - load relevant Skills from agent-team/skills/registry.md
   - load only triggered gates and specialist files
@@ -235,6 +236,10 @@ When work may span multiple phases or PRs, use `agent-team/playbooks/work-planni
 ## Implementation readiness
 
 Before non-trivial implementation starts, use `agent-team/playbooks/implementation-readiness.md` and `agent-team/templates/readiness-report.md`. The optional command is `~/AgentCrew/bin/agentcrew ready --project .`.
+
+## PR preparation
+
+Before human PR review, use `agent-team/playbooks/pr-preparation.md` and `agent-team/templates/pr-pack.md` when a compact approval packet would help. The optional command is `~/AgentCrew/bin/agentcrew pr-pack --project .`.
 
 ---
 

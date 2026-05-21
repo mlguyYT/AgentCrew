@@ -35,6 +35,7 @@ routing_order:
   - create `.agent-state/task-brief.md` when acceptance criteria are missing or vague
   - create `.agent-state/work-plan.md` when work needs sequencing or PR slicing
   - run readiness check before Developer starts non-trivial work
+  - prepare PR packet before human PR review when evidence should be summarized
   - start the workflow
 ```
 
