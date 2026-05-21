@@ -128,6 +128,7 @@ The optional local checkpoint utility is:
 
 ```text
 ~/AgentCrew/agent-team/tools/classify-task.sh
+~/AgentCrew/agent-team/tools/select-preset.sh
 ~/AgentCrew/agent-team/tools/start-task.sh
 ~/AgentCrew/agent-team/tools/brief-task.sh
 ~/AgentCrew/agent-team/tools/plan-task.sh

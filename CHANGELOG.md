@@ -54,3 +54,4 @@
 - Work planning playbook, template, checklist, docs, status support, and `agentcrew plan` command for PR-sized implementation slicing
 - Implementation readiness playbook, template, checklist, docs, status support, and `agentcrew ready` command for pre-implementation readiness checks
 - PR preparation playbook, template, checklist, docs, status support, and `agentcrew pr-pack` command for human-review packets
+- Project presets, selector command, template, checklist, docs, and status support for project-shape defaults

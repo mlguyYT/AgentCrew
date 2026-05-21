@@ -44,6 +44,8 @@ AgentCrew is registered globally for supported agents, reads its own instruction
 
 Optional: make the current task visible with `~/AgentCrew/bin/agentcrew start --task "your request"`.
 
+Optional: select project defaults with `~/AgentCrew/bin/agentcrew preset`.
+
 Optional: create a testable task brief with `~/AgentCrew/bin/agentcrew brief --task "your request"`.
 
 Optional: create a PR-sized work plan with `~/AgentCrew/bin/agentcrew plan --task "your request"`.
@@ -91,6 +93,7 @@ runtime/               optional future orchestration notes
 - [Installation](docs/installation.md)
 - [Setup Doctor](docs/doctor.md)
 - [Project Detection](docs/project-detection.md)
+- [Project Presets](docs/project-presets.md)
 - [Task Classifier](docs/task-classifier.md)
 - [Task Intake](docs/task-intake.md)
 - [Acceptance Criteria](docs/acceptance-criteria.md)

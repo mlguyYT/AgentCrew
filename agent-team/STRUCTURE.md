@@ -45,6 +45,7 @@ agent-team/
     task-classification.md
     request-routing.md
     task-intake.md
+    project-presets.md
     acceptance-criteria.md
     work-planning.md
     implementation-readiness.md
@@ -61,6 +62,14 @@ agent-team/
     skill-loading.md
     skill-validation.md
     memory-saving.md
+
+  presets/
+    README.md
+    react-frontend.md
+    python-api.md
+    node-service.md
+    general-library.md
+    cli-tool.md
 
   quality-profiles/
     light.md
@@ -98,6 +107,7 @@ agent-team/
 
   tools/
     classify-task.sh
+    select-preset.sh
     start-task.sh
     brief-task.sh
     plan-task.sh
@@ -114,6 +124,7 @@ agent-team/
     task.md
     task-routing.md
     current-task.md
+    project-preset.md
     task-brief.md
     work-plan.md
     readiness-report.md

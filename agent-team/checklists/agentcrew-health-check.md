@@ -22,6 +22,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `bin/agentcrew` exists and is executable
 - [ ] `bin/agentcrew doctor` reports zero failures
 - [ ] `bin/agentcrew detect-project --project .` runs from a target project
+- [ ] `bin/agentcrew preset --dry-run --project .` previews a project preset artifact
 - [ ] `bin/agentcrew classify "Fix a small bug" --project .` returns a route
 - [ ] `bin/agentcrew start --dry-run "Fix a small bug" --project .` previews a current-task artifact
 - [ ] `bin/agentcrew brief --dry-run "Fix a small bug" --project .` previews a task brief
@@ -73,6 +74,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/task-classification.md`
 - [ ] `agent-team/playbooks/request-routing.md`
 - [ ] `agent-team/playbooks/task-intake.md`
+- [ ] `agent-team/playbooks/project-presets.md`
 - [ ] `agent-team/playbooks/acceptance-criteria.md`
 - [ ] `agent-team/playbooks/work-planning.md`
 - [ ] `agent-team/playbooks/implementation-readiness.md`
@@ -99,6 +101,17 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/quality-profiles/strict.md`
 - [ ] `agent-team/quality-profiles/regulated.md`
 - [ ] `docs/quality-profiles.md`
+
+---
+
+## Required Project Presets
+
+- [ ] `agent-team/presets/README.md`
+- [ ] `agent-team/presets/react-frontend.md`
+- [ ] `agent-team/presets/python-api.md`
+- [ ] `agent-team/presets/node-service.md`
+- [ ] `agent-team/presets/general-library.md`
+- [ ] `agent-team/presets/cli-tool.md`
 
 ---
 
@@ -130,6 +143,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/checklists/integration-test-escalation.md`
 - [ ] `agent-team/checklists/acceptance-criteria.md`
 - [ ] `agent-team/checklists/work-planning.md`
+- [ ] `agent-team/checklists/project-presets.md`
 - [ ] `agent-team/checklists/implementation-readiness.md`
 - [ ] `agent-team/checklists/pr-preparation.md`
 - [ ] `agent-team/checklists/llm-review.md`
@@ -149,6 +163,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `docs/auto-load.md`
 - [ ] `docs/doctor.md`
 - [ ] `docs/project-detection.md`
+- [ ] `docs/project-presets.md`
 - [ ] `docs/task-classifier.md`
 - [ ] `docs/task-intake.md`
 - [ ] `docs/acceptance-criteria.md`
@@ -169,6 +184,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/skills/ml/cnn.md`
 - [ ] `agent-team/templates/task-routing.md`
 - [ ] `agent-team/templates/current-task.md`
+- [ ] `agent-team/templates/project-preset.md`
 - [ ] `agent-team/templates/task-brief.md`
 - [ ] `agent-team/templates/work-plan.md`
 - [ ] `agent-team/templates/readiness-report.md`
@@ -190,6 +206,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/templates/memory-summary.md`
 - [ ] `agent-team/templates/skill-validation-report.md`
 - [ ] `agent-team/tools/classify-task.sh`
+- [ ] `agent-team/tools/select-preset.sh`
 - [ ] `agent-team/tools/start-task.sh`
 - [ ] `agent-team/tools/brief-task.sh`
 - [ ] `agent-team/tools/plan-task.sh`

@@ -56,6 +56,18 @@ The profile lists likely languages, frameworks, package managers, validation com
 
 ---
 
+## Project presets
+
+Select a compact project-shape preset:
+
+```bash
+~/AgentCrew/bin/agentcrew preset
+```
+
+This creates `.agent-state/project-preset.md` with advisory defaults for Skills, validation, review gates, and architecture focus. Use `--dry-run` to preview.
+
+---
+
 ## Task classification
 
 Use the classifier when you want to preview how AgentCrew would route a request:

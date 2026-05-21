@@ -37,6 +37,7 @@ Load only:
 - selected context profile from `agent-team/context/`
 - selected role file from `agent-team/agents/`
 - `agent-team/playbooks/request-routing.md` only when route is ambiguous
+- `agent-team/playbooks/project-presets.md` when project-shape defaults would help
 - `agent-team/playbooks/task-intake.md` when creating `.agent-state/current-task.md`
 - `agent-team/playbooks/acceptance-criteria.md` when creating `.agent-state/task-brief.md`
 - `agent-team/playbooks/work-planning.md` when creating `.agent-state/work-plan.md`

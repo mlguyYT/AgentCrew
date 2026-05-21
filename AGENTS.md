@@ -92,6 +92,7 @@ request_routing:
   - choose Fast Lane or Full Lane
   - choose the starting role
   - choose the quality profile using agent-team/playbooks/quality-profile-selection.md when the default is unclear
+  - select a project preset with agent-team/playbooks/project-presets.md when project shape defaults would help
   - select a workflow recipe from agent-team/recipes/ when it helps route the outcome
   - create or update .agent-state/current-task.md with agent-team/playbooks/task-intake.md when a durable task artifact is useful
   - create .agent-state/task-brief.md with agent-team/playbooks/acceptance-criteria.md when acceptance criteria are missing or vague
@@ -210,6 +211,10 @@ agent-team/quality-profiles/
 ```
 
 Quality profiles tune validation depth, review depth, and output detail. They never override safety rules, human-only decisions, repository instructions, or required quality gates.
+
+## Project presets
+
+When starting work in a new target project or when project-shape defaults would help, use `agent-team/playbooks/project-presets.md` and `agent-team/templates/project-preset.md`. The optional command is `~/AgentCrew/bin/agentcrew preset --project .`.
 
 ## Task intake
 

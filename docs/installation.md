@@ -34,6 +34,7 @@ Optional: inspect a target project profile and classify a request without changi
 
 ```bash
 ~/AgentCrew/bin/agentcrew detect-project --project /path/to/your-project
+~/AgentCrew/bin/agentcrew preset --dry-run --project /path/to/your-project
 ~/AgentCrew/bin/agentcrew classify --project /path/to/your-project --task "Add OAuth login"
 ~/AgentCrew/bin/agentcrew start --dry-run --project /path/to/your-project --task "Add OAuth login"
 ~/AgentCrew/bin/agentcrew brief --dry-run --project /path/to/your-project --task "Add OAuth login"
@@ -125,6 +126,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       task-classification.md
       request-routing.md
       task-intake.md
+      project-presets.md
       acceptance-criteria.md
       work-planning.md
       implementation-readiness.md
@@ -136,6 +138,14 @@ After installation, AgentCrew should live outside the project it is guiding:
       skill-loading.md
       skill-validation.md
       memory-saving.md
+
+    presets/
+      README.md
+      react-frontend.md
+      python-api.md
+      node-service.md
+      general-library.md
+      cli-tool.md
 
     quality-profiles/
       light.md
@@ -173,6 +183,7 @@ After installation, AgentCrew should live outside the project it is guiding:
 
     tools/
       classify-task.sh
+      select-preset.sh
       start-task.sh
       brief-task.sh
       plan-task.sh
@@ -189,6 +200,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       task.md
       task-routing.md
       current-task.md
+      project-preset.md
       task-brief.md
       work-plan.md
       readiness-report.md

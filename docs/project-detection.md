@@ -84,6 +84,14 @@ For a request like `Fix the dashboard filter bug`, AgentCrew can start with the 
 
 ---
 
+## Pair With Project Presets
+
+After detecting the project profile, select a project preset when default Skills, validation, and review gates would help:
+
+```bash
+~/AgentCrew/bin/agentcrew preset --project /path/to/project
+```
+
 ## Pair With Classification
 
 After detecting the project profile, classify a request against that project:

@@ -26,6 +26,7 @@ routing_order:
   - choose Fast Lane or Full Lane
   - select the quality profile
   - select the workflow recipe
+  - select the project preset when project shape changes default validation or gates
   - choose the starting role
   - run project detection when stack context is unclear and the detector is available
   - select candidate Skills from the registry

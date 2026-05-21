@@ -24,7 +24,7 @@ current:
   - Skill authoring guide
   - state artifact schema
   - project detection and setup doctor
-  - task classifier, intake, briefs, work planning, readiness, and PR preparation
+  - task classifier, project presets, intake, briefs, work planning, readiness, and PR preparation
   - project status dashboard
 ```
 
@@ -37,8 +37,7 @@ future:
   - GitHub issue templates
   - GitHub PR template
   - example repositories
-  - language-specific presets
-  - frontend/backend presets
+  - expanded project presets
   - release manager agent
   - support triage agent
   - CLI installer
