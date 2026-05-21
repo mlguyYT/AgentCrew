@@ -100,6 +100,7 @@ request_routing:
   - run implementation readiness with agent-team/playbooks/implementation-readiness.md before Developer starts non-trivial work
   - prepare .agent-state/pr-pack.md with agent-team/playbooks/pr-preparation.md before human PR review when useful
   - prepare .agent-state/release-report.md with agent-team/playbooks/release-management.md when release readiness or deployment preparation is in scope
+  - prepare .agent-state/support-triage-report.md with agent-team/playbooks/support-triage.md when support tickets, customer reports, or severity triage are in scope
   - load the matching context profile
   - load relevant Skills from agent-team/skills/registry.md
   - load only triggered gates and specialist files
@@ -172,6 +173,7 @@ roles:
   security_reviewer: agent-team/agents/security-reviewer.md
   ux_design_reviewer: agent-team/agents/ux-design-reviewer.md
   documentation_agent: agent-team/agents/documentation-agent.md
+  support_triage_agent: agent-team/agents/support-triage-agent.md
   release_manager: agent-team/agents/release-manager.md
   llm_agent: agent-team/agents/llm-agent.md
   researcher_agent: agent-team/agents/researcher-agent.md
@@ -251,6 +253,10 @@ Before human PR review, use `agent-team/playbooks/pr-preparation.md` and `agent-
 ## Release management
 
 When release readiness, versioning, changelog, rollout, rollback, deployment preparation, or default-branch merge readiness is in scope, use `agent-team/agents/release-manager.md`, `agent-team/playbooks/release-management.md`, and `agent-team/templates/release-report.md`. Final release, deploy, merge, and risk acceptance remain human-only.
+
+## Support triage
+
+When a task starts from a support ticket, customer report, user complaint, reproduction request, severity question, or impact assessment, use `agent-team/agents/support-triage-agent.md`, `agent-team/playbooks/support-triage.md`, and `agent-team/templates/support-triage-report.md`. Keep customer commitments and risk acceptance human-only.
 
 ---
 
@@ -357,6 +363,7 @@ Preferred shared project artifacts:
 .agent-state/security-review-report.md
 .agent-state/ux-design-review-report.md
 .agent-state/documentation-report.md
+.agent-state/support-triage-report.md
 .agent-state/release-report.md
 .agent-state/memory.md
 ```
@@ -450,6 +457,9 @@ ux_design_reviewer:
 
 documentation_agent:
   use: agent-team/templates/documentation-report.md
+
+support_triage_agent:
+  use: agent-team/templates/support-triage-report.md
 
 release_manager:
   use: agent-team/templates/release-report.md

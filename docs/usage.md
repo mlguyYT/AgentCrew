@@ -381,6 +381,7 @@ Use specialist reviewers only when their area is touched:
 Security Reviewer: security, privacy, data, auth, secrets, dependency or infrastructure risk
 UX / Design Reviewer: UI, UX, accessibility, responsive behavior, visual quality
 Documentation Agent: docs, examples, changelog, release notes
+Support Triage Agent: support tickets, customer reports, severity, impact, reproduction, routing
 Release Manager: release readiness, rollout, rollback, versioning, human release evidence
 LLM Agent: prompts, RAG, evals, model behavior, tool use, LLM safety
 Researcher Agent: source-backed research, current information, comparisons, uncertainty

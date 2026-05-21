@@ -27,6 +27,7 @@ current:
   - task classifier, project presets, intake, briefs, work planning, readiness, and PR preparation
   - project status dashboard
   - Release Manager agent
+  - Support Triage Agent
 ```
 
 ---
@@ -39,7 +40,6 @@ future:
   - GitHub PR template
   - example repositories
   - expanded project presets
-  - support triage agent
   - CLI installer
   - package generator
 ```

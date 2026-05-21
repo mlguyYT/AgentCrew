@@ -56,3 +56,4 @@
 - PR preparation playbook, template, checklist, docs, status support, and `agentcrew pr-pack` command for human-review packets
 - Project presets, selector command, template, checklist, docs, and status support for project-shape defaults
 - Release Manager role, release management playbook, report template, docs, routing, and state support
+- Support Triage Agent role, playbook, checklist, report template, docs, routing, and state support

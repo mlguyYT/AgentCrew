@@ -49,6 +49,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   security-review-report.md
   ux-design-review-report.md
   documentation-report.md
+  support-triage-report.md
   release-report.md
   memory.md
 ```
@@ -104,6 +105,9 @@ ux-design-review-report.md:
 
 documentation-report.md:
   purpose: latest Documentation Agent findings
+
+support-triage-report.md:
+  purpose: latest Support Triage Agent severity, impact, evidence, routing, and next-action summary
 
 release-report.md:
   purpose: latest Release Manager readiness, rollout, rollback, risk, and human-decision summary

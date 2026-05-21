@@ -116,6 +116,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       security-reviewer.md
       ux-design-reviewer.md
       documentation-agent.md
+      support-triage-agent.md
       release-manager.md
       skill-validator.md
 
@@ -133,6 +134,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       implementation-readiness.md
       pr-preparation.md
       release-management.md
+      support-triage.md
       quality-profile-selection.md
       human-decision-queue.md
       lane-escalation.md
@@ -214,6 +216,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       security-review-report.md
       ux-design-review-report.md
       documentation-report.md
+      support-triage-report.md
       release-report.md
       memory-summary.md
       skill-validation-report.md

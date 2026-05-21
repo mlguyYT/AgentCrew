@@ -140,6 +140,13 @@ elif matches '(research|compare|investigate options|source-backed|sources|citati
   add_unique SPECIALISTS "Researcher Agent"
   add_unique SKILLS "researcher-pro"
   add_unique REASONS "request needs research or external evidence"
+elif matches '(support ticket|customer report|customer-reported|user report|user complaint|operator report|bug report|repro steps|reproduction steps|severity|impact assessment|triage this|ticket)'; then
+  INTENT="support_triage_or_customer_issue"
+  STARTING_ROLE="Support Triage Agent"
+  WORKFLOW="Support Triage Agent -> Developer/Tester/Product Manager if actionable -> Human"
+  NEXT_ROLES=("Developer if defect is confirmed" "Tester if reproduction is needed" "Product Manager if expected behavior or priority is unclear" "Human")
+  add_unique SPECIALISTS "Support Triage Agent"
+  add_unique REASONS "request starts from support, customer, severity, impact, or reproduction triage"
 elif matches '(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)'; then
   INTENT="release_readiness_or_deployment_preparation"
   STARTING_ROLE="Release Manager"
@@ -205,6 +212,9 @@ case "$INTENT" in
   docs_examples_or_changelog)
     add_unique GATES "documentation review"
     ;;
+  support_triage_or_customer_issue)
+    add_unique GATES "support triage report"
+    ;;
   release_readiness_or_deployment_preparation)
     add_unique GATES "release report"
     add_unique GATES "human release approval"
@@ -234,6 +244,9 @@ if matches '(ui|ux|design|user-facing|onboarding|form|navigation|accessibility|r
 fi
 if matches '(docs|documentation|readme|changelog|release note|example|guide|migration note|public api)'; then
   add_unique SPECIALISTS "Documentation Agent"
+fi
+if matches '(support ticket|customer report|customer-reported|user report|user complaint|operator report|bug report|repro steps|reproduction steps|severity|impact assessment|triage this|ticket)'; then
+  add_unique SPECIALISTS "Support Triage Agent"
 fi
 if matches '(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)'; then
   add_unique SPECIALISTS "Release Manager"
