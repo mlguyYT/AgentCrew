@@ -38,6 +38,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   current-task.md
   task-brief.md
   work-plan.md
+  readiness-report.md
   decisions.md
   human-decisions.md
   handoff.md
@@ -67,6 +68,9 @@ task-brief.md:
 
 work-plan.md:
   purpose: PR-sized implementation phases, owners, validation, gates, risks, and next action
+
+readiness-report.md:
+  purpose: implementation-readiness decision, blockers, warnings, recommendation, and next action
 
 decisions.md:
   purpose: durable human or agent decisions with dates

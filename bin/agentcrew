@@ -19,13 +19,14 @@ usage() {
   printf '%s\n' "  start               Start a task and write .agent-state/current-task.md"
   printf '%s\n' "  brief               Create a task brief with acceptance criteria"
   printf '%s\n' "  plan                Create a PR-sized work plan"
+  printf '%s\n' "  ready               Check whether implementation is ready to start"
   printf '%s\n' ""
   printf '%s\n' "Options:"
   printf '%s\n' "  --agent NAME        all, claude, codex, or openclaw. Default: all"
   printf '%s\n' "  --root PATH         AgentCrew checkout path. Default: this checkout"
   printf '%s\n' "  --project PATH      Target project path. Default: current directory"
   printf '%s\n' "  --task TEXT         Request text for classify, start, brief, or plan"
-  printf '%s\n' "  --force             Overwrite current task, brief, or plan when using start/brief/plan"
+  printf '%s\n' "  --force             Overwrite generated state when using start/brief/plan/ready"
   printf '%s\n' "  --dry-run           Print planned changes without writing files"
   printf '%s\n' "  -h, --help          Show help"
 }
@@ -299,6 +300,7 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/playbooks/task-intake.md" "task intake playbook exists"
   check_file_exists "$root/agent-team/playbooks/acceptance-criteria.md" "acceptance criteria playbook exists"
   check_file_exists "$root/agent-team/playbooks/work-planning.md" "work planning playbook exists"
+  check_file_exists "$root/agent-team/playbooks/implementation-readiness.md" "implementation readiness playbook exists"
   check_file_exists "$root/agent-team/playbooks/quality-profile-selection.md" "quality profile selection playbook exists"
   check_file_exists "$root/agent-team/playbooks/human-decision-queue.md" "human decision queue playbook exists"
   check_file_exists "$root/agent-team/playbooks/token-safe-mode.md" "Token-Safe Mode playbook exists"
@@ -328,6 +330,7 @@ doctor_required_files() {
   check_file_exists "$root/docs/task-intake.md" "task intake documentation exists"
   check_file_exists "$root/docs/acceptance-criteria.md" "acceptance criteria documentation exists"
   check_file_exists "$root/docs/work-planning.md" "work planning documentation exists"
+  check_file_exists "$root/docs/implementation-readiness.md" "implementation readiness documentation exists"
   check_file_exists "$root/docs/status-dashboard.md" "status dashboard documentation exists"
   check_file_exists "$root/docs/human-decision-queue.md" "human decision queue documentation exists"
   check_file_exists "$root/docs/quality-profiles.md" "quality profiles documentation exists"
@@ -355,7 +358,7 @@ doctor_templates() {
   for template in \
     pr-description test-report review-report security-review-report \
     ux-design-review-report documentation-report skill-validation-report \
-    memory-summary task-routing current-task task-brief work-plan human-decision-queue compact-handoff compact-test-report compact-review-report
+    memory-summary task-routing current-task task-brief work-plan readiness-report human-decision-queue compact-handoff compact-test-report compact-review-report
   do
     check_file_exists "$root/agent-team/templates/$template.md" "template exists: $template"
   done
@@ -438,6 +441,12 @@ doctor_tools() {
     check_pass "work plan tool is executable"
   else
     check_warn "work plan tool is not executable"
+  fi
+
+  if [ -x "$root/agent-team/tools/ready-check.sh" ]; then
+    check_pass "implementation readiness tool is executable"
+  else
+    check_warn "implementation readiness tool is not executable"
   fi
 
   if [ -x "$root/agent-team/tools/project-status.sh" ]; then
@@ -576,6 +585,23 @@ run_plan() {
   "$planner" "${args[@]}"
 }
 
+run_ready() {
+  local root="$1"
+  local project="$2"
+  local dry_run="$3"
+  local force="$4"
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+
+  local checker="$root/agent-team/tools/ready-check.sh"
+  [ -x "$checker" ] || die "Missing executable readiness check tool: $checker"
+
+  local args=(--project "$project")
+  [ "$dry_run" = "true" ] && args+=(--dry-run)
+  [ "$force" = "true" ] && args+=(--force)
+  "$checker" "${args[@]}"
+}
+
 run_status() {
   local root="$1"
   local project="$2"
@@ -684,6 +710,9 @@ case "$COMMAND" in
     ;;
   plan)
     run_plan "$ROOT" "$PROJECT" "$TASK" "$DRY_RUN" "$FORCE"
+    ;;
+  ready)
+    run_ready "$ROOT" "$PROJECT" "$DRY_RUN" "$FORCE"
     ;;
   -h|--help|"")
     usage

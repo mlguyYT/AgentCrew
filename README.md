@@ -48,6 +48,8 @@ Optional: create a testable task brief with `~/AgentCrew/bin/agentcrew brief --t
 
 Optional: create a PR-sized work plan with `~/AgentCrew/bin/agentcrew plan --task "your request"`.
 
+Optional: check implementation readiness with `~/AgentCrew/bin/agentcrew ready`.
+
 No AgentCrew files need to be copied into the project.
 
 ## Workflows
@@ -91,6 +93,7 @@ runtime/               optional future orchestration notes
 - [Task Intake](docs/task-intake.md)
 - [Acceptance Criteria](docs/acceptance-criteria.md)
 - [Work Planning](docs/work-planning.md)
+- [Implementation Readiness](docs/implementation-readiness.md)
 - [Status Dashboard](docs/status-dashboard.md)
 - [Human Decision Queue](docs/human-decision-queue.md)
 - [Quality Profiles](docs/quality-profiles.md)

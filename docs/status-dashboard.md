@@ -39,7 +39,7 @@ The standalone project dashboard is also available inside AgentCrew:
 - whether `.agent-state/` exists
 - current task fields, including quality profile and recipe, when `.agent-state/current-task.md` exists
 - latest test, review, security, UX, and documentation report presence
-- task brief, work plan, decisions, handoff, memory, and latest saved session
+- task brief, work plan, readiness report, decisions, handoff, memory, and latest saved session
 - pending human decision queue, open questions, and the human-approval reminder
 
 ---

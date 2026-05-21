@@ -96,6 +96,7 @@ request_routing:
   - create or update .agent-state/current-task.md with agent-team/playbooks/task-intake.md when a durable task artifact is useful
   - create .agent-state/task-brief.md with agent-team/playbooks/acceptance-criteria.md when acceptance criteria are missing or vague
   - create .agent-state/work-plan.md with agent-team/playbooks/work-planning.md when work needs sequencing or PR slicing
+  - run implementation readiness with agent-team/playbooks/implementation-readiness.md before Developer starts non-trivial work
   - load the matching context profile
   - load relevant Skills from agent-team/skills/registry.md
   - load only triggered gates and specialist files
@@ -230,6 +231,10 @@ When scope or validation is unclear, use `agent-team/playbooks/acceptance-criter
 ## Work planning
 
 When work may span multiple phases or PRs, use `agent-team/playbooks/work-planning.md` and `agent-team/templates/work-plan.md`. The optional command is `~/AgentCrew/bin/agentcrew plan --project . --task "short request"`.
+
+## Implementation readiness
+
+Before non-trivial implementation starts, use `agent-team/playbooks/implementation-readiness.md` and `agent-team/templates/readiness-report.md`. The optional command is `~/AgentCrew/bin/agentcrew ready --project .`.
 
 ---
 

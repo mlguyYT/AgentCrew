@@ -106,6 +106,18 @@ This creates `.agent-state/work-plan.md` with phases, owners, acceptance, valida
 
 ---
 
+## Implementation readiness
+
+Check whether implementation is ready to start:
+
+```bash
+~/AgentCrew/bin/agentcrew ready
+```
+
+This creates `.agent-state/readiness-report.md` with blockers, warnings, recommendation, and next action. Use `--dry-run` to preview.
+
+---
+
 ## Status dashboard
 
 Use status to check AgentCrew registrations and the current project state:
