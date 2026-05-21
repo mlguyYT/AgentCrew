@@ -82,6 +82,18 @@ This creates `.agent-state/current-task.md` with the route, owner, risk, quality
 
 ---
 
+## Acceptance criteria
+
+Use a task brief when the request needs clearer scope or validation points:
+
+```bash
+~/AgentCrew/bin/agentcrew brief --task "Fix the login validation bug"
+```
+
+This creates `.agent-state/task-brief.md` with provisional acceptance criteria, scope, test plan, gates, and open questions. Use `--dry-run` to preview.
+
+---
+
 ## Status dashboard
 
 Use status to check AgentCrew registrations and the current project state:

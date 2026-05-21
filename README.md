@@ -44,6 +44,8 @@ AgentCrew is registered globally for supported agents, reads its own instruction
 
 Optional: make the current task visible with `~/AgentCrew/bin/agentcrew start --task "your request"`.
 
+Optional: create a testable task brief with `~/AgentCrew/bin/agentcrew brief --task "your request"`.
+
 No AgentCrew files need to be copied into the project.
 
 ## Workflows
@@ -85,6 +87,7 @@ runtime/               optional future orchestration notes
 - [Project Detection](docs/project-detection.md)
 - [Task Classifier](docs/task-classifier.md)
 - [Task Intake](docs/task-intake.md)
+- [Acceptance Criteria](docs/acceptance-criteria.md)
 - [Status Dashboard](docs/status-dashboard.md)
 - [Human Decision Queue](docs/human-decision-queue.md)
 - [Quality Profiles](docs/quality-profiles.md)

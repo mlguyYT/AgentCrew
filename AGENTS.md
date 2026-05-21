@@ -94,6 +94,7 @@ request_routing:
   - choose the quality profile using agent-team/playbooks/quality-profile-selection.md when the default is unclear
   - select a workflow recipe from agent-team/recipes/ when it helps route the outcome
   - create or update .agent-state/current-task.md with agent-team/playbooks/task-intake.md when a durable task artifact is useful
+  - create .agent-state/task-brief.md with agent-team/playbooks/acceptance-criteria.md when acceptance criteria are missing or vague
   - load the matching context profile
   - load relevant Skills from agent-team/skills/registry.md
   - load only triggered gates and specialist files
@@ -220,6 +221,10 @@ The optional command is:
 ## Workflow recipes
 
 Use `agent-team/recipes/` for common outcome patterns such as bug fixes, features, refactors, docs updates, reviews, validation, research, releases, incidents, and Skill changes. Load only the selected recipe file.
+
+## Acceptance criteria
+
+When scope or validation is unclear, use `agent-team/playbooks/acceptance-criteria.md` and `agent-team/templates/task-brief.md`. The optional command is `~/AgentCrew/bin/agentcrew brief --project . --task "short request"`.
 
 ---
 

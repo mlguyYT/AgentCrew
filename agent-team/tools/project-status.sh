@@ -169,6 +169,7 @@ file_status "documentation" "$STATE_DIR/documentation-report.md"
 
 printf '%s\n' ""
 printf '%s\n' "Memory And Decisions"
+file_status "task_brief" "$STATE_DIR/task-brief.md"
 file_status "decisions" "$STATE_DIR/decisions.md"
 file_status "handoff" "$STATE_DIR/handoff.md"
 file_status "memory" "$STATE_DIR/memory.md"

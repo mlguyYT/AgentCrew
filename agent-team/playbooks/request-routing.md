@@ -32,6 +32,7 @@ routing_order:
   - identify required gates and specialist triggers
   - produce a compact route summary
   - create `.agent-state/current-task.md` when a durable current task artifact is useful
+  - create `.agent-state/task-brief.md` when acceptance criteria are missing or vague
   - start the workflow
 ```
 

@@ -48,6 +48,7 @@ Use:
 
 ```text
 agent-team/templates/task.md
+agent-team/templates/task-brief.md
 agent-team/templates/product-plan.md
 agent-team/protocols/handoff-format.md
 ```

@@ -36,6 +36,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
 .agent-state/
   sessions/
   current-task.md
+  task-brief.md
   decisions.md
   human-decisions.md
   handoff.md
@@ -59,6 +60,9 @@ The save-session utility resolves the target git repository root automatically, 
 ```yaml
 current-task.md:
   purpose: active task, acceptance criteria, lane, and owner
+
+task-brief.md:
+  purpose: scoped task brief with provisional acceptance criteria, scope, test plan, gates, and open questions
 
 decisions.md:
   purpose: durable human or agent decisions with dates

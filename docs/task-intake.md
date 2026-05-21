@@ -46,6 +46,8 @@ Use `--force` only when intentionally replacing it:
 
 If the old task should be preserved first, save a session checkpoint before replacing it.
 
+For clearer scope and acceptance criteria, use `agentcrew brief`.
+
 ---
 
 ## Rules

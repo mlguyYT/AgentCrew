@@ -32,8 +32,8 @@ The doctor checks:
 - required Agent role files
 - required output templates, including task routing and human decision queue templates
 - Claude Code, Codex, and OpenClaw global loader registrations
-- local tool availability such as `git`, the project detector, the task classifier, task intake, and the status dashboard
-- setup docs such as installation, automatic loading, project detection, task classifier, task intake, status dashboard, and human decision queue docs
+- local tool availability such as `git`, the project detector, the task classifier, task intake, task brief, and the status dashboard
+- setup docs such as installation, automatic loading, project detection, task classifier, task intake, acceptance criteria, status dashboard, and human decision queue docs
 - whether AgentCrew's own repository ignores its local `.agent-state/`
 - whether AgentCrew is external to the current project when run from a target project
 
