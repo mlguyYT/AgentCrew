@@ -105,16 +105,17 @@ Before acting, an agent should use staged loading:
 4. read one matching context profile in `agent-team/context/`
 5. read the selected role file in `agent-team/agents/`
 6. read the relevant lane or task playbook in `agent-team/playbooks/`
-7. use `agent-team/playbooks/specialist-review-routing.md` when specialist review may apply
-8. use `agent-team/playbooks/default-branch-merge.md` before default-branch merge readiness
-9. use `agent-team/playbooks/dependency-supply-chain.md` for dependency, runtime, container, CI, or build-system changes
-10. use `agent-team/playbooks/behavior-preserving-refactor.md` for refactors
-11. use `agent-team/playbooks/compatibility-rollout.md` for protocol, API, auth, config, or client/server compatibility changes
-12. use `agent-team/playbooks/lane-escalation.md` if risk changes
-13. read `agent-team/skills/registry.md` and load matching Skills
-14. use `agent-team/protocols/communication.md` for handoffs
-15. use compact templates by default in Fast Lane
-16. use the relevant full output template in `agent-team/templates/` only when risk requires it
+7. load one selected recipe from `agent-team/recipes/` when it changes handling
+8. use `agent-team/playbooks/specialist-review-routing.md` when specialist review may apply
+9. use `agent-team/playbooks/default-branch-merge.md` before default-branch merge readiness
+10. use `agent-team/playbooks/dependency-supply-chain.md` for dependency, runtime, container, CI, or build-system changes
+11. use `agent-team/playbooks/behavior-preserving-refactor.md` for refactors
+12. use `agent-team/playbooks/compatibility-rollout.md` for protocol, API, auth, config, or client/server compatibility changes
+13. use `agent-team/playbooks/lane-escalation.md` if risk changes
+14. read `agent-team/skills/registry.md` and load matching Skills
+15. use `agent-team/protocols/communication.md` for handoffs
+16. use compact templates by default in Fast Lane
+17. use the relevant full output template in `agent-team/templates/` only when risk requires it
 
 When saving handoff context, use:
 

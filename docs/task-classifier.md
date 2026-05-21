@@ -43,6 +43,7 @@ task_classification:
   risk: 'high'
   lane: 'Full Lane'
   quality_profile: 'strict'
+  recipe: 'feature'
   starting_role: 'Advisor'
   workflow: 'Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human'
   specialists:
@@ -68,6 +69,7 @@ The classifier estimates:
 - Fast Lane vs Full Lane
 - starting role
 - selected quality profile
+- selected workflow recipe
 - likely next roles
 - required reviewers
 - specialist triggers

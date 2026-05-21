@@ -92,6 +92,7 @@ request_routing:
   - choose Fast Lane or Full Lane
   - choose the starting role
   - choose the quality profile using agent-team/playbooks/quality-profile-selection.md when the default is unclear
+  - select a workflow recipe from agent-team/recipes/ when it helps route the outcome
   - create or update .agent-state/current-task.md with agent-team/playbooks/task-intake.md when a durable task artifact is useful
   - load the matching context profile
   - load relevant Skills from agent-team/skills/registry.md
@@ -215,6 +216,10 @@ The optional command is:
 ```bash
 ~/AgentCrew/bin/agentcrew start --project . --task "short request"
 ```
+
+## Workflow recipes
+
+Use `agent-team/recipes/` for common outcome patterns such as bug fixes, features, refactors, docs updates, reviews, validation, research, releases, incidents, and Skill changes. Load only the selected recipe file.
 
 ---
 

@@ -49,3 +49,4 @@
 - Human Decision Queue playbook, template, docs, and status dashboard support for surfacing human-only decisions
 - Quality profiles for Light, Standard, Strict, and Regulated product-builder modes with routing, docs, doctor, and classifier support
 - Task intake playbook, current-task template, docs, and `agentcrew start` command for turning plain requests into `.agent-state/current-task.md`
+- Workflow recipes for common product-builder outcomes with classifier, task intake, status, docs, and doctor support

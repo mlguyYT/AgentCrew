@@ -22,7 +22,7 @@ This creates:
 .agent-state/current-task.md
 ```
 
-The artifact includes the request, intent, lane, risk, quality profile, starting owner, workflow, provisional acceptance criteria, status, next action, and open questions.
+The artifact includes the request, intent, lane, risk, quality profile, workflow recipe, starting owner, workflow, provisional acceptance criteria, status, next action, and open questions.
 
 ---
 

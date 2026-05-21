@@ -5,6 +5,7 @@
 - lane:
 - starting role:
 - quality profile:
+- recipe:
 - next roles:
 
 ## Why
@@ -12,6 +13,7 @@
 - risk:
 - trigger:
 - profile reason:
+- recipe reason:
 
 ## Skills
 

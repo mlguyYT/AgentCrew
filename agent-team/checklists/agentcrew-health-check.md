@@ -94,6 +94,23 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 
 ---
 
+## Required Workflow Recipes
+
+- [ ] `agent-team/recipes/README.md`
+- [ ] `agent-team/recipes/bug-fix.md`
+- [ ] `agent-team/recipes/feature.md`
+- [ ] `agent-team/recipes/refactor.md`
+- [ ] `agent-team/recipes/docs-update.md`
+- [ ] `agent-team/recipes/review.md`
+- [ ] `agent-team/recipes/validation.md`
+- [ ] `agent-team/recipes/research.md`
+- [ ] `agent-team/recipes/release.md`
+- [ ] `agent-team/recipes/incident.md`
+- [ ] `agent-team/recipes/skill-change.md`
+- [ ] `docs/workflow-recipes.md`
+
+---
+
 ## Required Protocols And Conventions
 
 - [ ] `agent-team/protocols/communication.md`

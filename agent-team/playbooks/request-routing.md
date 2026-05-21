@@ -25,6 +25,7 @@ routing_order:
   - classify risk using route-index and task-classification
   - choose Fast Lane or Full Lane
   - select the quality profile
+  - select the workflow recipe
   - choose the starting role
   - run project detection when stack context is unclear and the detector is available
   - select candidate Skills from the registry
@@ -112,6 +113,26 @@ quality_profile_defaults:
 
 Load only the selected profile file from `agent-team/quality-profiles/` when it changes gates, evidence, or output detail.
 
+## Workflow Recipe Selection
+
+Use `agent-team/recipes/` to attach a lightweight handling pattern to common outcomes.
+
+```yaml
+recipe_defaults:
+  bug-fix: focused defect correction
+  feature: new or changed product capability
+  refactor: behavior-preserving structural improvement
+  docs-update: documentation, examples, changelog, release notes
+  review: code, PR, architecture, or quality review
+  validation: testing, QA, regression, acceptance validation
+  research: source-backed investigation or option comparison
+  release: release readiness, changelog, version, PR preparation
+  incident: production issue, urgent regression, rollback decision
+  skill-change: AgentCrew Skill creation or update
+```
+
+Load only the selected recipe file when it changes role order, gates, or evidence expectations.
+
 ---
 
 ## Conditional Fast Lane Steps
@@ -178,6 +199,7 @@ Keep the route summary short:
 ```text
 Route: Fast Lane
 Profile: standard
+Recipe: bug-fix
 Start: Developer
 Skills: typescript-pro, react
 Gates: Tester, UX if UI behavior changes

@@ -143,6 +143,25 @@ regulated  compliance, privacy, safety, financial, contractual, or audit-heavy w
 
 See `docs/quality-profiles.md` and `agent-team/playbooks/quality-profile-selection.md`.
 
+## Workflow recipes
+
+AgentCrew also selects a workflow recipe for common outcomes:
+
+```text
+bug-fix      focused defect correction
+feature      new or changed product capability
+refactor     behavior-preserving structural improvement
+docs-update  docs, examples, changelog, release notes
+review       code, PR, architecture, or quality review
+validation   testing, QA, regression, acceptance validation
+research     source-backed investigation or option comparison
+release      release readiness and PR preparation
+incident     production issue, urgent regression, rollback decision
+skill-change AgentCrew Skill creation or update
+```
+
+See `docs/workflow-recipes.md` and `agent-team/recipes/`.
+
 ---
 
 ## Optional manual role prompts

@@ -135,6 +135,19 @@ After installation, AgentCrew should live outside the project it is guiding:
       strict.md
       regulated.md
 
+    recipes/
+      README.md
+      bug-fix.md
+      feature.md
+      refactor.md
+      docs-update.md
+      review.md
+      validation.md
+      research.md
+      release.md
+      incident.md
+      skill-change.md
+
     workflows/
       idea-to-task.md
       task-to-pr.md

@@ -64,6 +64,8 @@ Specialist reviewers and agents are used only when needed: Security, UX / Design
 
 Quality profiles tune how much rigor AgentCrew applies: Light for prototypes and tiny work, Standard by default, Strict for high-impact teams, and Regulated for compliance-heavy work.
 
+Workflow recipes give common requests a practical handling pattern, such as bug fix, feature, refactor, docs update, review, validation, research, release, incident, or Skill change.
+
 ## What Is Included
 
 ```text
@@ -86,6 +88,7 @@ runtime/               optional future orchestration notes
 - [Status Dashboard](docs/status-dashboard.md)
 - [Human Decision Queue](docs/human-decision-queue.md)
 - [Quality Profiles](docs/quality-profiles.md)
+- [Workflow Recipes](docs/workflow-recipes.md)
 - [Automatic Loading](docs/auto-load.md)
 - [Use in an Existing Project](docs/bootstrap-existing-project.md)
 - [Usage Guide](docs/usage.md)

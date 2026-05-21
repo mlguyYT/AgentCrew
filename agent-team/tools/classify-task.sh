@@ -101,6 +101,7 @@ STARTING_ROLE="Developer"
 RISK="low"
 LANE="Fast Lane"
 QUALITY_PROFILE="standard"
+RECIPE="bug-fix"
 WORKFLOW="Developer -> Tester -> Human"
 NEXT_ROLES=("Tester")
 REVIEWERS=()
@@ -276,6 +277,30 @@ else
   add_unique REASONS "small or scoped request with no high-risk trigger detected"
 fi
 
+# Workflow recipe selection. Recipes are lightweight handling presets; risk and specialist gates still apply.
+if matches '(incident|outage|production down|hotfix|rollback|sev[ -]?[0-9]|urgent regression|data incident|security incident)'; then
+  RECIPE="incident"
+elif matches '(release|ship|deploy|version bump|changelog|release note|default branch merge|merge readiness)'; then
+  RECIPE="release"
+elif [ "$INTENT" = "code_or_pr_review" ]; then
+  RECIPE="review"
+elif [ "$INTENT" = "validation_or_regression_check" ]; then
+  RECIPE="validation"
+elif [ "$INTENT" = "source_backed_research_or_current_info" ]; then
+  RECIPE="research"
+elif [ "$INTENT" = "docs_examples_or_changelog" ]; then
+  RECIPE="docs-update"
+elif [ "$INTENT" = "skill_creation_or_skill_change" ]; then
+  RECIPE="skill-change"
+elif matches '(refactor|modular|architecture|cleanup|restructure|extract)'; then
+  RECIPE="refactor"
+elif matches '(feature|new feature|add |create|build|implement|improve|onboarding|dashboard)'; then
+  RECIPE="feature"
+else
+  RECIPE="bug-fix"
+fi
+add_unique REASONS "workflow recipe selected: $RECIPE"
+
 # Quality profile selection. Default to standard unless task risk or wording clearly signals another mode.
 if matches '(regulated|compliance|privacy|legal|audit|financial reporting|contractual|safety-critical|medical|hipaa|pci|gdpr|sox)'; then
   QUALITY_PROFILE="regulated"
@@ -374,6 +399,7 @@ fi
 add_unique FILES_TO_LOAD "agent-team/agents/$(printf '%s' "$STARTING_ROLE" | tr '[:upper:]' '[:lower:]' | sed 's# / #-#g; s# #\-#g').md"
 add_unique FILES_TO_LOAD "agent-team/playbooks/quality-profile-selection.md"
 add_unique FILES_TO_LOAD "agent-team/quality-profiles/$QUALITY_PROFILE.md"
+add_unique FILES_TO_LOAD "agent-team/recipes/$RECIPE.md"
 add_unique FILES_TO_LOAD "agent-team/skills/registry.md"
 add_unique FILES_TO_LOAD "agent-team/templates/task-routing.md"
 if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
@@ -387,6 +413,7 @@ printf '  intent: %s\n' "$(yaml_quote "$INTENT")"
 printf '  risk: %s\n' "$(yaml_quote "$RISK")"
 printf '  lane: %s\n' "$(yaml_quote "$LANE")"
 printf '  quality_profile: %s\n' "$(yaml_quote "$QUALITY_PROFILE")"
+printf '  recipe: %s\n' "$(yaml_quote "$RECIPE")"
 printf '  starting_role: %s\n' "$(yaml_quote "$STARTING_ROLE")"
 printf '  workflow: %s\n' "$(yaml_quote "$WORKFLOW")"
 printf '%s\n' "  next_roles:"
