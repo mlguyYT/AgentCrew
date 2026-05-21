@@ -27,6 +27,7 @@ research_question: Researcher Agent
 llm_or_rag_work: LLM Agent when triggered
 computer_vision_or_cnn_work: CNN Agent when triggered
 docs_change: Documentation Agent when useful
+release_request: Release Manager
 skill_change: Skill Validator
 ```
 
@@ -43,6 +44,7 @@ Load only:
 - `agent-team/playbooks/work-planning.md` when creating `.agent-state/work-plan.md`
 - `agent-team/playbooks/implementation-readiness.md` before Developer starts non-trivial work
 - `agent-team/playbooks/pr-preparation.md` before human PR review when a compact approval packet is useful
+- `agent-team/playbooks/release-management.md` when release readiness, rollout, rollback, or deployment preparation is in scope
 - selected `agent-team/recipes/*.md` when a recipe changes handling
 - selected lane playbook
 - `agent-team/playbooks/quality-profile-selection.md` when profile choice affects gates or output detail

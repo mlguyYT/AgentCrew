@@ -305,6 +305,7 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/playbooks/work-planning.md" "work planning playbook exists"
   check_file_exists "$root/agent-team/playbooks/implementation-readiness.md" "implementation readiness playbook exists"
   check_file_exists "$root/agent-team/playbooks/pr-preparation.md" "PR preparation playbook exists"
+  check_file_exists "$root/agent-team/playbooks/release-management.md" "release management playbook exists"
   check_file_exists "$root/agent-team/playbooks/quality-profile-selection.md" "quality profile selection playbook exists"
   check_file_exists "$root/agent-team/playbooks/human-decision-queue.md" "human decision queue playbook exists"
   check_file_exists "$root/agent-team/playbooks/token-safe-mode.md" "Token-Safe Mode playbook exists"
@@ -343,6 +344,7 @@ doctor_required_files() {
   check_file_exists "$root/docs/work-planning.md" "work planning documentation exists"
   check_file_exists "$root/docs/implementation-readiness.md" "implementation readiness documentation exists"
   check_file_exists "$root/docs/pr-preparation.md" "PR preparation documentation exists"
+  check_file_exists "$root/docs/release-management.md" "release management documentation exists"
   check_file_exists "$root/docs/status-dashboard.md" "status dashboard documentation exists"
   check_file_exists "$root/docs/human-decision-queue.md" "human decision queue documentation exists"
   check_file_exists "$root/docs/quality-profiles.md" "quality profiles documentation exists"
@@ -356,7 +358,7 @@ doctor_agent_roles() {
 
   for role in \
     advisor idea-consultant product-manager developer tester reviewer \
-    security-reviewer ux-design-reviewer documentation-agent skill-validator \
+    security-reviewer ux-design-reviewer documentation-agent release-manager skill-validator \
     llm-agent researcher-agent cnn-agent
   do
     check_file_exists "$root/agent-team/agents/$role.md" "role exists: $role"
@@ -369,7 +371,7 @@ doctor_templates() {
 
   for template in \
     pr-description test-report review-report security-review-report \
-    ux-design-review-report documentation-report skill-validation-report \
+    ux-design-review-report documentation-report release-report skill-validation-report \
     memory-summary task-routing current-task project-preset task-brief work-plan readiness-report pr-pack human-decision-queue compact-handoff compact-test-report compact-review-report
   do
     check_file_exists "$root/agent-team/templates/$template.md" "template exists: $template"

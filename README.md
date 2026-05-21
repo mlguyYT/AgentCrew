@@ -70,7 +70,7 @@ Full Lane is for risky or ambiguous work:
 Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Human
 ```
 
-Specialist reviewers and agents are used only when needed: Security, UX / Design, Documentation, LLM, Researcher, CNN, and Skill Validator.
+Specialist reviewers and agents are used only when needed: Security, UX / Design, Documentation, Release Manager, LLM, Researcher, CNN, and Skill Validator.
 
 Quality profiles tune how much rigor AgentCrew applies: Light for prototypes and tiny work, Standard by default, Strict for high-impact teams, and Regulated for compliance-heavy work.
 
@@ -100,6 +100,7 @@ runtime/               optional future orchestration notes
 - [Work Planning](docs/work-planning.md)
 - [Implementation Readiness](docs/implementation-readiness.md)
 - [PR Preparation](docs/pr-preparation.md)
+- [Release Management](docs/release-management.md)
 - [Status Dashboard](docs/status-dashboard.md)
 - [Human Decision Queue](docs/human-decision-queue.md)
 - [Quality Profiles](docs/quality-profiles.md)

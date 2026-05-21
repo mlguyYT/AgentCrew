@@ -49,6 +49,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   security-review-report.md
   ux-design-review-report.md
   documentation-report.md
+  release-report.md
   memory.md
 ```
 
@@ -103,6 +104,9 @@ ux-design-review-report.md:
 
 documentation-report.md:
   purpose: latest Documentation Agent findings
+
+release-report.md:
+  purpose: latest Release Manager readiness, rollout, rollback, risk, and human-decision summary
 
 memory.md:
   purpose: short project context worth preserving between sessions

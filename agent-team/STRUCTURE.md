@@ -32,6 +32,7 @@ agent-team/
     security-reviewer.md
     ux-design-reviewer.md
     documentation-agent.md
+    release-manager.md
     llm-agent.md
     researcher-agent.md
     cnn-agent.md
@@ -50,6 +51,7 @@ agent-team/
     work-planning.md
     implementation-readiness.md
     pr-preparation.md
+    release-management.md
     quality-profile-selection.md
     human-decision-queue.md
     lane-escalation.md
@@ -136,6 +138,7 @@ agent-team/
     security-review-report.md
     ux-design-review-report.md
     documentation-report.md
+    release-report.md
     compact-handoff.md
     compact-test-report.md
     compact-review-report.md
@@ -237,6 +240,7 @@ Recommended project-state artifact structure:
   security-review-report.md
   ux-design-review-report.md
   documentation-report.md
+  release-report.md
   memory.md
 ```
 

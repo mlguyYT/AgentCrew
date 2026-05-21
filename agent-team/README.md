@@ -45,6 +45,9 @@ agents:
   documentation_agent:
     purpose: create and review documentation, examples, changelogs, and release notes
 
+  release_manager:
+    purpose: prepare release readiness, rollout, rollback, changelog, and human approval evidence
+
   llm_agent:
     purpose: review LLM prompts, RAG, evals, model behavior, tool use, and LLM safety
 
@@ -88,7 +91,7 @@ Idea
   -> Human approval
 ```
 
-Specialist reviewers and agents include Security Reviewer, UX / Design Reviewer, Documentation Agent, LLM Agent, Researcher Agent, and CNN Agent. Use them only when the task touches their area.
+Specialist reviewers and agents include Security Reviewer, UX / Design Reviewer, Documentation Agent, Release Manager, LLM Agent, Researcher Agent, and CNN Agent. Use them only when the task touches their area.
 
 ---
 

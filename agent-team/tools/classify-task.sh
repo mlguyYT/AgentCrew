@@ -140,7 +140,14 @@ elif matches '(research|compare|investigate options|source-backed|sources|citati
   add_unique SPECIALISTS "Researcher Agent"
   add_unique SKILLS "researcher-pro"
   add_unique REASONS "request needs research or external evidence"
-elif matches '(docs|documentation|readme|changelog|release note|example|guide)'; then
+elif matches '(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)'; then
+  INTENT="release_readiness_or_deployment_preparation"
+  STARTING_ROLE="Release Manager"
+  WORKFLOW="Release Manager -> Tester/Reviewer/Documentation Agent if evidence is missing -> Human"
+  NEXT_ROLES=("Tester if validation evidence is missing" "Reviewer if release risk is meaningful" "Human")
+  add_unique SPECIALISTS "Release Manager"
+  add_unique REASONS "request targets release readiness or deployment preparation"
+elif matches '(docs|documentation|readme|example|guide)'; then
   INTENT="docs_examples_or_changelog"
   STARTING_ROLE="Documentation Agent"
   WORKFLOW="Documentation Agent -> Tester/Reviewer if behavior claims changed -> Human"
@@ -198,6 +205,10 @@ case "$INTENT" in
   docs_examples_or_changelog)
     add_unique GATES "documentation review"
     ;;
+  release_readiness_or_deployment_preparation)
+    add_unique GATES "release report"
+    add_unique GATES "human release approval"
+    ;;
   source_backed_research_or_current_info)
     add_unique GATES "source quality check"
     ;;
@@ -223,6 +234,9 @@ if matches '(ui|ux|design|user-facing|onboarding|form|navigation|accessibility|r
 fi
 if matches '(docs|documentation|readme|changelog|release note|example|guide|migration note|public api)'; then
   add_unique SPECIALISTS "Documentation Agent"
+fi
+if matches '(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)'; then
+  add_unique SPECIALISTS "Release Manager"
 fi
 if matches '(llm|prompt|rag|embedding|vector search|tool calling|function calling|structured output|model|eval|hallucination|prompt injection)'; then
   add_unique SPECIALISTS "LLM Agent"
@@ -278,7 +292,7 @@ else
 fi
 
 # Workflow recipe selection. Recipes are lightweight handling presets; risk and specialist gates still apply.
-if matches '(incident|outage|production down|hotfix|rollback|sev[ -]?[0-9]|urgent regression|data incident|security incident)'; then
+if matches '(incident|outage|production down|hotfix|rollback broken|rollback production|sev[ -]?[0-9]|urgent regression|data incident|security incident)'; then
   RECIPE="incident"
 elif matches '(release|ship|deploy|version bump|changelog|release note|default branch merge|merge readiness)'; then
   RECIPE="release"

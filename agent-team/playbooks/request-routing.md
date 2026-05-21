@@ -54,6 +54,7 @@ intent_to_starting_role:
   validation_or_regression_check: Tester
   code_or_pr_review: Reviewer
   docs_examples_or_changelog: Documentation Agent
+  release_readiness_or_deployment_preparation: Release Manager
   source_backed_research_or_current_info: Researcher Agent
   prompt_rag_tool_calling_or_model_behavior: LLM Agent
   computer_vision_cnn_training_or_inference: CNN Agent
@@ -132,6 +133,7 @@ recipe_defaults:
   validation: testing, QA, regression, acceptance validation
   research: source-backed investigation or option comparison
   release: release readiness, changelog, version, PR preparation
+  release-management: release report, rollout, rollback, and human release decision preparation
   incident: production issue, urgent regression, rollback decision
   skill-change: AgentCrew Skill creation or update
 ```

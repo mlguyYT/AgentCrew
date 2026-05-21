@@ -166,6 +166,7 @@ file_status "review" "$STATE_DIR/review-report.md"
 file_status "security" "$STATE_DIR/security-review-report.md"
 file_status "ux_design" "$STATE_DIR/ux-design-review-report.md"
 file_status "documentation" "$STATE_DIR/documentation-report.md"
+file_status "release" "$STATE_DIR/release-report.md"
 
 printf '%s\n' ""
 printf '%s\n' "Memory And Decisions"

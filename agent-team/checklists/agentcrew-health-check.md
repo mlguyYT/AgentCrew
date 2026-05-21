@@ -58,6 +58,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/agents/security-reviewer.md`
 - [ ] `agent-team/agents/ux-design-reviewer.md`
 - [ ] `agent-team/agents/documentation-agent.md`
+- [ ] `agent-team/agents/release-manager.md`
 - [ ] `agent-team/agents/llm-agent.md`
 - [ ] `agent-team/agents/researcher-agent.md`
 - [ ] `agent-team/agents/cnn-agent.md`
@@ -79,6 +80,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/work-planning.md`
 - [ ] `agent-team/playbooks/implementation-readiness.md`
 - [ ] `agent-team/playbooks/pr-preparation.md`
+- [ ] `agent-team/playbooks/release-management.md`
 - [ ] `agent-team/playbooks/quality-profile-selection.md`
 - [ ] `agent-team/playbooks/human-decision-queue.md`
 - [ ] `agent-team/playbooks/lane-escalation.md`
@@ -170,6 +172,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `docs/work-planning.md`
 - [ ] `docs/implementation-readiness.md`
 - [ ] `docs/pr-preparation.md`
+- [ ] `docs/release-management.md`
 - [ ] `docs/status-dashboard.md`
 - [ ] `docs/human-decision-queue.md`
 
@@ -196,6 +199,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/templates/security-review-report.md`
 - [ ] `agent-team/templates/ux-design-review-report.md`
 - [ ] `agent-team/templates/documentation-report.md`
+- [ ] `agent-team/templates/release-report.md`
 - [ ] `agent-team/templates/compact-handoff.md`
 - [ ] `agent-team/templates/compact-test-report.md`
 - [ ] `agent-team/templates/compact-review-report.md`
