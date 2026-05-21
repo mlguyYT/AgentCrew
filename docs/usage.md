@@ -70,6 +70,18 @@ It also prints a quality profile. `standard` is the default; `light`, `strict`, 
 
 ---
 
+## Task intake
+
+Use task intake when you want AgentCrew to write the active request into project-local state before work continues:
+
+```bash
+~/AgentCrew/bin/agentcrew start --task "Fix the login validation bug"
+```
+
+This creates `.agent-state/current-task.md` with the route, owner, risk, quality profile, workflow, status, and next action. Use `--dry-run` to preview and `--force` only when intentionally replacing the current task.
+
+---
+
 ## Status dashboard
 
 Use status to check AgentCrew registrations and the current project state:

@@ -35,6 +35,7 @@ Optional: inspect a target project profile and classify a request without changi
 ```bash
 ~/AgentCrew/bin/agentcrew detect-project --project /path/to/your-project
 ~/AgentCrew/bin/agentcrew classify --project /path/to/your-project --task "Add OAuth login"
+~/AgentCrew/bin/agentcrew start --dry-run --project /path/to/your-project --task "Add OAuth login"
 ~/AgentCrew/bin/agentcrew status --project /path/to/your-project
 ```
 
@@ -119,6 +120,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       rework-loop.md
       task-classification.md
       request-routing.md
+      task-intake.md
       quality-profile-selection.md
       human-decision-queue.md
       lane-escalation.md
@@ -150,6 +152,7 @@ After installation, AgentCrew should live outside the project it is guiding:
 
     tools/
       classify-task.sh
+      start-task.sh
       detect-project.sh
       project-status.sh
       list-sessions.sh
@@ -160,6 +163,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       product-plan.md
       task.md
       task-routing.md
+      current-task.md
       human-decision-queue.md
       pr-description.md
       test-report.md

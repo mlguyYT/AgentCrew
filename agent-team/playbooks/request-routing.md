@@ -30,6 +30,7 @@ routing_order:
   - select candidate Skills from the registry
   - identify required gates and specialist triggers
   - produce a compact route summary
+  - create `.agent-state/current-task.md` when a durable current task artifact is useful
   - start the workflow
 ```
 

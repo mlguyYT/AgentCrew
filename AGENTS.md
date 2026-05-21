@@ -92,6 +92,7 @@ request_routing:
   - choose Fast Lane or Full Lane
   - choose the starting role
   - choose the quality profile using agent-team/playbooks/quality-profile-selection.md when the default is unclear
+  - create or update .agent-state/current-task.md with agent-team/playbooks/task-intake.md when a durable task artifact is useful
   - load the matching context profile
   - load relevant Skills from agent-team/skills/registry.md
   - load only triggered gates and specialist files
@@ -204,6 +205,16 @@ agent-team/quality-profiles/
 ```
 
 Quality profiles tune validation depth, review depth, and output detail. They never override safety rules, human-only decisions, repository instructions, or required quality gates.
+
+## Task intake
+
+When starting non-trivial work, use `agent-team/playbooks/task-intake.md` and `agent-team/templates/current-task.md` to keep `.agent-state/current-task.md` compact and current.
+
+The optional command is:
+
+```bash
+~/AgentCrew/bin/agentcrew start --project . --task "short request"
+```
 
 ---
 

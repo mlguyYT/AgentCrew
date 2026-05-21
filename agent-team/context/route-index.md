@@ -37,6 +37,7 @@ Load only:
 - selected context profile from `agent-team/context/`
 - selected role file from `agent-team/agents/`
 - `agent-team/playbooks/request-routing.md` only when route is ambiguous
+- `agent-team/playbooks/task-intake.md` when creating `.agent-state/current-task.md`
 - selected lane playbook
 - `agent-team/playbooks/quality-profile-selection.md` when profile choice affects gates or output detail
 - selected `agent-team/quality-profiles/*.md` only when needed

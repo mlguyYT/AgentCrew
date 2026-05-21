@@ -55,6 +55,8 @@ task_classification:
 
 Use this output as a routing aid. Agents still need to inspect the task-specific files and project instructions.
 
+To turn the classification into a project-local current task, use `agentcrew start`.
+
 ---
 
 ## What It Classifies

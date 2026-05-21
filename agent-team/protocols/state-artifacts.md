@@ -47,7 +47,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   memory.md
 ```
 
-Use only the files that are useful for the current project. `agentcrew status` reads these files when present and reports missing files as `not set`.
+Use only the files that are useful for the current project. `agentcrew start` can create `current-task.md`; `agentcrew status` reads these files when present and reports missing files as `not set`.
 
 `sessions/` stores timestamped local session checkpoints created by the optional AgentCrew save-session utility.
 The save-session utility resolves the target git repository root automatically, so checkpoints from different projects do not conflict.
@@ -135,6 +135,9 @@ Only the human may mark risk-acceptance decisions as approved, rejected, or defe
 ---
 
 ## Current Task Schema
+
+Use `agent-team/templates/current-task.md` as the canonical template.
+
 
 ```md
 # Current Task

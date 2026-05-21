@@ -44,6 +44,7 @@ agent-team/
     rework-loop.md
     task-classification.md
     request-routing.md
+    task-intake.md
     quality-profile-selection.md
     human-decision-queue.md
     lane-escalation.md
@@ -80,6 +81,7 @@ agent-team/
 
   tools/
     classify-task.sh
+    start-task.sh
     detect-project.sh
     project-status.sh
     list-sessions.sh
@@ -90,6 +92,7 @@ agent-team/
     product-plan.md
     task.md
     task-routing.md
+    current-task.md
     human-decision-queue.md
     pr-description.md
     test-report.md

@@ -42,6 +42,8 @@ Fix the login form so empty email shows a validation message.
 
 AgentCrew is registered globally for supported agents, reads its own instructions, chooses the lane, role, and Skills, and stops where human approval is required. Cursor, GitHub Copilot, and other tools can use the adapter snippets in `agent-team/adapters/` when they need a tool-specific instruction surface.
 
+Optional: make the current task visible with `~/AgentCrew/bin/agentcrew start --task "your request"`.
+
 No AgentCrew files need to be copied into the project.
 
 ## Workflows
@@ -80,6 +82,7 @@ runtime/               optional future orchestration notes
 - [Setup Doctor](docs/doctor.md)
 - [Project Detection](docs/project-detection.md)
 - [Task Classifier](docs/task-classifier.md)
+- [Task Intake](docs/task-intake.md)
 - [Status Dashboard](docs/status-dashboard.md)
 - [Human Decision Queue](docs/human-decision-queue.md)
 - [Quality Profiles](docs/quality-profiles.md)

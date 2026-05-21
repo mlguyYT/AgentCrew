@@ -76,6 +76,8 @@ Expected sections:
 
 Missing files or sections are reported as `not set`. That is normal for projects that have not saved AgentCrew state yet.
 
+Use `agentcrew start --task "..."` to create the current-task artifact from a plain request.
+
 ---
 
 ## Human Decision Queue
