@@ -92,9 +92,12 @@ runtime/               optional future orchestration notes
 
 - [Installation](docs/installation.md)
 - [Setup Doctor](docs/doctor.md)
+- [Loader Management](docs/loader-management.md)
 - [Project Detection](docs/project-detection.md)
 - [Project Presets](docs/project-presets.md)
 - [Task Classifier](docs/task-classifier.md)
+- [Context Manifest](docs/context-manifest.md)
+- [Session Checkpoints](docs/session-checkpoints.md)
 - [Task Intake](docs/task-intake.md)
 - [Acceptance Criteria](docs/acceptance-criteria.md)
 - [Work Planning](docs/work-planning.md)
@@ -110,6 +113,7 @@ runtime/               optional future orchestration notes
 - [Use in an Existing Project](docs/bootstrap-existing-project.md)
 - [Usage Guide](docs/usage.md)
 - [Examples](docs/examples.md)
+- [Scenario Examples](examples/scenarios/README.md)
 - [Customization](docs/customization.md)
 - [Security](docs/security.md)
 - [Contributing](docs/contributing.md)
@@ -133,7 +137,7 @@ Human approval stays final.
 To save local pause/resume context in a target project:
 
 ```bash
-~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
+~/AgentCrew/bin/agentcrew checkpoint --project . --title "short title"
 ```
 
 This writes a safe checkpoint under `.agent-state/sessions/`.
@@ -144,6 +148,7 @@ To list saved sessions or show the latest one:
 ```bash
 ~/AgentCrew/agent-team/tools/list-sessions.sh --project .
 ~/AgentCrew/agent-team/tools/list-sessions.sh --project . --latest
+~/AgentCrew/bin/agentcrew restore-session --project .
 ```
 
 ## Status

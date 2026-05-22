@@ -4,33 +4,44 @@
 
 Task is high risk, ambiguous, product-heavy, security-sensitive, migration-heavy, infrastructure-heavy, or difficult to roll back.
 
-## Required Files
+## Load By Phase
+
+### Planning
 
 ```text
 agent-team/playbooks/full-lane.md
 agent-team/playbooks/task-classification.md
-agent-team/playbooks/lane-escalation.md
 agent-team/agents/product-manager.md
-agent-team/agents/developer.md
-agent-team/agents/tester.md
-agent-team/agents/reviewer.md
 agent-team/skills/registry.md
 ```
 
-## Conditional Files
-
 Load Advisor and Idea Consultant only when the work starts from a rough idea or product direction question.
 
-Load gate playbooks only when triggered:
+### Implementation
 
 ```text
+agent-team/agents/developer.md
+matching Skill files only
+```
+
+### Validation / Review
+
+```text
+agent-team/agents/tester.md
+agent-team/agents/reviewer.md
+```
+
+### Triggered Gates Only
+
+```text
+agent-team/playbooks/lane-escalation.md
 agent-team/playbooks/default-branch-merge.md
 agent-team/playbooks/dependency-supply-chain.md
 agent-team/playbooks/behavior-preserving-refactor.md
 agent-team/playbooks/compatibility-rollout.md
 ```
 
-Load only the specialist agent files that match the work.
+Load only specialist agent files that match the work.
 
 ## Output Budget
 

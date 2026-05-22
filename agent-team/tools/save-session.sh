@@ -11,6 +11,11 @@ usage() {
   printf '%s\n' "  --decision TEXT      Decision to save. May be repeated"
   printf '%s\n' "  --next TEXT          Next step to save. May be repeated"
   printf '%s\n' "  --note TEXT          Note to save. May be repeated"
+  printf '%s\n' "  --tried TEXT         Failed approach worth remembering. May be repeated"
+  printf '%s\n' "  --risk TEXT          Open risk or uncertainty. May be repeated"
+  printf '%s\n' "  --skill TEXT         Role or Skill used. May be repeated"
+  printf '%s\n' "  --validation TEXT    Validation evidence or baseline. May be repeated"
+  printf '%s\n' "  --checkpoint-block   Include an [agentcrew-context] block"
   printf '%s\n' "  --out-dir PATH       Output directory. Default: PROJECT_ROOT/.agent-state/sessions"
   printf '%s\n' "  -h, --help           Show help"
 }
@@ -22,6 +27,11 @@ OUT_DIR=""
 DECISIONS=()
 NEXT_STEPS=()
 NOTES=()
+TRIED=()
+RISKS=()
+SKILLS_USED=()
+VALIDATIONS=()
+CHECKPOINT_BLOCK="false"
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -54,6 +64,34 @@ while [ "$#" -gt 0 ]; do
       [ "$#" -ge 2 ] || { printf '%s\n' "Missing value for --note" >&2; exit 2; }
       NOTES+=("$2")
       shift 2
+      ;;
+    --tried)
+      [ "$#" -ge 2 ] || { printf '%s\n' "Missing value for --tried" >&2; exit 2; }
+      TRIED+=("$2")
+      CHECKPOINT_BLOCK="true"
+      shift 2
+      ;;
+    --risk)
+      [ "$#" -ge 2 ] || { printf '%s\n' "Missing value for --risk" >&2; exit 2; }
+      RISKS+=("$2")
+      CHECKPOINT_BLOCK="true"
+      shift 2
+      ;;
+    --skill)
+      [ "$#" -ge 2 ] || { printf '%s\n' "Missing value for --skill" >&2; exit 2; }
+      SKILLS_USED+=("$2")
+      CHECKPOINT_BLOCK="true"
+      shift 2
+      ;;
+    --validation)
+      [ "$#" -ge 2 ] || { printf '%s\n' "Missing value for --validation" >&2; exit 2; }
+      VALIDATIONS+=("$2")
+      CHECKPOINT_BLOCK="true"
+      shift 2
+      ;;
+    --checkpoint-block)
+      CHECKPOINT_BLOCK="true"
+      shift
       ;;
     --out-dir)
       [ "$#" -ge 2 ] || { printf '%s\n' "Missing value for --out-dir" >&2; exit 2; }
@@ -150,6 +188,15 @@ write_list() {
   done
 }
 
+write_context_lines() {
+  local label="$1"
+  shift
+  local item
+  for item in "$@"; do
+    printf '%s: %s\n' "$label" "$item"
+  done
+}
+
 {
   printf '%s\n' '---'
   printf '%s\n' 'status: saved'
@@ -174,6 +221,32 @@ write_list() {
   write_list "No next steps recorded." "${NEXT_STEPS[@]}"
   printf '\n## Notes\n\n'
   write_list "No notes recorded." "${NOTES[@]}"
+  if [ "${#TRIED[@]}" -gt 0 ]; then
+    printf '\n## Tried\n\n'
+    write_list "No failed approaches recorded." "${TRIED[@]}"
+  fi
+  if [ "${#RISKS[@]}" -gt 0 ]; then
+    printf '\n## Risks\n\n'
+    write_list "No risks recorded." "${RISKS[@]}"
+  fi
+  if [ "${#VALIDATIONS[@]}" -gt 0 ]; then
+    printf '\n## Validation\n\n'
+    write_list "No validation recorded." "${VALIDATIONS[@]}"
+  fi
+  if [ "$CHECKPOINT_BLOCK" = "true" ]; then
+    printf '\n## AgentCrew Context Block\n\n```text\n'
+    printf '%s\n' '[agentcrew-context]'
+    printf 'Task: %s\n' "$TITLE"
+    printf 'Status: saved\n'
+    write_context_lines "Decision" "${DECISIONS[@]}"
+    write_context_lines "Remaining" "${NEXT_STEPS[@]}"
+    write_context_lines "Tried" "${TRIED[@]}"
+    write_context_lines "Risk" "${RISKS[@]}"
+    write_context_lines "Skill" "${SKILLS_USED[@]}"
+    write_context_lines "Validation" "${VALIDATIONS[@]}"
+    printf '%s\n' '[/agentcrew-context]'
+    printf '```\n'
+  fi
   printf '\n## Git State\n\n'
   if [ "$is_git_repo" = "true" ]; then
     printf -- '- branch: %s\n' "${BRANCH:-unknown}"

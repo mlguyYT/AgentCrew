@@ -38,11 +38,12 @@ Before acting:
 2. Read `agent-team/context/route-index.md`
 3. Read the selected context profile
 4. Read the relevant role file
-5. Read `agent-team/skills/registry.md`
+5. Read compact `agent-team/skills/registry.md`
 6. Inspect task and repository context
 7. Select matching skills
 8. Read selected skill files using the paths in the registry
-9. Apply role + skills together
+9. Load `agent-team/skills/registry-guidance.md` only if matching is ambiguous
+10. Apply role + skills together
 
 ---
 
@@ -125,7 +126,7 @@ kubernetes
 
 ## Multiple skills
 
-Multiple skills may apply, but load only skills that directly affect the current task.
+Multiple skills may apply, but load only skills that directly affect the current task. Use `agent-team/skills/registry-guidance.md` only when priority or matching examples are needed.
 
 Example:
 

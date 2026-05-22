@@ -21,6 +21,7 @@ Example:
 
 ```bash
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
+~/AgentCrew/bin/agentcrew install --dry-run
 ~/AgentCrew/bin/agentcrew install
 ~/AgentCrew/bin/agentcrew doctor
 ~/AgentCrew/bin/agentcrew status
@@ -36,11 +37,14 @@ Optional: inspect a target project profile and classify a request without changi
 ~/AgentCrew/bin/agentcrew detect-project --project /path/to/your-project
 ~/AgentCrew/bin/agentcrew preset --dry-run --project /path/to/your-project
 ~/AgentCrew/bin/agentcrew classify --project /path/to/your-project --task "Add OAuth login"
+~/AgentCrew/bin/agentcrew context --project /path/to/your-project --task "Add OAuth login"
 ~/AgentCrew/bin/agentcrew start --dry-run --project /path/to/your-project --task "Add OAuth login"
 ~/AgentCrew/bin/agentcrew brief --dry-run --project /path/to/your-project --task "Add OAuth login"
 ~/AgentCrew/bin/agentcrew plan --dry-run --project /path/to/your-project --task "Add OAuth login"
 ~/AgentCrew/bin/agentcrew ready --dry-run --project /path/to/your-project
 ~/AgentCrew/bin/agentcrew pr-pack --dry-run --project /path/to/your-project
+~/AgentCrew/bin/agentcrew checkpoint --project /path/to/your-project --title "short checkpoint"
+~/AgentCrew/bin/agentcrew restore-session --project /path/to/your-project
 ~/AgentCrew/bin/agentcrew status --project /path/to/your-project
 ```
 
@@ -88,6 +92,8 @@ A healthy setup reports zero failures. Warnings are useful context, such as a mi
 
 See `docs/doctor.md` for details.
 
+Use `~/AgentCrew/bin/agentcrew uninstall --dry-run` to preview removing global loader blocks. See `docs/loader-management.md` for details.
+
 ---
 
 ## Recommended local structure
@@ -101,6 +107,7 @@ After installation, AgentCrew should live outside the project it is guiding:
     agentcrew
   docs/
   examples/
+    scenarios/
 
   agent-team/
     README.md
@@ -187,6 +194,7 @@ After installation, AgentCrew should live outside the project it is guiding:
 
     tools/
       classify-task.sh
+      context-manifest.sh
       select-preset.sh
       start-task.sh
       brief-task.sh
@@ -197,6 +205,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       project-status.sh
       list-sessions.sh
       save-session.sh
+      restore-session.sh
 
     templates/
       idea-brief.md
@@ -224,6 +233,7 @@ After installation, AgentCrew should live outside the project it is guiding:
     skills/
       README.md
       registry.md
+      registry-guidance.md
       authoring-guide.md
       languages/
       frameworks/

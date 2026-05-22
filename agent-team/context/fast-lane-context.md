@@ -4,27 +4,28 @@
 
 Task is small, scoped, reversible, and low or medium risk.
 
-## Required Files
+## Load By Phase
+
+### Route / Start
 
 ```text
 agent-team/agents/developer.md
-agent-team/agents/tester.md
-agent-team/playbooks/fast-lane.md
-agent-team/playbooks/skill-loading.md
 agent-team/skills/registry.md
+```
+
+Load matching Skill files only. Load `agent-team/playbooks/fast-lane.md` only when role order, rework routing, or gates are unclear.
+
+### Validate
+
+```text
+agent-team/agents/tester.md
 agent-team/templates/compact-test-report.md
 agent-team/templates/compact-handoff.md
 ```
 
-## Conditional Files
+### Review When Triggered
 
 ```yaml
-request_routing:
-  load_when: the user request has multiple intents or unclear starting role/gates
-  files:
-    - agent-team/playbooks/request-routing.md
-    - agent-team/templates/task-routing.md
-
 reviewer:
   load_when: meaningful risk, shared module, public API/protocol, dependency/runtime/config, large diff, tester uncertainty
   files:

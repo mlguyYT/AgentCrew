@@ -11,6 +11,8 @@ After that, open any project and enjoy development with your AgentCrew.
 
 Paths in these examples are relative to the external AgentCrew checkout unless a project path is explicitly named.
 
+For larger copyable scenarios, see `examples/scenarios/`.
+
 ---
 
 ## Example 1 — Small bug fix

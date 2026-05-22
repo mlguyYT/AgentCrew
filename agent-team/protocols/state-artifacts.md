@@ -56,8 +56,9 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
 
 Use only the files that are useful for the current project. `agentcrew start` can create `current-task.md`; `agentcrew status` reads these files when present and reports missing files as `not set`.
 
-`sessions/` stores timestamped local session checkpoints created by the optional AgentCrew save-session utility.
+`sessions/` stores timestamped local session checkpoints created by the optional AgentCrew save-session and checkpoint utilities.
 The save-session utility resolves the target git repository root automatically, so checkpoints from different projects do not conflict.
+Structured checkpoint blocks use `agent-team/protocols/checkpoint-blocks.md`.
 
 ---
 
@@ -116,7 +117,7 @@ memory.md:
   purpose: short project context worth preserving between sessions
 
 sessions/:
-  purpose: timestamped local checkpoints for pause/resume across agent sessions
+  purpose: timestamped local checkpoints and optional [agentcrew-context] blocks for pause/resume across agent sessions
 ```
 
 ---

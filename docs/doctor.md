@@ -32,10 +32,11 @@ The doctor checks:
 - required Agent role files
 - required output templates, including task routing and human decision queue templates
 - Claude Code, Codex, and OpenClaw global loader registrations
-- local tool availability such as `git`, the project detector, the task classifier, project preset selector, task intake, task brief, work plan, readiness check, PR packet preparation, and the status dashboard
-- setup docs such as installation, automatic loading, project detection, project presets, task classifier, task intake, acceptance criteria, work planning, implementation readiness, PR preparation, release management, support triage, status dashboard, and human decision queue docs
+- local tool availability such as `git`, the project detector, the task classifier, context manifest, project preset selector, task intake, task brief, work plan, readiness check, PR packet preparation, session save/restore, and the status dashboard
+- setup docs such as installation, automatic loading, loader management, project detection, project presets, task classifier, context manifest, session checkpoints, task intake, acceptance criteria, work planning, implementation readiness, PR preparation, release management, support triage, status dashboard, and human decision queue docs
 - whether AgentCrew's own repository ignores its local `.agent-state/`
 - whether AgentCrew is external to the current project when run from a target project
+- whether always-loaded and hot-path files stay within token budget warnings
 
 Warnings are informational. Failures indicate missing required files or an invalid AgentCrew root.
 
@@ -68,6 +69,12 @@ If a loader points to an old checkout, reinstall with the intended root:
 
 ```bash
 /path/to/AgentCrew/bin/agentcrew install --root /path/to/AgentCrew
+```
+
+To remove AgentCrew-managed loader blocks, preview first:
+
+```bash
+~/AgentCrew/bin/agentcrew uninstall --dry-run
 ```
 
 If required files are missing, update or reclone AgentCrew.

@@ -110,3 +110,13 @@ agent-team/playbooks/lane-escalation.md
 ```
 
 When uncertain, choose the safer lane or ask the human.
+
+---
+
+## Related Context Manifest
+
+Use `agentcrew context` when you want a phase-based `load_now` / `load_later` file list instead of the broader classifier output.
+
+```bash
+~/AgentCrew/bin/agentcrew context --project /path/to/project --task "Add OAuth login"
+```

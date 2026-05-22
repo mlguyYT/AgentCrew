@@ -192,6 +192,32 @@ Use extra fields when useful:
   --note "Coverage tooling exists; target remains 70 percent or higher."
 ```
 
+For a token-efficient resume checkpoint, use a structured checkpoint block:
+
+```bash
+~/AgentCrew/bin/agentcrew checkpoint \
+  --project . \
+  --title "checkout validation work" \
+  --summary "Checkout validation was updated and tests are partially complete." \
+  --decision "Keep validation in the form service layer." \
+  --next "Run focused checkout tests." \
+  --risk "Coverage baseline still needs verification." \
+  --skill "Developer" \
+  --validation "Focused tests pending."
+```
+
+Restore the latest checkpoint with:
+
+```bash
+~/AgentCrew/bin/agentcrew restore-session --project .
+```
+
+Checkpoint block rules live in:
+
+```text
+agent-team/protocols/checkpoint-blocks.md
+```
+
 By default, the utility writes to:
 
 ```text

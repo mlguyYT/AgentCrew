@@ -57,3 +57,7 @@
 - Project presets, selector command, template, checklist, docs, and status support for project-shape defaults
 - Release Manager role, release management playbook, report template, docs, routing, and state support
 - Support Triage Agent role, playbook, checklist, report template, docs, routing, and state support
+- Standalone scenario examples for bug fix, support triage, auth risk, release preparation, LLM review, and CNN review
+- Loader management docs and `agentcrew uninstall` command for safely removing managed global loader blocks
+- Token-efficiency measures: phase-based context manifests, doctor word-budget warnings, compact Skill registry, and registry guidance split
+- Session checkpoint blocks, restore-session tooling, and CLI checkpoint commands for token-efficient resume context

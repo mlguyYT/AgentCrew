@@ -1,24 +1,20 @@
 # Repository Agent Instructions
 
-These instructions define how AI coding agents should work in this repository.
+AgentCrew is a Markdown-first workflow for coordinating AI coding agents with roles, playbooks, Skills, compact handoffs, quality gates, and final human approval.
 
-They are intentionally tool-agnostic.
-
-Use them with Codex, Claude Code, Cursor, GitHub Copilot, Gemini, or any agent that can read repository instructions.
-
----
-
-## Source of truth
-
-The canonical agent workflow lives in:
+The canonical workflow lives in:
 
 ```text
 agent-team/
 ```
 
-If this file is loaded from an external AgentCrew checkout, resolve relative AgentCrew paths from the checkout that contains this `AGENTS.md`, not from the target project. The target project remains the working repository for application code.
+If this file is loaded from an external AgentCrew checkout, resolve relative AgentCrew paths from the checkout that contains this `AGENTS.md`. The target project remains the working repository for application code.
 
-Use staged loading to preserve quality while reducing token usage.
+---
+
+## Load Order
+
+Use staged loading. Do not eagerly load the whole AgentCrew tree.
 
 Always read first:
 
@@ -27,7 +23,7 @@ agent-team/context/route-index.md
 agent-team/protocols/token-discipline.md
 ```
 
-Then load only the files needed for the routed task:
+Then load one context profile:
 
 ```text
 agent-team/context/fast-lane-context.md
@@ -36,91 +32,45 @@ agent-team/context/review-context.md
 agent-team/context/research-context.md
 ```
 
-Load detailed playbooks, role files, Skills, quality profiles, gates, checklists, and templates only after the route, risk, role, and triggers are known. Load `agent-team/playbooks/request-routing.md` when the route is not obvious from `agent-team/context/route-index.md`.
-Do not eagerly load all AgentCrew files.
+Use `agent-team/playbooks/request-routing.md` only when the route is unclear. Use this optional helper when a phase-based file list would prevent broad loading:
 
-Use agent-specific instructions from `agent-team/agents/` only for the selected role.
-Use output templates from `agent-team/templates/` only for the current phase.
-Use `agent-team/skills/registry.md` to identify matching Skills, then load matching skill files only.
-Use policies, checklists, conventions, and protocols only when they are triggered by the task.
-
-Use tool adapters and installer guidance from:
-
-```text
-bin/agentcrew
-agent-team/adapters/
-docs/auto-load.md
+```bash
+~/AgentCrew/bin/agentcrew context --project . --task "short request"
 ```
+
+Load only the selected role file, matching Skill files, triggered gates, and current output template. Do not load `README.md`, `docs/`, `examples/`, or `STRUCTURE.md` during normal target-project work unless editing AgentCrew or debugging installation.
 
 ---
 
-## Default operating mode
+## Default Routing
 
-Default to:
+Users do not need to name AgentCrew, a role, lane, or Skill.
 
-```yaml
-mode: Fast Lane
-```
-
-Fast Lane means:
+Default to Fast Lane:
 
 ```text
-Task
-  -> Developer
-  -> Tester
-  -> Reviewer when risk is meaningful
-  -> Product Manager when scope or product behavior changes
-  -> Specialist reviewer only if needed
-  -> Human approval
+Developer -> Tester -> Reviewer when risk is meaningful -> Product Manager when scope or product behavior changes -> Specialist only if triggered -> Human
 ```
 
-Use Full Lane when the task is high risk.
+Use Full Lane for high-risk, ambiguous, security-sensitive, migration-heavy, infrastructure-heavy, public API/protocol, compatibility, billing, auth, customer-data, or hard-to-rollback work.
 
----
-
-## Default request routing
-
-Users do not need to name a role, lane, or Skill.
-
-When the user asks a normal question or requests an outcome, AgentCrew must:
+When the request is normal product work, AgentCrew must:
 
 ```yaml
-request_routing:
+routing:
   - understand the requested outcome
-  - classify risk using agent-team/context/route-index.md first
-  - use agent-team/playbooks/request-routing.md when route, role, or gate selection is unclear
-  - choose Fast Lane or Full Lane
-  - choose the starting role
-  - choose the quality profile using agent-team/playbooks/quality-profile-selection.md when the default is unclear
-  - select a project preset with agent-team/playbooks/project-presets.md when project shape defaults would help
-  - select a workflow recipe from agent-team/recipes/ when it helps route the outcome
-  - create or update .agent-state/current-task.md with agent-team/playbooks/task-intake.md when a durable task artifact is useful
-  - create .agent-state/task-brief.md with agent-team/playbooks/acceptance-criteria.md when acceptance criteria are missing or vague
-  - create .agent-state/work-plan.md with agent-team/playbooks/work-planning.md when work needs sequencing or PR slicing
-  - run implementation readiness with agent-team/playbooks/implementation-readiness.md before Developer starts non-trivial work
-  - prepare .agent-state/pr-pack.md with agent-team/playbooks/pr-preparation.md before human PR review when useful
-  - prepare .agent-state/release-report.md with agent-team/playbooks/release-management.md when release readiness or deployment preparation is in scope
-  - prepare .agent-state/support-triage-report.md with agent-team/playbooks/support-triage.md when support tickets, customer reports, or severity triage are in scope
+  - classify risk with route-index first
+  - choose lane, starting role, quality profile, recipe, Skills, and gates
   - load the matching context profile
-  - load relevant Skills from agent-team/skills/registry.md
-  - load only triggered gates and specialist files
-  - record human-only decisions in .agent-state/human-decisions.md when needed
+  - create .agent-state artifacts only when durable handoff context is useful
   - run the workflow until human approval is needed
 ```
 
-Examples:
-
-```text
-"Fix this login validation bug" -> Developer -> Tester -> Human, with Reviewer/PM if risk or behavior scope requires it
-"Plan this new dashboard feature" -> Product Manager -> Developer -> Tester -> Reviewer -> Human
-"Change token validation" -> Advisor/Product Manager -> Developer -> Tester -> Reviewer -> Security Reviewer -> Human
-```
-
-If the user explicitly names a role, lane, or Skill, honor that unless it conflicts with safety rules or human approval.
+If the user explicitly names a role, lane, or Skill, honor it unless it conflicts with safety, repository rules, or human approval.
 
 ---
 
-## Non-negotiable rules
+## Safety Rules
 
 ```yaml
 rules:
@@ -133,194 +83,71 @@ rules:
   avoid_unrelated_changes: true
 ```
 
----
+Only the human may approve product direction, approve pull requests, merge, accept security/data/migration risk, change public behavior, enable insecure legacy compatibility, force-push, rewrite shared history, override gates, or resolve risk-acceptance decisions.
 
-## Human-only actions
-
-Only the human may:
-
-When a human-only decision is pending, record it in `.agent-state/human-decisions.md` using `agent-team/templates/human-decision-queue.md`.
-
-```yaml
-human_only:
-  - approve final product direction
-  - approve backlog for large work
-  - approve pull requests
-  - merge pull requests
-  - accept security or data-risk tradeoffs
-  - accept data-loss or migration risk
-  - change public behavior
-  - enable legacy insecure compatibility
-  - force-push or rewrite shared history
-  - override quality gates
-  - resolve pending human decision queue items involving risk acceptance
-```
-
----
-
-## Agent roles
-
-Use the following role files:
-
-```yaml
-roles:
-  advisor: agent-team/agents/advisor.md
-  idea_consultant: agent-team/agents/idea-consultant.md
-  product_manager: agent-team/agents/product-manager.md
-  developer: agent-team/agents/developer.md
-  tester: agent-team/agents/tester.md
-  reviewer: agent-team/agents/reviewer.md
-  security_reviewer: agent-team/agents/security-reviewer.md
-  ux_design_reviewer: agent-team/agents/ux-design-reviewer.md
-  documentation_agent: agent-team/agents/documentation-agent.md
-  support_triage_agent: agent-team/agents/support-triage-agent.md
-  release_manager: agent-team/agents/release-manager.md
-  llm_agent: agent-team/agents/llm-agent.md
-  researcher_agent: agent-team/agents/researcher-agent.md
-  cnn_agent: agent-team/agents/cnn-agent.md
-  skill_validator: agent-team/agents/skill-validator.md
-```
-
-If a role file is missing, create it before relying on that role.
-
----
-
-## Task classification
-
-Before starting work, classify the task:
-
-```yaml
-risk_levels:
-  low:
-    lane: Fast Lane
-  medium:
-    lane: Fast Lane or Full Lane
-  high:
-    lane: Full Lane
-  critical:
-    lane: Full Lane plus human decision
-```
-
-When unsure, choose the safer lane or ask the human.
-
-## Quality profile
-
-Default to the `standard` quality profile unless task or project context clearly indicates `light`, `strict`, or `regulated`.
-
-Use:
+Record pending human-only decisions in:
 
 ```text
-agent-team/playbooks/quality-profile-selection.md
-agent-team/quality-profiles/
+.agent-state/human-decisions.md
 ```
-
-Quality profiles tune validation depth, review depth, and output detail. They never override safety rules, human-only decisions, repository instructions, or required quality gates.
-
-## Project presets
-
-When starting work in a new target project or when project-shape defaults would help, use `agent-team/playbooks/project-presets.md` and `agent-team/templates/project-preset.md`. The optional command is `~/AgentCrew/bin/agentcrew preset --project .`.
-
-## Task intake
-
-When starting non-trivial work, use `agent-team/playbooks/task-intake.md` and `agent-team/templates/current-task.md` to keep `.agent-state/current-task.md` compact and current.
-
-The optional command is:
-
-```bash
-~/AgentCrew/bin/agentcrew start --project . --task "short request"
-```
-
-## Workflow recipes
-
-Use `agent-team/recipes/` for common outcome patterns such as bug fixes, features, refactors, docs updates, reviews, validation, research, releases, incidents, and Skill changes. Load only the selected recipe file.
-
-## Acceptance criteria
-
-When scope or validation is unclear, use `agent-team/playbooks/acceptance-criteria.md` and `agent-team/templates/task-brief.md`. The optional command is `~/AgentCrew/bin/agentcrew brief --project . --task "short request"`.
-
-## Work planning
-
-When work may span multiple phases or PRs, use `agent-team/playbooks/work-planning.md` and `agent-team/templates/work-plan.md`. The optional command is `~/AgentCrew/bin/agentcrew plan --project . --task "short request"`.
-
-## Implementation readiness
-
-Before non-trivial implementation starts, use `agent-team/playbooks/implementation-readiness.md` and `agent-team/templates/readiness-report.md`. The optional command is `~/AgentCrew/bin/agentcrew ready --project .`.
-
-## PR preparation
-
-Before human PR review, use `agent-team/playbooks/pr-preparation.md` and `agent-team/templates/pr-pack.md` when a compact approval packet would help. The optional command is `~/AgentCrew/bin/agentcrew pr-pack --project .`.
-
-## Release management
-
-When release readiness, versioning, changelog, rollout, rollback, deployment preparation, or default-branch merge readiness is in scope, use `agent-team/agents/release-manager.md`, `agent-team/playbooks/release-management.md`, and `agent-team/templates/release-report.md`. Final release, deploy, merge, and risk acceptance remain human-only.
-
-## Support triage
-
-When a task starts from a support ticket, customer report, user complaint, reproduction request, severity question, or impact assessment, use `agent-team/agents/support-triage-agent.md`, `agent-team/playbooks/support-triage.md`, and `agent-team/templates/support-triage-report.md`. Keep customer commitments and risk acceptance human-only.
 
 ---
 
-## Skill loading
+## Roles And Skills
 
-Before implementation, testing, or review, inspect the task and repository context for matching Skills.
-
-Load `agent-team/skills/registry.md`, then load only matching skill files.
-Do not load all skill files.
-
-Skills may be selected by:
-
-```yaml
-skill_inputs:
-  - explicit Skills field
-  - task text
-  - labels
-  - changed files
-  - file extensions
-  - dependency files
-  - framework names
-  - imports and code symbols
-```
-
-Skills improve execution quality but never override human approval, safety rules, or repository instructions.
-
-For larger tasks, agents should include a short `## Skills Applied` note in their output when it helps the human understand which technical guidance was used.
-
-When adding or changing Skills, use:
+Role files live in:
 
 ```text
-agent-team/agents/skill-validator.md
-agent-team/playbooks/skill-validation.md
-agent-team/templates/skill-validation-report.md
+agent-team/agents/
 ```
+
+Core roles include Advisor, Idea Consultant, Product Manager, Developer, Tester, Reviewer, Security Reviewer, UX / Design Reviewer, Documentation Agent, Support Triage Agent, Release Manager, LLM Agent, Researcher Agent, CNN Agent, and Skill Validator.
+
+Use compact `agent-team/skills/registry.md` to identify matching Skills, then load matching Skill files only. Load `agent-team/skills/registry-guidance.md` only when Skill matching is ambiguous.
+
+Skills never override human approval, safety rules, or repository instructions.
 
 ---
 
-## Memory saving
+## State And Memory
 
-When the human asks to save progress, when work pauses, or when a useful decision needs durable context, use:
+Project-specific runtime state belongs in the target project:
+
+```text
+.agent-state/
+```
+
+AgentCrew methodology belongs in `agent-team/`. Do not store project memory inside `agent-team/`.
+
+Use memory saving when the human asks to save progress, work pauses, or a useful decision needs durable context:
 
 ```text
 agent-team/playbooks/memory-saving.md
 agent-team/templates/memory-summary.md
 ```
 
-If the optional utility is available, save a local session checkpoint with:
+Optional helpers:
 
 ```bash
-~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
+~/AgentCrew/bin/agentcrew checkpoint --project . --title "short title"
+~/AgentCrew/bin/agentcrew restore-session --project .
 ```
 
-Memory must not include secrets, raw customer data, sensitive production data, large logs, personal Git identity, personal email, private key paths, deploy-key paths, local machine paths, or workstation-specific auth commands.
+Memory and shared state must not include secrets, raw customer data, sensitive production data, large logs, personal Git identity, personal email, private key paths, deploy-key paths, local machine paths, or workstation-specific auth commands.
 
-Do not store project memory inside `agent-team/`; that folder is the reusable workflow package.
+Before committing shared state, use:
+
+```text
+agent-team/checklists/shared-memory-refresh.md
+```
 
 ---
 
-## Communication protocol
+## Communication
 
-Agents must communicate through compact artifacts instead of long chat when handing work to another agent.
+Use compact artifacts instead of long chat handoffs.
 
-Default handoff format:
+Default handoff:
 
 ```md
 ### Context
@@ -330,7 +157,7 @@ Default handoff format:
 What was decided.
 
 ### Evidence
-Only the facts needed by the next agent.
+Only facts needed by the next agent.
 
 ### Next Action
 Exactly what the next agent should do.
@@ -339,163 +166,30 @@ Exactly what the next agent should do.
 Only blockers.
 ```
 
-Use:
-
-```text
-agent-team/protocols/communication.md
-agent-team/protocols/handoff-format.md
-agent-team/protocols/state-artifacts.md
-agent-team/protocols/token-discipline.md
-```
-
-Agents do not pass full reasoning. Agents pass compact artifacts.
-
-Preferred shared project artifacts:
-
-```text
-.agent-state/sessions/
-.agent-state/current-task.md
-.agent-state/decisions.md
-.agent-state/handoff.md
-.agent-state/human-decisions.md
-.agent-state/test-report.md
-.agent-state/review-report.md
-.agent-state/security-review-report.md
-.agent-state/ux-design-review-report.md
-.agent-state/documentation-report.md
-.agent-state/support-triage-report.md
-.agent-state/release-report.md
-.agent-state/memory.md
-```
-
-Do not store secrets, raw customer data, sensitive production data, or long logs in shared artifacts.
-Do not store personal Git identity, personal email, private key paths, deploy-key paths, local machine paths, or workstation-specific auth commands in committed shared state.
-Before committing or updating shared state, use `agent-team/checklists/shared-memory-refresh.md`.
+Agents do not pass full reasoning. Agents pass compact evidence, decisions, risks, and next actions.
 
 ---
 
-## PR rules
+## PR And Done Rules
 
-All PRs should be:
+PRs should be small, focused, linked to a task, tested or explicitly marked as not tested, modular, aligned with clean architecture, reviewed before human approval, and limited to related changes.
 
-```yaml
-pr_rules:
-  - small
-  - focused
-  - linked to a task
-  - tested or clearly marked as not tested
-  - modular and aligned with clean architecture for scalable maintenance
-  - code coverage is at least 70 percent when coverage tooling exists
-  - dependency and supply-chain gate runs when package, lock, runtime, container, CI, or build files change
-  - default-branch merge readiness follows agent-team/playbooks/default-branch-merge.md
-  - reviewed before human approval
-```
+When coverage tooling exists, target at least 70 percent coverage or document the gap for human decision.
 
-Never include unrelated refactors unless explicitly requested.
+Run dependency/supply-chain gates when package, lock, runtime, container, CI, or build files change. Use default-branch merge readiness rules before merge preparation. Final merge remains human-only.
+
+Work is done only when the objective and acceptance criteria are addressed, relevant tests are run or limitations are documented, integration-test need is evaluated, triggered gates pass or are documented, shared state is team-neutral, reviewer concerns are resolved or recorded, and the human approves final merge.
 
 ---
 
-## Rework routing
-
-If Tester, Reviewer, Security Reviewer, UX / Design Reviewer, Documentation Agent, CI, or Human requests changes:
-
-```text
-Route implementation rework back to the Developer.
-Use the same PR branch unless told otherwise.
-```
-
----
-
-## Done definition
-
-Work is done only when:
-
-```yaml
-done:
-  - task objective is satisfied
-  - acceptance criteria are addressed
-  - implementation remains modular and consistent with project architecture
-  - refactors preserve legacy behavior unless behavior change is explicit
-  - relevant tests are run or limitations documented
-  - integration-test need is evaluated when behavior spans modules or external systems
-  - test coverage is at least 70 percent when coverage tooling exists, or the gap is documented for human decision
-  - dependency and supply-chain gate passes when dependency, runtime, container, CI, or build-system files change
-  - compatibility rollout is documented when protocol, API, auth, config, or client/server behavior changes
-  - committed shared state is team-neutral
-  - PR description is clear
-  - reviewer concerns are resolved or documented
-  - human approves final merge
-```
-
----
-
-## Output expectations
-
-Use templates from:
-
-```text
-agent-team/templates/
-```
-
-For example:
-
-```yaml
-developer:
-  use: agent-team/templates/pr-description.md
-
-tester:
-  use: agent-team/templates/test-report.md
-
-reviewer:
-  use: agent-team/templates/review-report.md
-
-security_reviewer:
-  use: agent-team/templates/security-review-report.md
-
-ux_design_reviewer:
-  use: agent-team/templates/ux-design-review-report.md
-
-documentation_agent:
-  use: agent-team/templates/documentation-report.md
-
-support_triage_agent:
-  use: agent-team/templates/support-triage-report.md
-
-release_manager:
-  use: agent-team/templates/release-report.md
-
-llm_agent:
-  use: agent-team/templates/llm-report.md
-
-researcher_agent:
-  use: agent-team/templates/research-report.md
-
-cnn_agent:
-  use: agent-team/templates/cnn-report.md
-
-product_manager:
-  use: agent-team/templates/task.md
-
-skill_validator:
-  use: agent-team/templates/skill-validation-report.md
-
-memory_saving:
-  use: agent-team/templates/memory-summary.md
-
-human_decision_queue:
-  use: agent-team/templates/human-decision-queue.md
-```
-
----
-
-## Conflict resolution
+## Conflict Resolution
 
 If instructions conflict:
 
 1. safety rules win
 2. human instructions win
 3. repository-specific instructions win
-4. agent-team instructions apply next
+4. AgentCrew instructions apply next
 5. role-specific instructions apply next
 
 Never interpret conflict as permission to bypass human approval.

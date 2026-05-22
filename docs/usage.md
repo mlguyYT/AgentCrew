@@ -15,7 +15,7 @@ AGENTS.md
 agent-team/context/route-index.md
 ```
 
-Then the agent should load one context profile, one role file, matching Skills, triggered gates, and the current output template. Do not load every AgentCrew file for small tasks.
+Then the agent should load one context profile, one role file, matching Skills, triggered gates, and the current output template. Do not load every AgentCrew file for small tasks. Use `agentcrew context` when the exact load set is unclear.
 
 ---
 
@@ -82,6 +82,20 @@ It also prints a quality profile. `standard` is the default; `light`, `strict`, 
 
 ---
 
+## Context manifest
+
+Use the context manifest when you want the smallest phase-based file list for a request:
+
+```bash
+~/AgentCrew/bin/agentcrew context "Add OAuth login"
+```
+
+It prints `load_now` and `load_later` lists so agents can preserve review and validation gates without loading every role, playbook, template, or Skill up front.
+
+See `docs/context-manifest.md`.
+
+---
+
 ## Task intake
 
 Use task intake when you want AgentCrew to write the active request into project-local state before work continues:
@@ -139,6 +153,40 @@ Prepare a compact packet for human PR review:
 ```
 
 This creates `.agent-state/pr-pack.md` with task, readiness, validation, review, risk, and human-decision evidence. Use `--dry-run` to preview.
+
+---
+
+
+---
+
+## Session checkpoints
+
+Use checkpoints when work pauses or a future session needs compact resume context:
+
+```bash
+~/AgentCrew/bin/agentcrew checkpoint --project . --title "short title"
+```
+
+Add structured fields when useful:
+
+```bash
+~/AgentCrew/bin/agentcrew checkpoint \
+  --project . \
+  --title "checkout validation" \
+  --summary "Validation wiring changed; focused tests are next." \
+  --decision "Keep validation in the service layer." \
+  --next "Run focused checkout tests." \
+  --risk "Coverage baseline still needs verification." \
+  --validation "Tests pending."
+```
+
+Restore the latest checkpoint:
+
+```bash
+~/AgentCrew/bin/agentcrew restore-session --project .
+```
+
+See `docs/session-checkpoints.md` and `agent-team/protocols/checkpoint-blocks.md`.
 
 ---
 
@@ -477,14 +525,15 @@ Do not include secrets, raw customer data, or large logs.
 Or save a local session checkpoint from the target project:
 
 ```bash
-~/AgentCrew/agent-team/tools/save-session.sh --project . --title "short title"
+~/AgentCrew/bin/agentcrew checkpoint --project . --title "short title"
 ```
 
-List saved sessions or show the latest checkpoint:
+List saved sessions or restore the latest checkpoint:
 
 ```bash
 ~/AgentCrew/agent-team/tools/list-sessions.sh --project .
 ~/AgentCrew/agent-team/tools/list-sessions.sh --project . --latest
+~/AgentCrew/bin/agentcrew restore-session --project .
 ```
 
 The checkpoint is saved under the target project's own `.agent-state/sessions/`.

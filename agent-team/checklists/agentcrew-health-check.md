@@ -22,8 +22,12 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `bin/agentcrew` exists and is executable
 - [ ] `bin/agentcrew doctor` reports zero failures
 - [ ] `bin/agentcrew detect-project --project .` runs from a target project
+- [ ] `bin/agentcrew uninstall --dry-run` previews managed loader removal without editing files
 - [ ] `bin/agentcrew preset --dry-run --project .` previews a project preset artifact
 - [ ] `bin/agentcrew classify "Fix a small bug" --project .` returns a route
+- [ ] `bin/agentcrew context "Fix a small bug" --project .` returns `load_now` and `load_later`
+- [ ] `bin/agentcrew checkpoint --project . --title "health check"` saves a project-local checkpoint when appropriate
+- [ ] `bin/agentcrew restore-session --project .` restores the latest checkpoint when present
 - [ ] `bin/agentcrew start --dry-run "Fix a small bug" --project .` previews a current-task artifact
 - [ ] `bin/agentcrew brief --dry-run "Fix a small bug" --project .` previews a task brief
 - [ ] `bin/agentcrew plan --dry-run "Add a small feature" --project .` previews a work plan
@@ -166,7 +170,10 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/adapters/cursor.md`
 - [ ] `agent-team/adapters/copilot.md`
 - [ ] `docs/auto-load.md`
+- [ ] `docs/loader-management.md`
 - [ ] `docs/doctor.md`
+- [ ] `docs/context-manifest.md`
+- [ ] `docs/session-checkpoints.md`
 - [ ] `docs/project-detection.md`
 - [ ] `docs/project-presets.md`
 - [ ] `docs/task-classifier.md`
@@ -185,6 +192,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 ## Required Skills And Templates
 
 - [ ] `agent-team/skills/registry.md`
+- [ ] `agent-team/skills/registry-guidance.md`
 - [ ] `agent-team/skills/authoring-guide.md`
 - [ ] `agent-team/skills/professional/llm-pro.md`
 - [ ] `agent-team/skills/professional/researcher-pro.md`
@@ -215,6 +223,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/templates/memory-summary.md`
 - [ ] `agent-team/templates/skill-validation-report.md`
 - [ ] `agent-team/tools/classify-task.sh`
+- [ ] `agent-team/tools/context-manifest.sh`
 - [ ] `agent-team/tools/select-preset.sh`
 - [ ] `agent-team/tools/start-task.sh`
 - [ ] `agent-team/tools/brief-task.sh`
@@ -223,6 +232,8 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/tools/prepare-pr-pack.sh`
 - [ ] `agent-team/tools/detect-project.sh`
 - [ ] `agent-team/tools/project-status.sh`
+- [ ] `agent-team/tools/save-session.sh`
+- [ ] `agent-team/tools/restore-session.sh`
 
 ---
 

@@ -104,6 +104,7 @@ agent-team/
     communication.md
     handoff-format.md
     state-artifacts.md
+    checkpoint-blocks.md
     token-discipline.md
 
   conventions/
@@ -111,6 +112,7 @@ agent-team/
 
   tools/
     classify-task.sh
+    context-manifest.sh
     select-preset.sh
     start-task.sh
     brief-task.sh
@@ -121,6 +123,7 @@ agent-team/
     project-status.sh
     list-sessions.sh
     save-session.sh
+    restore-session.sh
 
   templates/
     idea-brief.md
@@ -155,6 +158,7 @@ agent-team/
   skills/
     README.md
     registry.md
+    registry-guidance.md
     authoring-guide.md
     languages/
       python-pro.md
@@ -220,6 +224,7 @@ bin/
 agent-team/
 docs/
 examples/
+  scenarios/
 .github/
 ```
 

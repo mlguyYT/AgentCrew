@@ -27,10 +27,13 @@ git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 Register AgentCrew with supported agents:
 
 ```bash
+~/AgentCrew/bin/agentcrew install --dry-run
 ~/AgentCrew/bin/agentcrew install
 ```
 
 This registers Claude Code and Codex, and registers OpenClaw when OpenClaw is detected on the machine.
+
+To remove AgentCrew-managed loader blocks later, run `~/AgentCrew/bin/agentcrew uninstall --dry-run` first, then `~/AgentCrew/bin/agentcrew uninstall` if the preview is correct.
 
 Check setup health and status:
 
@@ -186,4 +189,5 @@ To inspect the project stack and preview routing, run:
 ```bash
 ~/AgentCrew/bin/agentcrew detect-project --project .
 ~/AgentCrew/bin/agentcrew classify --project . --task "Fix the login validation bug"
+~/AgentCrew/bin/agentcrew context --project . --task "Fix the login validation bug"
 ```

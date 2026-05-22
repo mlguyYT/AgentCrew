@@ -12,22 +12,38 @@ usage() {
   printf '%s\n' ""
   printf '%s\n' "Commands:"
   printf '%s\n' "  install             Register AgentCrew with supported coding agents"
+  printf '%s\n' "  uninstall           Remove AgentCrew global loader blocks"
   printf '%s\n' "  status              Show registrations and project dashboard"
   printf '%s\n' "  doctor              Check AgentCrew setup health"
   printf '%s\n' "  detect-project      Detect project stack, tools, and suggested Skills"
   printf '%s\n' "  preset              Select a project preset and write .agent-state/project-preset.md"
   printf '%s\n' "  classify            Classify a request into lane, role, Skills, and gates"
+  printf '%s\n' "  context             Print a phase-based context load manifest"
   printf '%s\n' "  start               Start a task and write .agent-state/current-task.md"
   printf '%s\n' "  brief               Create a task brief with acceptance criteria"
   printf '%s\n' "  plan                Create a PR-sized work plan"
   printf '%s\n' "  ready               Check whether implementation is ready to start"
   printf '%s\n' "  pr-pack             Prepare a compact PR packet for human review"
+  printf '%s\n' "  save-session        Save a project-local session checkpoint"
+  printf '%s\n' "  restore-session     Restore the latest project-local session checkpoint"
+  printf '%s\n' "  checkpoint          Save a compact [agentcrew-context] checkpoint block"
   printf '%s\n' ""
   printf '%s\n' "Options:"
   printf '%s\n' "  --agent NAME        all, claude, codex, or openclaw. Default: all"
   printf '%s\n' "  --root PATH         AgentCrew checkout path. Default: this checkout"
   printf '%s\n' "  --project PATH      Target project path. Default: current directory"
-  printf '%s\n' "  --task TEXT         Request text for classify, start, brief, or plan"
+  printf '%s\n' "  --task TEXT         Request text for classify, context, start, brief, or plan"
+  printf '%s\n' "  --title TEXT        Session title for save-session or checkpoint"
+  printf '%s\n' "  --summary TEXT      Session summary"
+  printf '%s\n' "  --decision TEXT     Decision to save. May be repeated"
+  printf '%s\n' "  --next TEXT         Next step to save. May be repeated"
+  printf '%s\n' "  --note TEXT         Note to save. May be repeated"
+  printf '%s\n' "  --tried TEXT        Failed approach to save. May be repeated"
+  printf '%s\n' "  --risk TEXT         Risk to save. May be repeated"
+  printf '%s\n' "  --skill TEXT        Skill or role to save. May be repeated"
+  printf '%s\n' "  --validation TEXT   Validation evidence to save. May be repeated"
+  printf '%s\n' "  --file PATH         Session file for restore-session"
+  printf '%s\n' "  --out-dir PATH      Session output directory"
   printf '%s\n' "  --force             Overwrite generated state when using preset/start/brief/plan/ready/pr-pack"
   printf '%s\n' "  --dry-run           Print planned changes without writing files"
   printf '%s\n' "  -h, --help          Show help"
@@ -92,6 +108,45 @@ upsert_block() {
 
   rm -f "$tmp"
   printf '%s\n' "Updated: $file"
+}
+
+remove_block() {
+  local file="$1"
+  local dry_run="$2"
+
+  if [ ! -f "$file" ]; then
+    printf '%s\n' "No file found: $file"
+    return 0
+  fi
+
+  if ! grep -Fq "$START_MARKER" "$file"; then
+    printf '%s\n' "No AgentCrew loader found: $file"
+    return 0
+  fi
+
+  local start_count
+  local end_count
+  start_count="$(grep -Fxc "$START_MARKER" "$file" || true)"
+  end_count="$(grep -Fxc "$END_MARKER" "$file" || true)"
+
+  if [ "$start_count" -ne "$end_count" ]; then
+    die "Found mismatched AgentCrew loader markers in: $file" 1
+  fi
+
+  if [ "$dry_run" = "true" ]; then
+    printf '%s\n' "Would remove AgentCrew loader from: $file"
+    return 0
+  fi
+
+  local tmp
+  tmp="$(mktemp)" || exit 1
+  awk -v start="$START_MARKER" -v end="$END_MARKER" '
+    $0 == start { skip = 1; next }
+    $0 == end { skip = 0; next }
+    skip != 1 { print }
+  ' "$file" > "$tmp" || exit 1
+  mv "$tmp" "$file" || exit 1
+  printf '%s\n' "Removed AgentCrew loader from: $file"
 }
 
 claude_file() {
@@ -213,6 +268,35 @@ install_agent() {
   esac
 }
 
+uninstall_agent() {
+  local agent="$1"
+  local dry_run="$2"
+
+  case "$agent" in
+    claude)
+      remove_block "$(claude_file)" "$dry_run"
+      ;;
+    codex)
+      remove_block "$(codex_file)" "$dry_run"
+      ;;
+    openclaw)
+      remove_block "$(openclaw_file)" "$dry_run"
+      ;;
+    all)
+      uninstall_agent claude "$dry_run"
+      uninstall_agent codex "$dry_run"
+      if openclaw_detected || [ -f "$(openclaw_file)" ]; then
+        uninstall_agent openclaw "$dry_run"
+      else
+        printf '%s\n' "Skipped OpenClaw: not detected and no loader file found."
+      fi
+      ;;
+    *)
+      die "Unsupported agent: $agent" 2
+      ;;
+  esac
+}
+
 has_registration() {
   local file="$1"
   [ -f "$file" ] && grep -Fq "$START_MARKER" "$file"
@@ -264,6 +348,25 @@ check_dir_exists() {
   fi
 }
 
+check_word_budget() {
+  local path="$1"
+  local limit="$2"
+  local label="$3"
+
+  if [ ! -f "$path" ]; then
+    check_warn "$label budget skipped; missing file ($path)"
+    return 0
+  fi
+
+  local count
+  count="$(wc -w < "$path" | tr -d ' ')"
+  if [ "$count" -le "$limit" ]; then
+    check_pass "$label stays within token budget ($count <= $limit words)"
+  else
+    check_warn "$label exceeds token budget ($count > $limit words)"
+  fi
+}
+
 registration_root_matches() {
   local file="$1"
   local root="$2"
@@ -310,9 +413,11 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/playbooks/quality-profile-selection.md" "quality profile selection playbook exists"
   check_file_exists "$root/agent-team/playbooks/human-decision-queue.md" "human decision queue playbook exists"
   check_file_exists "$root/agent-team/playbooks/token-safe-mode.md" "Token-Safe Mode playbook exists"
+  check_file_exists "$root/agent-team/skills/registry-guidance.md" "Skills registry guidance exists"
   check_file_exists "$root/agent-team/skills/registry.md" "Skills registry exists"
   check_file_exists "$root/agent-team/protocols/communication.md" "communication protocol exists"
   check_file_exists "$root/agent-team/protocols/state-artifacts.md" "state artifacts protocol exists"
+  check_file_exists "$root/agent-team/protocols/checkpoint-blocks.md" "checkpoint blocks protocol exists"
   check_file_exists "$root/agent-team/checklists/agentcrew-health-check.md" "AgentCrew health checklist exists"
   check_file_exists "$root/agent-team/quality-profiles/light.md" "quality profile exists: light"
   check_file_exists "$root/agent-team/quality-profiles/standard.md" "quality profile exists: standard"
@@ -336,8 +441,11 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/recipes/incident.md" "workflow recipe exists: incident"
   check_file_exists "$root/agent-team/recipes/skill-change.md" "workflow recipe exists: skill-change"
   check_file_exists "$root/docs/auto-load.md" "auto-load documentation exists"
+  check_file_exists "$root/docs/loader-management.md" "loader management documentation exists"
   check_file_exists "$root/docs/doctor.md" "doctor documentation exists"
   check_file_exists "$root/docs/project-detection.md" "project detection documentation exists"
+  check_file_exists "$root/docs/context-manifest.md" "context manifest documentation exists"
+  check_file_exists "$root/docs/session-checkpoints.md" "session checkpoints documentation exists"
   check_file_exists "$root/docs/project-presets.md" "project presets documentation exists"
   check_file_exists "$root/docs/task-classifier.md" "task classifier documentation exists"
   check_file_exists "$root/docs/task-intake.md" "task intake documentation exists"
@@ -374,10 +482,21 @@ doctor_templates() {
   for template in \
     pr-description test-report review-report security-review-report \
     ux-design-review-report documentation-report support-triage-report release-report skill-validation-report \
-    memory-summary task-routing current-task project-preset task-brief work-plan readiness-report pr-pack human-decision-queue compact-handoff compact-test-report compact-review-report
+    memory-summary task-routing current-task project-preset task-brief work-plan readiness-report pr-pack human-decision-queue compact-handoff compact-test-report compact-review-report compact-research-report
   do
     check_file_exists "$root/agent-team/templates/$template.md" "template exists: $template"
   done
+}
+
+doctor_token_budgets() {
+  local root="$1"
+
+  check_word_budget "$root/AGENTS.md" 1200 "AGENTS.md"
+  check_word_budget "$root/agent-team/context/route-index.md" 450 "route index"
+  check_word_budget "$root/agent-team/protocols/token-discipline.md" 400 "token discipline protocol"
+  check_word_budget "$root/agent-team/context/fast-lane-context.md" 250 "Fast Lane context"
+  check_word_budget "$root/agent-team/context/full-lane-context.md" 250 "Full Lane context"
+  check_word_budget "$root/agent-team/skills/registry.md" 500 "Skills registry"
 }
 
 doctor_project_context() {
@@ -441,6 +560,12 @@ doctor_tools() {
     check_warn "task classifier is not executable"
   fi
 
+  if [ -x "$root/agent-team/tools/context-manifest.sh" ]; then
+    check_pass "context manifest tool is executable"
+  else
+    check_warn "context manifest tool is not executable"
+  fi
+
   if [ -x "$root/agent-team/tools/select-preset.sh" ]; then
     check_pass "project preset selector is executable"
   else
@@ -482,6 +607,18 @@ doctor_tools() {
   else
     check_warn "project status dashboard is not executable"
   fi
+
+  if [ -x "$root/agent-team/tools/save-session.sh" ]; then
+    check_pass "session save tool is executable"
+  else
+    check_warn "session save tool is not executable"
+  fi
+
+  if [ -x "$root/agent-team/tools/restore-session.sh" ]; then
+    check_pass "session restore tool is executable"
+  else
+    check_warn "session restore tool is not executable"
+  fi
 }
 
 run_doctor() {
@@ -512,6 +649,9 @@ run_doctor() {
 
   printf '\nLocal tools:\n'
   doctor_tools "$root"
+
+  printf '\nToken budgets:\n'
+  doctor_token_budgets "$root"
 
   doctor_project_context "$root"
 
@@ -571,6 +711,19 @@ run_classify() {
   local classifier="$root/agent-team/tools/classify-task.sh"
   [ -x "$classifier" ] || die "Missing executable task classifier: $classifier"
   "$classifier" --project "$project" --task "$task"
+}
+
+run_context() {
+  local root="$1"
+  local project="$2"
+  local task="$3"
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+
+  [ -n "$task" ] || die 'Missing request text. Use: agentcrew context "Fix login validation"' 2
+  local manifest="$root/agent-team/tools/context-manifest.sh"
+  [ -x "$manifest" ] || die "Missing executable context manifest tool: $manifest"
+  "$manifest" --project "$project" --task "$task"
 }
 
 run_start() {
@@ -664,6 +817,49 @@ run_pr_pack() {
   "$preparer" "${args[@]}"
 }
 
+
+run_save_session() {
+  local root="$1"
+  local project="$2"
+  local title="$3"
+  local summary="$4"
+  local checkpoint_block="$5"
+  local out_dir="$6"
+  shift 6
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+
+  local saver="$root/agent-team/tools/save-session.sh"
+  [ -x "$saver" ] || die "Missing executable session save tool: $saver"
+
+  local args=(--project "$project" --title "$title")
+  [ -n "$summary" ] && args+=(--summary "$summary")
+  [ -n "$out_dir" ] && args+=(--out-dir "$out_dir")
+  [ "$checkpoint_block" = "true" ] && args+=(--checkpoint-block)
+  while [ "$#" -gt 0 ]; do
+    args+=("$1" "$2")
+    shift 2
+  done
+  "$saver" "${args[@]}"
+}
+
+run_restore_session() {
+  local root="$1"
+  local project="$2"
+  local out_dir="$3"
+  local file="$4"
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+
+  local restorer="$root/agent-team/tools/restore-session.sh"
+  [ -x "$restorer" ] || die "Missing executable session restore tool: $restorer"
+
+  local args=(--project "$project")
+  [ -n "$out_dir" ] && args+=(--out-dir "$out_dir")
+  [ -n "$file" ] && args+=(--file "$file")
+  "$restorer" "${args[@]}"
+}
+
 run_status() {
   local root="$1"
   local project="$2"
@@ -692,6 +888,17 @@ DRY_RUN="false"
 FORCE="false"
 PROJECT="."
 TASK=""
+TITLE="session"
+SUMMARY=""
+OUT_DIR=""
+SESSION_FILE=""
+DECISION_ARGS=()
+NEXT_ARGS=()
+NOTE_ARGS=()
+TRIED_ARGS=()
+RISK_ARGS=()
+SKILL_ARGS=()
+VALIDATION_ARGS=()
 POSITIONAL_ARGS=()
 
 while [ "$#" -gt 0 ]; do
@@ -716,6 +923,61 @@ while [ "$#" -gt 0 ]; do
       TASK="$2"
       shift 2
       ;;
+    --title)
+      [ "$#" -ge 2 ] || die "Missing value for --title" 2
+      TITLE="$2"
+      shift 2
+      ;;
+    --summary)
+      [ "$#" -ge 2 ] || die "Missing value for --summary" 2
+      SUMMARY="$2"
+      shift 2
+      ;;
+    --decision)
+      [ "$#" -ge 2 ] || die "Missing value for --decision" 2
+      DECISION_ARGS+=(--decision "$2")
+      shift 2
+      ;;
+    --next)
+      [ "$#" -ge 2 ] || die "Missing value for --next" 2
+      NEXT_ARGS+=(--next "$2")
+      shift 2
+      ;;
+    --note)
+      [ "$#" -ge 2 ] || die "Missing value for --note" 2
+      NOTE_ARGS+=(--note "$2")
+      shift 2
+      ;;
+    --tried)
+      [ "$#" -ge 2 ] || die "Missing value for --tried" 2
+      TRIED_ARGS+=(--tried "$2")
+      shift 2
+      ;;
+    --risk)
+      [ "$#" -ge 2 ] || die "Missing value for --risk" 2
+      RISK_ARGS+=(--risk "$2")
+      shift 2
+      ;;
+    --skill)
+      [ "$#" -ge 2 ] || die "Missing value for --skill" 2
+      SKILL_ARGS+=(--skill "$2")
+      shift 2
+      ;;
+    --validation)
+      [ "$#" -ge 2 ] || die "Missing value for --validation" 2
+      VALIDATION_ARGS+=(--validation "$2")
+      shift 2
+      ;;
+    --file)
+      [ "$#" -ge 2 ] || die "Missing value for --file" 2
+      SESSION_FILE="$2"
+      shift 2
+      ;;
+    --out-dir)
+      [ "$#" -ge 2 ] || die "Missing value for --out-dir" 2
+      OUT_DIR="$2"
+      shift 2
+      ;;
     --force)
       FORCE="true"
       shift
@@ -729,7 +991,7 @@ while [ "$#" -gt 0 ]; do
       exit 0
       ;;
     *)
-      if [ "$COMMAND" = "classify" ] || [ "$COMMAND" = "start" ] || [ "$COMMAND" = "brief" ] || [ "$COMMAND" = "plan" ]; then
+      if [ "$COMMAND" = "classify" ] || [ "$COMMAND" = "context" ] || [ "$COMMAND" = "start" ] || [ "$COMMAND" = "brief" ] || [ "$COMMAND" = "plan" ]; then
         POSITIONAL_ARGS+=("$1")
         shift
       else
@@ -739,7 +1001,7 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-if { [ "$COMMAND" = "classify" ] || [ "$COMMAND" = "start" ] || [ "$COMMAND" = "brief" ] || [ "$COMMAND" = "plan" ]; } && [ -z "$TASK" ] && [ "${#POSITIONAL_ARGS[@]}" -gt 0 ]; then
+if { [ "$COMMAND" = "classify" ] || [ "$COMMAND" = "context" ] || [ "$COMMAND" = "start" ] || [ "$COMMAND" = "brief" ] || [ "$COMMAND" = "plan" ]; } && [ -z "$TASK" ] && [ "${#POSITIONAL_ARGS[@]}" -gt 0 ]; then
   TASK="${POSITIONAL_ARGS[*]}"
 fi
 
@@ -751,6 +1013,11 @@ case "$COMMAND" in
     printf '%s\n' ""
     printf '%s\n' "AgentCrew registration complete."
     printf '%s\n' "Open any project and enjoy development with your AgentCrew."
+    ;;
+  uninstall)
+    uninstall_agent "$AGENT" "$DRY_RUN"
+    printf '%s\n' ""
+    printf '%s\n' "AgentCrew loader removal complete."
     ;;
   status)
     run_status "$ROOT" "$PROJECT"
@@ -767,6 +1034,9 @@ case "$COMMAND" in
   classify)
     run_classify "$ROOT" "$PROJECT" "$TASK"
     ;;
+  context)
+    run_context "$ROOT" "$PROJECT" "$TASK"
+    ;;
   start)
     run_start "$ROOT" "$PROJECT" "$TASK" "$DRY_RUN" "$FORCE"
     ;;
@@ -781,6 +1051,15 @@ case "$COMMAND" in
     ;;
   pr-pack)
     run_pr_pack "$ROOT" "$PROJECT" "$DRY_RUN" "$FORCE"
+    ;;
+  save-session)
+    run_save_session "$ROOT" "$PROJECT" "$TITLE" "$SUMMARY" "false" "$OUT_DIR" "${DECISION_ARGS[@]}" "${NEXT_ARGS[@]}" "${NOTE_ARGS[@]}" "${TRIED_ARGS[@]}" "${RISK_ARGS[@]}" "${SKILL_ARGS[@]}" "${VALIDATION_ARGS[@]}"
+    ;;
+  checkpoint)
+    run_save_session "$ROOT" "$PROJECT" "$TITLE" "$SUMMARY" "true" "$OUT_DIR" "${DECISION_ARGS[@]}" "${NEXT_ARGS[@]}" "${NOTE_ARGS[@]}" "${TRIED_ARGS[@]}" "${RISK_ARGS[@]}" "${SKILL_ARGS[@]}" "${VALIDATION_ARGS[@]}"
+    ;;
+  restore-session)
+    run_restore_session "$ROOT" "$PROJECT" "$OUT_DIR" "$SESSION_FILE"
     ;;
   -h|--help|"")
     usage
