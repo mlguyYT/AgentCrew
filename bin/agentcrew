@@ -29,7 +29,7 @@ usage() {
   printf '%s\n' "  checkpoint          Save a compact [agentcrew-context] checkpoint block"
   printf '%s\n' ""
   printf '%s\n' "Options:"
-  printf '%s\n' "  --agent NAME        all, claude, codex, or openclaw. Default: all"
+  printf '%s\n' "  --agent NAME        all, claude, codex, openclaw, or hermes. Default: all"
   printf '%s\n' "  --root PATH         AgentCrew checkout path. Default: this checkout"
   printf '%s\n' "  --project PATH      Target project path. Default: current directory"
   printf '%s\n' "  --task TEXT         Request text for classify, context, start, brief, or plan"
@@ -175,6 +175,42 @@ openclaw_detected() {
   [ -d "$(openclaw_state_dir)" ] || command -v openclaw >/dev/null 2>&1
 }
 
+hermes_home() {
+  if [ -n "${HERMES_HOME:-}" ]; then
+    printf '%s\n' "$HERMES_HOME"
+  elif [ -n "${HERMES_PROFILE:-}" ] && [ "${HERMES_PROFILE:-}" != "default" ]; then
+    printf '%s\n' "$HOME/.hermes/profiles/$HERMES_PROFILE"
+  elif [ -f "$HOME/.hermes/active_profile" ]; then
+    local active_profile
+    active_profile="$(head -n 1 "$HOME/.hermes/active_profile" | tr -d '[:space:]')"
+    case "$active_profile" in
+      ""|default)
+        printf '%s\n' "$HOME/.hermes"
+        ;;
+      *[!a-zA-Z0-9_-]*)
+        printf '%s\n' "$HOME/.hermes"
+        ;;
+      *)
+        if [ -d "$HOME/.hermes/profiles/$active_profile" ]; then
+          printf '%s\n' "$HOME/.hermes/profiles/$active_profile"
+        else
+          printf '%s\n' "$HOME/.hermes"
+        fi
+        ;;
+    esac
+  else
+    printf '%s\n' "$HOME/.hermes"
+  fi
+}
+
+hermes_file() {
+  printf '%s\n' "$(hermes_home)/SOUL.md"
+}
+
+hermes_detected() {
+  [ -d "$(hermes_home)" ] || command -v hermes >/dev/null 2>&1
+}
+
 claude_loader() {
   local root="$1"
   cat <<EOF
@@ -238,6 +274,30 @@ AgentCrew is a coding-team workflow. It does not override OpenClaw identity, mem
 EOF
 }
 
+hermes_loader() {
+  local root="$1"
+  cat <<EOF
+# AgentCrew
+
+AgentCrew is installed at:
+
+\`\`\`text
+$root
+\`\`\`
+
+When handling coding tasks in any project, apply AgentCrew automatically. Read:
+
+\`\`\`text
+$root/AGENTS.md
+$root/agent-team/
+\`\`\`
+
+Users do not need to name AgentCrew, a role, a lane, or a Skill. Classify the request, choose Fast Lane or Full Lane, choose the starting role, load relevant Skills from \`$root/agent-team/skills/registry.md\`, keep handoffs compact, keep human approval final, and do not merge pull requests.
+
+AgentCrew is a coding-team workflow. It does not replace Hermes Agent's identity, memory, skills, session history, gateway, profile, tool policy, or credential handling. If AgentCrew and Hermes instructions conflict, preserve safety, privacy, and human approval.
+EOF
+}
+
 install_agent() {
   local agent="$1"
   local root="$2"
@@ -253,6 +313,9 @@ install_agent() {
     openclaw)
       upsert_block "$(openclaw_file)" "$(openclaw_loader "$root")" "$dry_run"
       ;;
+    hermes)
+      upsert_block "$(hermes_file)" "$(hermes_loader "$root")" "$dry_run"
+      ;;
     all)
       install_agent claude "$root" "$dry_run"
       install_agent codex "$root" "$dry_run"
@@ -260,6 +323,11 @@ install_agent() {
         install_agent openclaw "$root" "$dry_run"
       else
         printf '%s\n' "Skipped OpenClaw: not detected. Use --agent openclaw to create the loader explicitly."
+      fi
+      if hermes_detected; then
+        install_agent hermes "$root" "$dry_run"
+      else
+        printf '%s\n' "Skipped Hermes: not detected. Use --agent hermes to create the loader explicitly."
       fi
       ;;
     *)
@@ -282,6 +350,9 @@ uninstall_agent() {
     openclaw)
       remove_block "$(openclaw_file)" "$dry_run"
       ;;
+    hermes)
+      remove_block "$(hermes_file)" "$dry_run"
+      ;;
     all)
       uninstall_agent claude "$dry_run"
       uninstall_agent codex "$dry_run"
@@ -289,6 +360,11 @@ uninstall_agent() {
         uninstall_agent openclaw "$dry_run"
       else
         printf '%s\n' "Skipped OpenClaw: not detected and no loader file found."
+      fi
+      if hermes_detected || [ -f "$(hermes_file)" ]; then
+        uninstall_agent hermes "$dry_run"
+      else
+        printf '%s\n' "Skipped Hermes: not detected and no loader file found."
       fi
       ;;
     *)
@@ -419,6 +495,13 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/protocols/state-artifacts.md" "state artifacts protocol exists"
   check_file_exists "$root/agent-team/protocols/checkpoint-blocks.md" "checkpoint blocks protocol exists"
   check_file_exists "$root/agent-team/checklists/agentcrew-health-check.md" "AgentCrew health checklist exists"
+  check_file_exists "$root/agent-team/adapters/README.md" "tool adapters README exists"
+  check_file_exists "$root/agent-team/adapters/claude-code.md" "tool adapter exists: claude-code"
+  check_file_exists "$root/agent-team/adapters/codex.md" "tool adapter exists: codex"
+  check_file_exists "$root/agent-team/adapters/openclaw.md" "tool adapter exists: openclaw"
+  check_file_exists "$root/agent-team/adapters/hermes.md" "tool adapter exists: hermes"
+  check_file_exists "$root/agent-team/adapters/cursor.md" "tool adapter exists: cursor"
+  check_file_exists "$root/agent-team/adapters/copilot.md" "tool adapter exists: copilot"
   check_file_exists "$root/agent-team/quality-profiles/light.md" "quality profile exists: light"
   check_file_exists "$root/agent-team/quality-profiles/standard.md" "quality profile exists: standard"
   check_file_exists "$root/agent-team/quality-profiles/strict.md" "quality profile exists: strict"
@@ -646,6 +729,11 @@ run_doctor() {
   else
     check_warn "OpenClaw not detected; loader check skipped"
   fi
+  if hermes_detected; then
+    doctor_registration "Hermes Agent" "$(hermes_file)" "$root"
+  else
+    check_warn "Hermes Agent not detected; loader check skipped"
+  fi
 
   printf '\nLocal tools:\n'
   doctor_tools "$root"
@@ -872,6 +960,7 @@ run_status() {
   status_agent "Claude Code" "$(claude_file)"
   status_agent "Codex" "$(codex_file)"
   status_agent "OpenClaw" "$(openclaw_file)"
+  status_agent "Hermes Agent" "$(hermes_file)"
   printf '%s\n' ""
 
   local status_tool="$root/agent-team/tools/project-status.sh"

@@ -12,6 +12,7 @@ agent-team/
     claude-code.md
     codex.md
     openclaw.md
+    hermes.md
     cursor.md
     copilot.md
 

@@ -28,6 +28,7 @@ Install one loader:
 ~/AgentCrew/bin/agentcrew install --agent codex
 ~/AgentCrew/bin/agentcrew install --agent claude
 ~/AgentCrew/bin/agentcrew install --agent openclaw
+~/AgentCrew/bin/agentcrew install --agent hermes
 ```
 
 ---
@@ -67,6 +68,7 @@ Remove one loader:
 ~/AgentCrew/bin/agentcrew uninstall --agent codex
 ~/AgentCrew/bin/agentcrew uninstall --agent claude
 ~/AgentCrew/bin/agentcrew uninstall --agent openclaw
+~/AgentCrew/bin/agentcrew uninstall --agent hermes
 ```
 
 The uninstall command removes only the block between AgentCrew's managed markers. It leaves unrelated user instructions in the same file intact.

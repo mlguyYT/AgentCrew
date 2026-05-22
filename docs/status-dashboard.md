@@ -34,7 +34,7 @@ The standalone project dashboard is also available inside AgentCrew:
 
 `agentcrew status` includes:
 
-- global loader registrations for Claude Code, Codex, and OpenClaw
+- global loader registrations for Claude Code, Codex, OpenClaw, and Hermes Agent
 - project name, git branch, default branch, HEAD, and worktree state
 - whether `.agent-state/` exists
 - current task fields, including quality profile and recipe, when `.agent-state/current-task.md` exists

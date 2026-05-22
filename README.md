@@ -40,7 +40,7 @@ From any project, ask normally:
 Fix the login form so empty email shows a validation message.
 ```
 
-AgentCrew is registered globally for supported agents, reads its own instructions, chooses the lane, role, and Skills, and stops where human approval is required. Cursor, GitHub Copilot, and other tools can use the adapter snippets in `agent-team/adapters/` when they need a tool-specific instruction surface.
+AgentCrew is registered globally for supported agents including Claude Code, Codex, OpenClaw, and Hermes Agent. It reads its own instructions, chooses the lane, role, and Skills, and stops where human approval is required. Cursor, GitHub Copilot, and other tools can use the adapter snippets in `agent-team/adapters/` when they need a tool-specific instruction surface.
 
 Optional: make the current task visible with `~/AgentCrew/bin/agentcrew start --task "your request"`.
 

@@ -31,7 +31,7 @@ Register AgentCrew with supported agents:
 ~/AgentCrew/bin/agentcrew install
 ```
 
-This registers Claude Code and Codex, and registers OpenClaw when OpenClaw is detected on the machine.
+This registers Claude Code and Codex, and registers OpenClaw and Hermes Agent when they are detected on the machine.
 
 To remove AgentCrew-managed loader blocks later, run `~/AgentCrew/bin/agentcrew uninstall --dry-run` first, then `~/AgentCrew/bin/agentcrew uninstall` if the preview is correct.
 
@@ -57,9 +57,10 @@ The installer writes a small global loader instead of copying AgentCrew into eac
 Supported automatic registrations:
 
 ```text
-Claude Code -> ~/.claude/CLAUDE.md
-Codex       -> ${CODEX_HOME:-~/.codex}/AGENTS.md
-OpenClaw    -> ${OPENCLAW_STATE_DIR:-~/.openclaw}/workspace/AGENTS.md
+Claude Code  -> ~/.claude/CLAUDE.md
+Codex        -> ${CODEX_HOME:-~/.codex}/AGENTS.md
+OpenClaw     -> ${OPENCLAW_STATE_DIR:-~/.openclaw}/workspace/AGENTS.md
+Hermes Agent -> ${HERMES_HOME:-~/.hermes}/SOUL.md
 ```
 
 The loader points the agent to:
@@ -143,6 +144,40 @@ OPENCLAW_PROFILE=work ~/AgentCrew/bin/agentcrew install --agent openclaw
 OpenClaw should keep its own identity, memory, channel, heartbeat, gateway, and safety behavior. AgentCrew only supplies the coding-team workflow.
 
 The default `agentcrew install` command also registers OpenClaw when OpenClaw is detected. Use `--agent openclaw` when you want to create the loader explicitly.
+
+### Hermes Agent
+
+Use:
+
+```bash
+~/AgentCrew/bin/agentcrew install --agent hermes
+```
+
+This updates:
+
+```text
+~/.hermes/SOUL.md
+```
+
+Hermes loads `SOUL.md` from `HERMES_HOME`, so AgentCrew writes a managed loader block there and leaves existing Hermes persona text outside the block intact.
+
+For a custom Hermes home:
+
+```bash
+HERMES_HOME=/path/to/hermes-home ~/AgentCrew/bin/agentcrew install --agent hermes
+```
+
+For named Hermes profiles or sticky active profiles:
+
+```bash
+HERMES_PROFILE=work ~/AgentCrew/bin/agentcrew install --agent hermes
+```
+
+Named profiles resolve to `~/.hermes/profiles/<profile>/SOUL.md`. If `~/.hermes/active_profile` names an existing non-default profile and no explicit `HERMES_HOME` or `HERMES_PROFILE` is set, the installer uses that active profile.
+
+Hermes Agent should keep its own identity, memory, skills, session history, gateway, profile, tool policy, and credential handling. AgentCrew only supplies the coding-team workflow.
+
+The default `agentcrew install` command also registers Hermes Agent when Hermes is detected. Use `--agent hermes` when you want to create the loader explicitly.
 
 ### Cursor and GitHub Copilot
 
