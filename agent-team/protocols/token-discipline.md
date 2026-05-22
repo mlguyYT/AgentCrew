@@ -18,6 +18,8 @@ token_discipline:
   - route_before_loading_details: true
   - lazy_load_specialists: true
   - compact_templates_by_default_in_fast_lane: true
+  - direct_answer_mode_for_questions: true
+  - max_direct_answer: 10_lines_unless_user_asks_for_depth
   - max_classification: 5_lines
   - max_handoff_length: 150_words
   - max_review_comment: 7_meaningful_findings_in_fast_lane
@@ -25,6 +27,20 @@ token_discipline:
   - max_research_sources_default: 3_to_5
   - max_test_report: commands_plus_pass_fail_plus_failures_only
 ```
+
+---
+
+## Direct Answer Mode
+
+Use this for questions, explanations, and advice when the user has not asked for code changes, inspection, review, validation, commit, push, or saved state.
+
+Rules:
+
+- do not load role, lane, Skill, template, docs, or examples
+- do not create `.agent-state/` artifacts
+- do not run tools unless the answer depends on current repository or external facts
+- answer from available context and keep it concise
+- ask or offer to implement only when the user needs action
 
 ---
 

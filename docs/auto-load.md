@@ -63,17 +63,19 @@ OpenClaw     -> ${OPENCLAW_STATE_DIR:-~/.openclaw}/workspace/AGENTS.md
 Hermes Agent -> ${HERMES_HOME:-~/.hermes}/SOUL.md
 ```
 
-The loader points the agent to:
+The loader points the agent to the router only:
 
 ```text
 ~/AgentCrew/AGENTS.md
-~/AgentCrew/agent-team/
 ```
+
+`AGENTS.md` decides whether to answer directly or load more context.
 
 It tells the agent to:
 
 - apply AgentCrew automatically
-- classify the request
+- answer questions directly without extra loading
+- classify action requests
 - choose Fast Lane or Full Lane
 - choose the starting role
 - load relevant Skills

@@ -113,7 +113,18 @@ REASONS=()
 FILES_TO_LOAD=("agent-team/context/route-index.md" "agent-team/playbooks/request-routing.md" "agent-team/playbooks/task-classification.md")
 
 # Intent mapping. Later rules may escalate risk without changing explicit intent.
-if matches '(^| )(review|reviewer|code review|pr review|pull request review|audit)( |$)'; then
+if matches '(^| )(how|what|why|when|where|can|could|should|is|are|does|do|did|would|explain|describe|advice|recommend|suggest|question|thoughts)( |$|[?])' && ! matches '(^| )(fix|change|add|update|create|build|implement|refactor|remove|replace|install|commit|push|run|test|validate|review|inspect|save)( |$)'; then
+  INTENT="direct_answer_or_advisory"
+  STARTING_ROLE="None"
+  RISK="low"
+  LANE="Direct Answer Mode"
+  QUALITY_PROFILE="light"
+  RECIPE="advisory"
+  WORKFLOW="Direct answer -> Human"
+  NEXT_ROLES=("Human")
+  HUMAN_DECISIONS=("none")
+  add_unique REASONS "question or advice request does not require repository action"
+elif matches '(^| )(review|reviewer|code review|pr review|pull request review|audit)( |$)'; then
   INTENT="code_or_pr_review"
   STARTING_ROLE="Reviewer"
   WORKFLOW="Reviewer -> Human"
@@ -305,7 +316,9 @@ else
 fi
 
 # Workflow recipe selection. Recipes are lightweight handling presets; risk and specialist gates still apply.
-if matches '(incident|outage|production down|hotfix|rollback broken|rollback production|sev[ -]?[0-9]|urgent regression|data incident|security incident)'; then
+if [ "$INTENT" = "direct_answer_or_advisory" ]; then
+  RECIPE="advisory"
+elif matches '(incident|outage|production down|hotfix|rollback broken|rollback production|sev[ -]?[0-9]|urgent regression|data incident|security incident)'; then
   RECIPE="incident"
 elif matches '(release|ship|deploy|version bump|changelog|release note|default branch merge|merge readiness)'; then
   RECIPE="release"
@@ -329,7 +342,9 @@ fi
 add_unique REASONS "workflow recipe selected: $RECIPE"
 
 # Quality profile selection. Default to standard unless task risk or wording clearly signals another mode.
-if matches '(regulated|compliance|privacy|legal|audit|financial reporting|contractual|safety-critical|medical|hipaa|pci|gdpr|sox)'; then
+if [ "$INTENT" = "direct_answer_or_advisory" ]; then
+  QUALITY_PROFILE="light"
+elif matches '(regulated|compliance|privacy|legal|audit|financial reporting|contractual|safety-critical|medical|hipaa|pci|gdpr|sox)'; then
   QUALITY_PROFILE="regulated"
   add_unique REASONS "regulated quality profile trigger present"
 elif [ "$RISK" = "high" ] || [ "$RISK" = "critical" ] || matches '(enterprise|critical flow|shared platform|shared service|complex refactor|hard-to-rollback|production platform)'; then
@@ -415,22 +430,45 @@ if matches '(database|cache|queue|socket|timer|filesystem|external service|distr
   add_unique GATES "integration-test need check"
 fi
 
+if [ "$INTENT" = "direct_answer_or_advisory" ]; then
+  RISK="low"
+  LANE="Direct Answer Mode"
+  QUALITY_PROFILE="light"
+  RECIPE="advisory"
+  STARTING_ROLE="None"
+  WORKFLOW="Direct answer -> Human"
+  NEXT_ROLES=("Human")
+  REVIEWERS=()
+  SPECIALISTS=()
+  SKILLS=()
+  GATES=()
+  HUMAN_DECISIONS=("none")
+  FILES_TO_LOAD=()
+  REASONS=("question or advice request does not require repository action")
+  add_unique FILES_TO_LOAD "none"
+  add_unique REASONS "Direct Answer Mode skips role, lane, Skill, template, and state loading"
+fi
+
 # Files to load.
-if [ "$LANE" = "Fast Lane" ]; then
+if [ "$INTENT" = "direct_answer_or_advisory" ]; then
+  :
+elif [ "$LANE" = "Fast Lane" ]; then
   add_unique FILES_TO_LOAD "agent-team/context/fast-lane-context.md"
   add_unique FILES_TO_LOAD "agent-team/playbooks/fast-lane.md"
 else
   add_unique FILES_TO_LOAD "agent-team/context/full-lane-context.md"
   add_unique FILES_TO_LOAD "agent-team/playbooks/full-lane.md"
 fi
-add_unique FILES_TO_LOAD "agent-team/agents/$(printf '%s' "$STARTING_ROLE" | tr '[:upper:]' '[:lower:]' | sed 's# / #-#g; s# #\-#g').md"
-add_unique FILES_TO_LOAD "agent-team/playbooks/quality-profile-selection.md"
-add_unique FILES_TO_LOAD "agent-team/quality-profiles/$QUALITY_PROFILE.md"
-add_unique FILES_TO_LOAD "agent-team/recipes/$RECIPE.md"
-add_unique FILES_TO_LOAD "agent-team/skills/registry.md"
-add_unique FILES_TO_LOAD "agent-team/templates/task-routing.md"
-if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
-  add_unique FILES_TO_LOAD "agent-team/playbooks/specialist-review-routing.md"
+if [ "$INTENT" != "direct_answer_or_advisory" ]; then
+  add_unique FILES_TO_LOAD "agent-team/agents/$(printf '%s' "$STARTING_ROLE" | tr '[:upper:]' '[:lower:]' | sed 's# / #-#g; s# #\-#g').md"
+  add_unique FILES_TO_LOAD "agent-team/playbooks/quality-profile-selection.md"
+  add_unique FILES_TO_LOAD "agent-team/quality-profiles/$QUALITY_PROFILE.md"
+  add_unique FILES_TO_LOAD "agent-team/recipes/$RECIPE.md"
+  add_unique FILES_TO_LOAD "agent-team/skills/registry.md"
+  add_unique FILES_TO_LOAD "agent-team/templates/task-routing.md"
+  if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
+    add_unique FILES_TO_LOAD "agent-team/playbooks/specialist-review-routing.md"
+  fi
 fi
 
 printf '%s\n' "task_classification:"
@@ -459,4 +497,4 @@ printf '%s\n' "  files_to_load:"
 print_yaml_list FILES_TO_LOAD
 printf '%s\n' "  reasons:"
 print_yaml_list REASONS
-printf '%s\n' "  note: 'Heuristic classification. Agents must still inspect repository context and apply AgentCrew safety rules.'"
+printf '%s\n' "  note: 'Heuristic classification. Apply AgentCrew safety rules; inspect repository context only when action or evidence is needed.'"

@@ -12,6 +12,23 @@ If this file is loaded from an external AgentCrew checkout, resolve relative Age
 
 ---
 
+## Direct Answer Mode
+
+Before loading additional AgentCrew files, classify the request shape. If the user asks a question, asks for advice, or requests an explanation without asking for repo inspection, implementation, review, validation, commit, or state saving, answer directly from available context.
+
+```yaml
+direct_answer_mode:
+  do_not_load_agentcrew_tree: true
+  do_not_create_agent_state: true
+  do_not_run_tools_unless_needed: true
+  answer_concisely: true
+  offer_implementation_only_if_useful: true
+```
+
+Use staged loading only when the request needs action, repository evidence, handoff state, validation, review, or a durable decision.
+
+---
+
 ## Load Order
 
 Use staged loading. Do not eagerly load the whole AgentCrew tree.

@@ -224,7 +224,7 @@ AgentCrew is installed at:
 $root
 \`\`\`
 
-When working in any project, apply AgentCrew automatically. The user does not need to ask you to load AgentCrew. Classify the request, choose the lane, role, and Skills, read the relevant files under \`$root/agent-team/\`, keep human approval final, and do not merge pull requests.
+When working in any project, apply AgentCrew automatically. Read \`$root/AGENTS.md\` first. Use Direct Answer Mode for questions and staged loading for action. Keep human approval final and do not merge pull requests.
 EOF
 }
 
@@ -239,14 +239,7 @@ AgentCrew is installed at:
 $root
 \`\`\`
 
-At the start of work in any project, apply AgentCrew automatically. Read:
-
-\`\`\`text
-$root/AGENTS.md
-$root/agent-team/
-\`\`\`
-
-Users do not need to name AgentCrew, a role, a lane, or a Skill. Classify the request, choose Fast Lane or Full Lane, choose the starting role, load relevant Skills from \`$root/agent-team/skills/registry.md\`, keep handoffs compact, keep human approval final, and do not merge pull requests.
+When working in any project, apply AgentCrew automatically. Read \`$root/AGENTS.md\` first. Use Direct Answer Mode for questions and staged loading for action. Keep human approval final and do not merge pull requests.
 EOF
 }
 
@@ -261,14 +254,7 @@ AgentCrew is installed at:
 $root
 \`\`\`
 
-When handling coding tasks in any project, apply AgentCrew automatically. Read:
-
-\`\`\`text
-$root/AGENTS.md
-$root/agent-team/
-\`\`\`
-
-Users do not need to name AgentCrew, a role, a lane, or a Skill. Classify the request, choose Fast Lane or Full Lane, choose the starting role, load relevant Skills from \`$root/agent-team/skills/registry.md\`, keep handoffs compact, keep human approval final, and do not merge pull requests.
+When working in any project, apply AgentCrew automatically. Read \`$root/AGENTS.md\` first. Use Direct Answer Mode for questions and staged loading for action. Keep human approval final and do not merge pull requests.
 
 AgentCrew is a coding-team workflow. It does not override OpenClaw identity, memory, channel, heartbeat, or safety instructions. If AgentCrew and OpenClaw instructions conflict, preserve safety, privacy, and human approval.
 EOF
@@ -285,14 +271,7 @@ AgentCrew is installed at:
 $root
 \`\`\`
 
-When handling coding tasks in any project, apply AgentCrew automatically. Read:
-
-\`\`\`text
-$root/AGENTS.md
-$root/agent-team/
-\`\`\`
-
-Users do not need to name AgentCrew, a role, a lane, or a Skill. Classify the request, choose Fast Lane or Full Lane, choose the starting role, load relevant Skills from \`$root/agent-team/skills/registry.md\`, keep handoffs compact, keep human approval final, and do not merge pull requests.
+When working in any project, apply AgentCrew automatically. Read \`$root/AGENTS.md\` first. Use Direct Answer Mode for questions and staged loading for action. Keep human approval final and do not merge pull requests.
 
 AgentCrew is a coding-team workflow. It does not replace Hermes Agent's identity, memory, skills, session history, gateway, profile, tool policy, or credential handling. If AgentCrew and Hermes instructions conflict, preserve safety, privacy, and human approval.
 EOF

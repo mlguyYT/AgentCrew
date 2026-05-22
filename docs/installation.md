@@ -58,7 +58,7 @@ docs/bootstrap-existing-project.md
 
 ## Loading model
 
-AgentCrew uses staged loading to reduce token usage. Supported agents should read `AGENTS.md`, then `agent-team/context/route-index.md`, then only the context profile, role, Skills, gates, and templates triggered by the task.
+AgentCrew uses staged loading to reduce token usage. Supported agents should read `AGENTS.md`, answer advisory questions directly, and load `agent-team/context/route-index.md` plus only the context profile, role, Skills, gates, and templates triggered by action requests.
 
 ---
 

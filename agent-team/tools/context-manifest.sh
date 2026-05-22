@@ -144,6 +144,25 @@ LOAD_NOW=()
 LOAD_LATER=()
 NOTES=()
 
+if [ "$INTENT" = "direct_answer_or_advisory" ]; then
+  printf '%s\n' 'context_manifest:'
+  printf '  task: %s\n' "$(yaml_quote "$TASK")"
+  printf '%s\n' "  lane: 'Direct Answer Mode'"
+  printf '%s\n' "  risk: 'low'"
+  printf '%s\n' "  quality_profile: 'light'"
+  printf '%s\n' "  recipe: 'advisory'"
+  printf '%s\n' "  starting_role: 'None'"
+  printf '%s\n' '  load_now:'
+  printf '%s\n' "    - 'none'"
+  printf '%s\n' '  load_later:'
+  printf '%s\n' "    - 'none unless the user asks for implementation, review, validation, or evidence'"
+  printf '%s\n' '  notes:'
+  printf '%s\n' "    - 'Answer directly from available context.'"
+  printf '%s\n' "    - 'Do not create .agent-state artifacts.'"
+  printf '%s\n' "    - 'Do not load roles, Skills, templates, docs, examples, or playbooks.'"
+  exit 0
+fi
+
 add_unique LOAD_NOW 'agent-team/context/route-index.md'
 add_unique LOAD_NOW 'agent-team/protocols/token-discipline.md'
 

@@ -11,12 +11,14 @@ Use this file immediately after `AGENTS.md` to route work without loading the wh
 - Default lane is Fast Lane.
 - Default quality profile is standard unless project or task context says otherwise.
 - Load detailed files only after routing confirms they apply.
+- For advisory questions, load no additional AgentCrew files unless evidence or implementation is needed.
 
 ## Route First
 
 For obvious requests, use this table directly. For ambiguous requests or multi-intent work, load `agent-team/playbooks/request-routing.md`.
 
 ```yaml
+direct_question_or_advice: Direct Answer Mode -> Human
 small_scoped_task: Developer -> Tester -> Human
 small_task_with_meaningful_risk: Developer -> Tester -> Reviewer -> Human
 scope_or_product_behavior_change: Product Manager -> Developer -> Tester -> Human
@@ -36,6 +38,7 @@ skill_change: Skill Validator
 
 Load only:
 
+- no additional files for Direct Answer Mode
 - selected context profile from `agent-team/context/`
 - selected role file from `agent-team/agents/`
 - `agent-team/playbooks/request-routing.md` only when route is ambiguous

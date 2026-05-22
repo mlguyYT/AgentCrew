@@ -62,3 +62,4 @@
 - Loader management docs and `agentcrew uninstall` command for safely removing managed global loader blocks
 - Token-efficiency measures: phase-based context manifests, doctor word-budget warnings, compact Skill registry, and registry guidance split
 - Session checkpoint blocks, restore-session tooling, and CLI checkpoint commands for token-efficient resume context
+- Direct Answer Mode for advisory questions, with tighter loaders and no extra AgentCrew file loading unless action or evidence is needed
