@@ -57,6 +57,12 @@ For clearer scope and acceptance criteria, use `agentcrew brief`.
 - Acceptance criteria may be provisional when the request is vague.
 - Human approval remains final.
 - Do not store secrets, raw customer data, personal identifiers, local paths, private key paths, or long logs.
+- Task text is preserved **verbatim** in the artifact, including any shell
+  metacharacters such as `` ` ``, `$(...)`, or `;`. AgentCrew itself never
+  shell-expands the stored text, but downstream agents or scripts that read
+  these artifacts MUST treat the request as untrusted data — never paste it
+  into a shell command, `eval`, `bash -c`, or similar without explicit
+  quoting/escaping.
 
 See:
 

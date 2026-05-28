@@ -137,6 +137,20 @@ PROJECT_NAME="$(basename "$PROJECT_ROOT")"
 PROJECT_ID="$(slugify "$PROJECT_NAME")"
 PROJECT_ID="${PROJECT_ID:-project}"
 
+# Refuse to write outside $HOME unless the project is a git worktree. This
+# catches accidental `--project /etc` style invocations before they create
+# .agent-state under a system directory (security review INFO-3).
+case "$PROJECT_ROOT" in
+  "$HOME"|"$HOME"/*) : ;;
+  *)
+    if [ "$is_git_repo" != "true" ]; then
+      printf 'Refusing to write under %s: outside $HOME and not a git worktree.\n' "$PROJECT_ROOT" >&2
+      printf 'Set --project to a path inside your home directory or inside a git repository.\n' >&2
+      exit 1
+    fi
+    ;;
+esac
+
 if [ -z "$OUT_DIR" ]; then
   OUT_DIR="$PROJECT_ROOT/.agent-state/sessions"
 fi

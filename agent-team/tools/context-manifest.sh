@@ -72,11 +72,25 @@ extract_list() {
 }
 
 yaml_quote() {
-  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"
+  # Wrap in single quotes, escape embedded single quotes by doubling, and
+  # collapse any CR/LF in the input to the literal characters \r/\n so the
+  # emitted scalar stays a single YAML line. Newlines in user input would
+  # otherwise break the output's structure (security review LOW-1).
+  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g" | tr '\r' ' ' | awk 'BEGIN{ORS="\\n"} {print}' | sed 's/\\n$//')"
 }
 
 add_unique() {
+  # First arg is an array name interpolated into an `eval` below. Defensive
+  # validation: all current call sites pass a hardcoded uppercase identifier,
+  # but the guard prevents shell-injection if a future refactor ever lets
+  # user input reach here (security review INFO-2).
   local var_name="$1"
+  case "$var_name" in
+    ""|*[!A-Za-z0-9_]*|[0-9]*)
+      printf 'add_unique: rejecting invalid variable name: %s\n' "$var_name" >&2
+      return 2
+      ;;
+  esac
   local value="$2"
   [ -n "$value" ] || return 0
   eval "local existing=(\"\${${var_name}[@]}\")"

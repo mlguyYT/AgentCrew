@@ -53,6 +53,18 @@ if git -C "$PROJECT_ABS" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   PROJECT_ROOT="$(git -C "$PROJECT_ABS" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$PROJECT_ABS")"
 fi
 
+# Refuse to write outside $HOME unless the project is a git worktree
+# (security review INFO-3).
+case "$PROJECT_ROOT" in
+  "$HOME"|"$HOME"/*) ;;
+  *)
+    if ! git -C "$PROJECT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      printf 'Refusing to write under %s: outside $HOME and not a git worktree.\n' "$PROJECT_ROOT" >&2
+      exit 1
+    fi
+    ;;
+esac
+
 PROJECT_NAME="$(basename "$PROJECT_ROOT")"
 STATE_DIR="$PROJECT_ROOT/.agent-state"
 PRESET_FILE="$STATE_DIR/project-preset.md"
@@ -99,7 +111,17 @@ CONFIDENCE="low"
 NEXT_ACTION="Use project detection and repository inspection before selecting detailed Skills."
 
 add_unique() {
+  # First arg is an array name interpolated into an `eval` below. Defensive
+  # validation: all current call sites pass a hardcoded uppercase identifier,
+  # but the guard prevents shell-injection if a future refactor ever lets
+  # user input reach here (security review INFO-2).
   local array_name="$1"
+  case "$array_name" in
+    ""|*[!A-Za-z0-9_]*|[0-9]*)
+      printf 'add_unique: rejecting invalid variable name: %s\n' "$array_name" >&2
+      return 2
+      ;;
+  esac
   local value="$2"
   eval 'local existing="${'"$array_name"'[*]-}"'
   case " $existing " in

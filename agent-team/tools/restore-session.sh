@@ -64,6 +64,20 @@ if [ -n "$FILE" ]; then
     printf 'Session file does not exist: %s\n' "$FILE" >&2
     exit 1
   fi
+  # Reject session files outside the sessions directory. Without this guard
+  # `restore-session --file /etc/passwd` would succeed as a confused-deputy
+  # read when AgentCrew runs under any privileged wrapper (security review LOW-4).
+  FILE_ABS="$(cd "$(dirname "$FILE")" 2>/dev/null && pwd -P)/$(basename "$FILE")" || FILE_ABS=""
+  OUT_DIR_ABS="$(cd "$OUT_DIR" 2>/dev/null && pwd -P)" || OUT_DIR_ABS=""
+  case "${FILE_ABS:-}" in
+    "${OUT_DIR_ABS:-/__nope__}"/*)
+      :
+      ;;
+    *)
+      printf 'Refusing to restore --file %s: path is outside the sessions directory %s.\n' "$FILE" "$OUT_DIR" >&2
+      exit 1
+      ;;
+  esac
   SESSION_FILE="$FILE"
 else
   if [ ! -d "$OUT_DIR" ]; then

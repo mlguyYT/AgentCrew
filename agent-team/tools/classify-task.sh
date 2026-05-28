@@ -68,8 +68,29 @@ matches() {
   printf '%s\n' "$TASK_LOWER" | grep -Eiq "$1"
 }
 
+# Topic regex constants. Each pattern is the single source of truth used by
+# both the intent classifier and the specialist trigger below to prevent drift
+# when terms are added in one place but missed in the other.
+RX_SUPPORT='(support ticket|customer report|customer-reported|user report|user complaint|operator report|bug report|repro steps|reproduction steps|severity|impact assessment|triage this|ticket)'
+RX_RELEASE='(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)'
+RX_DOCS='(docs|documentation|readme|changelog|release note|example|guide|migration note|public api)'
+RX_RESEARCH='(research|compare|investigate options|source-backed|sources|citation|latest|current|market|standard|regulation|source)'
+RX_LLM='(llm|prompt|rag|embedding|vector search|tool calling|function calling|structured output|model|eval|hallucination|prompt injection)'
+RX_CNN='(cnn|computer vision|image classification|object detection|segmentation|image dataset|augmentation|model training|training|inference optimization|inference)'
+RX_SKILL='(skill|skills registry|skill changed|new skill|authoring guide)'
+
 add_unique() {
+  # First arg is an array name interpolated into an `eval` below. Defensive
+  # validation: all current call sites pass a hardcoded uppercase identifier,
+  # but if a future refactor ever lets user input reach here, this guard
+  # prevents shell-injection through the variable name (security review INFO-2).
   local var_name="$1"
+  case "$var_name" in
+    ""|*[!A-Za-z0-9_]*|[0-9]*)
+      printf 'add_unique: rejecting invalid variable name: %s\n' "$var_name" >&2
+      return 2
+      ;;
+  esac
   local value="$2"
   eval "local existing=(\"\${${var_name}[@]}\")"
   local item
@@ -80,7 +101,11 @@ add_unique() {
 }
 
 yaml_quote() {
-  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"
+  # Wrap in single quotes, escape embedded single quotes by doubling, and
+  # collapse any CR/LF in the input to the literal characters \r/\n so the
+  # emitted scalar stays a single YAML line. Newlines in user input would
+  # otherwise break the output's structure (security review LOW-1).
+  printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g" | tr '\r' ' ' | awk 'BEGIN{ORS="\\n"} {print}' | sed 's/\\n$//')"
 }
 
 print_yaml_list() {
@@ -143,7 +168,7 @@ elif matches '(^| )(fix|change|add|update|create|build|implement|improve|refacto
   WORKFLOW="Developer -> Tester -> Human"
   NEXT_ROLES=("Tester" "Human")
   add_unique REASONS "request asks for implementation"
-elif matches '(research|compare|investigate options|source-backed|sources|citation|latest|current|market|standard|regulation)'; then
+elif matches "$RX_RESEARCH"; then
   INTENT="source_backed_research_or_current_info"
   STARTING_ROLE="Researcher Agent"
   WORKFLOW="Researcher Agent -> Product Manager if decision needed -> Human"
@@ -151,43 +176,35 @@ elif matches '(research|compare|investigate options|source-backed|sources|citati
   add_unique SPECIALISTS "Researcher Agent"
   add_unique SKILLS "researcher-pro"
   add_unique REASONS "request needs research or external evidence"
-elif matches '(support ticket|customer report|customer-reported|user report|user complaint|operator report|bug report|repro steps|reproduction steps|severity|impact assessment|triage this|ticket)'; then
+elif matches "$RX_SUPPORT"; then
   INTENT="support_triage_or_customer_issue"
   STARTING_ROLE="Support Triage Agent"
   WORKFLOW="Support Triage Agent -> Developer/Tester/Product Manager if actionable -> Human"
   NEXT_ROLES=("Developer if defect is confirmed" "Tester if reproduction is needed" "Product Manager if expected behavior or priority is unclear" "Human")
   add_unique SPECIALISTS "Support Triage Agent"
   add_unique REASONS "request starts from support, customer, severity, impact, or reproduction triage"
-elif matches '(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)'; then
+elif matches "$RX_RELEASE"; then
   INTENT="release_readiness_or_deployment_preparation"
   STARTING_ROLE="Release Manager"
   WORKFLOW="Release Manager -> Tester/Reviewer/Documentation Agent if evidence is missing -> Human"
   NEXT_ROLES=("Tester if validation evidence is missing" "Reviewer if release risk is meaningful" "Human")
   add_unique SPECIALISTS "Release Manager"
   add_unique REASONS "request targets release readiness or deployment preparation"
-elif matches '(docs|documentation|readme|example|guide)'; then
+elif matches "$RX_DOCS"; then
   INTENT="docs_examples_or_changelog"
   STARTING_ROLE="Documentation Agent"
   WORKFLOW="Documentation Agent -> Tester/Reviewer if behavior claims changed -> Human"
   NEXT_ROLES=("Human")
   add_unique SPECIALISTS "Documentation Agent"
   add_unique REASONS "request targets documentation"
-elif matches '(skill|skills registry|authoring guide)'; then
+elif matches "$RX_SKILL"; then
   INTENT="skill_creation_or_skill_change"
   STARTING_ROLE="Skill Validator"
   WORKFLOW="Skill Validator -> Human"
   NEXT_ROLES=("Human")
   add_unique SPECIALISTS "Skill Validator"
   add_unique REASONS "request changes or validates AgentCrew Skills"
-elif matches '(llm|prompt|rag|embedding|vector search|tool calling|function calling|structured output|model selection|eval|hallucination|prompt injection)'; then
-  INTENT="prompt_rag_tool_calling_or_model_behavior"
-  STARTING_ROLE="LLM Agent"
-  WORKFLOW="LLM Agent -> Developer/Tester if implementation follows -> Human"
-  NEXT_ROLES=("Developer if implementation follows" "Tester" "Human")
-  add_unique SPECIALISTS "LLM Agent"
-  add_unique SKILLS "llm-pro"
-  add_unique REASONS "request touches LLM behavior or safety"
-elif matches '(cnn|computer vision|image classification|object detection|segmentation|image dataset|augmentation|model training|inference optimization)'; then
+elif matches "$RX_CNN"; then
   INTENT="computer_vision_cnn_training_or_inference"
   STARTING_ROLE="CNN Agent"
   WORKFLOW="CNN Agent -> Developer/Tester if implementation follows -> Human"
@@ -195,6 +212,14 @@ elif matches '(cnn|computer vision|image classification|object detection|segment
   add_unique SPECIALISTS "CNN Agent"
   add_unique SKILLS "cnn"
   add_unique REASONS "request touches computer vision or CNN work"
+elif matches "$RX_LLM"; then
+  INTENT="prompt_rag_tool_calling_or_model_behavior"
+  STARTING_ROLE="LLM Agent"
+  WORKFLOW="LLM Agent -> Developer/Tester if implementation follows -> Human"
+  NEXT_ROLES=("Developer if implementation follows" "Tester" "Human")
+  add_unique SPECIALISTS "LLM Agent"
+  add_unique SKILLS "llm-pro"
+  add_unique REASONS "request touches LLM behavior or safety"
 elif matches '(idea|strategy|should we|evaluate|brainstorm|roadmap|positioning)'; then
   INTENT="rough_idea_or_strategy"
   STARTING_ROLE="Advisor"
@@ -253,28 +278,28 @@ if matches '(ui|ux|design|user-facing|onboarding|form|navigation|accessibility|r
   add_unique SPECIALISTS "UX / Design Reviewer"
   add_unique REASONS "user-facing or design trigger present"
 fi
-if matches '(docs|documentation|readme|changelog|release note|example|guide|migration note|public api)'; then
+if matches "$RX_DOCS"; then
   add_unique SPECIALISTS "Documentation Agent"
 fi
-if matches '(support ticket|customer report|customer-reported|user report|user complaint|operator report|bug report|repro steps|reproduction steps|severity|impact assessment|triage this|ticket)'; then
+if matches "$RX_SUPPORT"; then
   add_unique SPECIALISTS "Support Triage Agent"
 fi
-if matches '(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)'; then
+if matches "$RX_RELEASE"; then
   add_unique SPECIALISTS "Release Manager"
 fi
-if matches '(llm|prompt|rag|embedding|vector search|tool calling|function calling|structured output|model|eval|hallucination|prompt injection)'; then
+if matches "$RX_LLM"; then
   add_unique SPECIALISTS "LLM Agent"
   add_unique SKILLS "llm-pro"
 fi
-if matches '(research|compare|latest|current|market|standard|regulation|citation|source)'; then
+if matches "$RX_RESEARCH"; then
   add_unique SPECIALISTS "Researcher Agent"
   add_unique SKILLS "researcher-pro"
 fi
-if matches '(cnn|computer vision|image classification|object detection|segmentation|image dataset|augmentation|training|inference)'; then
+if matches "$RX_CNN"; then
   add_unique SPECIALISTS "CNN Agent"
   add_unique SKILLS "cnn"
 fi
-if matches '(skill|skills registry|skill changed|new skill)'; then
+if matches "$RX_SKILL"; then
   add_unique SPECIALISTS "Skill Validator"
 fi
 
@@ -295,7 +320,9 @@ if matches '(shell|bash|script|makefile)'; then add_unique SKILLS "shell-pro"; f
 if matches '(kubernetes|k8s|helm|deployment yaml|manifest)'; then add_unique SKILLS "kubernetes"; fi
 
 # Risk classification. Critical overrides high, high overrides medium.
-if matches '(delete data|data loss|drop table|destructive|force push|force-push|rewrite shared history|rotate production secret|changing payment flow|permission model|major architecture replacement)'; then
+# Patterns tolerate articles and common phrasing variations so natural requests
+# like "rotate the production secret" still escalate to Full Lane.
+if matches '(delete( [a-z]+){0,3} data\b|data loss|drop( [a-z]+){0,3} (table|database|schema)|destructive|force[ -]?push|rewrite (shared|public) history|rotate( [a-z]+){0,4} (secret|secrets|key|keys|token|tokens|credential|credentials|api key|api keys)|chang(e|ing)( [a-z]+){0,3} (payment flow|permission model)|major architecture (replacement|rewrite|overhaul|migration|change))'; then
   RISK="critical"
   LANE="Full Lane plus explicit human decision"
   WORKFLOW="Advisor -> Idea Consultant -> Human decision -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer -> Human"
@@ -407,6 +434,99 @@ case "$INTENT" in
   skill_creation_or_skill_change)
     WORKFLOW="Skill Validator -> Human"
     NEXT_ROLES=("Human")
+    ;;
+esac
+
+# Final risk-aware re-route. Runs after intent-specific workflow tuning so the
+# starting role, lane, and workflow stay consistent with the classified risk
+# for every action-implying intent, not just implementation_or_bug_fix. Held
+# intents keep their specialist as the entry point but append an explicit
+# escalation step so the workflow text does not contradict starting_role.
+case "$RISK" in
+  critical)
+    case "$INTENT" in
+      direct_answer_or_advisory)
+        :
+        ;;
+      code_or_pr_review)
+        LANE="Full Lane plus explicit human decision"
+        WORKFLOW="Reviewer -> Advisor for risk acceptance -> Human decision -> Human"
+        NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Human")
+        add_unique HUMAN_DECISIONS "accept critical risk before merge"
+        add_unique REASONS "critical risk holds Reviewer entry but requires human risk acceptance"
+        ;;
+      validation_or_regression_check)
+        LANE="Full Lane plus explicit human decision"
+        WORKFLOW="Tester -> Advisor for risk acceptance -> Human decision -> Human"
+        NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Human")
+        add_unique HUMAN_DECISIONS "accept critical risk before merge"
+        add_unique REASONS "critical risk holds Tester entry but requires human risk acceptance"
+        ;;
+      source_backed_research_or_current_info)
+        LANE="Full Lane plus explicit human decision"
+        WORKFLOW="Researcher Agent -> Advisor for risk acceptance -> Human decision -> Human"
+        NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Human")
+        add_unique HUMAN_DECISIONS "accept critical risk before merge"
+        add_unique REASONS "critical risk holds Researcher entry but requires human risk acceptance"
+        ;;
+      *)
+        STARTING_ROLE="Advisor"
+        LANE="Full Lane plus explicit human decision"
+        WORKFLOW="Advisor -> Idea Consultant -> Human decision -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer -> Human"
+        NEXT_ROLES=("Idea Consultant" "Product Manager" "Developer" "Tester" "Reviewer" "Specialist Reviewer" "Human")
+        add_unique HUMAN_DECISIONS "accept critical risk before implementation"
+        add_unique REASONS "critical risk forces Advisor entry and Full Lane regardless of intent"
+        ;;
+    esac
+    ;;
+  high)
+    case "$INTENT" in
+      direct_answer_or_advisory)
+        :
+        ;;
+      code_or_pr_review)
+        LANE="Full Lane"
+        WORKFLOW="Reviewer -> Specialist Reviewer if needed -> Human"
+        add_unique REASONS "high risk holds Reviewer entry and adds Full Lane review"
+        ;;
+      validation_or_regression_check)
+        LANE="Full Lane"
+        WORKFLOW="Tester -> Reviewer -> Human"
+        NEXT_ROLES=("Reviewer" "Human")
+        add_unique REASONS "high risk holds Tester entry and requires Reviewer before merge"
+        ;;
+      source_backed_research_or_current_info)
+        LANE="Full Lane"
+        WORKFLOW="Researcher Agent -> Product Manager -> Human"
+        NEXT_ROLES=("Product Manager" "Human")
+        add_unique REASONS "high risk holds Researcher entry and adds Product Manager review"
+        ;;
+      docs_examples_or_changelog)
+        LANE="Full Lane"
+        WORKFLOW="Documentation Agent -> Reviewer -> Human"
+        NEXT_ROLES=("Reviewer" "Human")
+        add_unique REASONS "high risk holds Documentation Agent entry and requires Reviewer"
+        ;;
+      support_triage_or_customer_issue)
+        LANE="Full Lane"
+        WORKFLOW="Support Triage Agent -> Advisor for risk acceptance -> Developer -> Tester -> Reviewer -> Human"
+        NEXT_ROLES=("Advisor for risk acceptance" "Developer" "Tester" "Reviewer" "Human")
+        add_unique REASONS "high risk holds Support Triage entry and adds Advisor risk acceptance"
+        ;;
+      skill_creation_or_skill_change)
+        LANE="Full Lane"
+        WORKFLOW="Skill Validator -> Reviewer -> Human"
+        NEXT_ROLES=("Reviewer" "Human")
+        add_unique REASONS "high risk holds Skill Validator entry and requires Reviewer"
+        ;;
+      *)
+        STARTING_ROLE="Advisor"
+        LANE="Full Lane"
+        WORKFLOW="Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human"
+        NEXT_ROLES=("Idea Consultant" "Product Manager" "Developer" "Tester" "Reviewer" "Human")
+        add_unique REASONS "high risk forces Advisor entry and Full Lane for action-implying intents"
+        ;;
+    esac
     ;;
 esac
 

@@ -79,6 +79,38 @@ upsert_block() {
     return 0
   fi
 
+  # Refuse to rewrite the file unless the existing marker block clearly looks
+  # like a managed AgentCrew loader. Without this check, a user who pastes our
+  # marker strings around their own content (from a tutorial, dotfiles, etc.)
+  # silently loses that content on the next install (security review HIGH-1).
+  if [ -f "$file" ]; then
+    local start_count end_count
+    start_count="$(grep -Fxc "$START_MARKER" "$file" || true)"
+    end_count="$(grep -Fxc "$END_MARKER" "$file" || true)"
+    if [ "$start_count" -ne "$end_count" ]; then
+      die "Refusing to update $file: found $start_count start marker(s) and $end_count end marker(s). Resolve the mismatch by hand, then rerun install." 1
+    fi
+    if [ "$start_count" -gt 1 ]; then
+      die "Refusing to update $file: found $start_count AgentCrew loader blocks. Keep at most one managed block; remove the extras manually, then rerun install." 1
+    fi
+    if [ "$start_count" -eq 1 ]; then
+      # All AgentCrew-managed loaders begin with the heading "# AgentCrew".
+      # If the existing block's first non-blank line differs, the markers are
+      # almost certainly user content; refuse rather than overwrite.
+      local first_line
+      first_line="$(awk -v start="$START_MARKER" -v end="$END_MARKER" '
+        $0 == start { in_block = 1; next }
+        $0 == end { in_block = 0; next }
+        in_block && NF > 0 { print; exit }
+      ' "$file")"
+      if [ "$first_line" != "# AgentCrew" ]; then
+        die "Refusing to update $file: marker block does not look like a managed AgentCrew loader (first non-blank line is \"$first_line\", expected \"# AgentCrew\"). Verify the file, then rerun install or remove the markers manually." 1
+      fi
+    fi
+  fi
+
+  local parent_existed="true"
+  [ -d "$(dirname "$file")" ] || parent_existed="false"
   mkdir -p "$(dirname "$file")" || exit 1
 
   local tmp
@@ -105,6 +137,15 @@ upsert_block() {
     printf '%s\n' "$content"
     printf '%s\n' "$END_MARKER"
   } > "$file" || exit 1
+
+  # Loader files configure agent behavior; treat them like SSH keys and lock
+  # them to the user. If AgentCrew also created the parent directory (e.g.,
+  # `~/.codex/` on a fresh install) tighten that too. Leave pre-existing
+  # parent directories alone — they may be shared with other tooling.
+  chmod 600 "$file" 2>/dev/null || true
+  if [ "$parent_existed" = "false" ]; then
+    chmod 700 "$(dirname "$file")" 2>/dev/null || true
+  fi
 
   rm -f "$tmp"
   printf '%s\n' "Updated: $file"
@@ -157,11 +198,26 @@ codex_file() {
   printf '%s\n' "${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
 }
 
+is_safe_profile_name() {
+  # Only allow alphanumerics, underscore, and dash. Anything else (slashes,
+  # dots, traversal sequences, shell metachars) is rejected so a malicious
+  # env-var value cannot escape the per-tool home directory.
+  case "$1" in
+    ""|*[!a-zA-Z0-9_-]*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
 openclaw_state_dir() {
   if [ -n "${OPENCLAW_STATE_DIR:-}" ]; then
     printf '%s\n' "$OPENCLAW_STATE_DIR"
   elif [ -n "${OPENCLAW_PROFILE:-}" ]; then
-    printf '%s\n' "$HOME/.openclaw-$OPENCLAW_PROFILE"
+    if is_safe_profile_name "$OPENCLAW_PROFILE"; then
+      printf '%s\n' "$HOME/.openclaw-$OPENCLAW_PROFILE"
+    else
+      printf 'Ignoring OPENCLAW_PROFILE=%s: only [A-Za-z0-9_-] allowed; using default.\n' "$OPENCLAW_PROFILE" >&2
+      printf '%s\n' "$HOME/.openclaw"
+    fi
   else
     printf '%s\n' "$HOME/.openclaw"
   fi
@@ -179,7 +235,12 @@ hermes_home() {
   if [ -n "${HERMES_HOME:-}" ]; then
     printf '%s\n' "$HERMES_HOME"
   elif [ -n "${HERMES_PROFILE:-}" ] && [ "${HERMES_PROFILE:-}" != "default" ]; then
-    printf '%s\n' "$HOME/.hermes/profiles/$HERMES_PROFILE"
+    if is_safe_profile_name "$HERMES_PROFILE"; then
+      printf '%s\n' "$HOME/.hermes/profiles/$HERMES_PROFILE"
+    else
+      printf 'Ignoring HERMES_PROFILE=%s: only [A-Za-z0-9_-] allowed; using default.\n' "$HERMES_PROFILE" >&2
+      printf '%s\n' "$HOME/.hermes"
+    fi
   elif [ -f "$HOME/.hermes/active_profile" ]; then
     local active_profile
     active_profile="$(head -n 1 "$HOME/.hermes/active_profile" | tr -d '[:space:]')"
@@ -403,6 +464,35 @@ check_dir_exists() {
   fi
 }
 
+BUDGET_HISTORY_FILE=""
+BUDGET_GROWTH_THRESHOLD_PERCENT=10
+
+doctor_init_budget_history() {
+  local root="$1"
+  BUDGET_HISTORY_FILE="$root/.agent-state/doctor-budget-history.tsv"
+}
+
+read_prior_word_count() {
+  local key="$1"
+  [ -n "$BUDGET_HISTORY_FILE" ] || return 1
+  [ -f "$BUDGET_HISTORY_FILE" ] || return 1
+  awk -v k="$key" -F '\t' '$1 == k { print $2; exit }' "$BUDGET_HISTORY_FILE"
+}
+
+write_word_count() {
+  local key="$1"
+  local count="$2"
+  [ -n "$BUDGET_HISTORY_FILE" ] || return 0
+  mkdir -p "$(dirname "$BUDGET_HISTORY_FILE")" || return 0
+  local tmp
+  tmp="$(mktemp)" || return 0
+  if [ -f "$BUDGET_HISTORY_FILE" ]; then
+    awk -v k="$key" -F '\t' '$1 != k' "$BUDGET_HISTORY_FILE" > "$tmp"
+  fi
+  printf '%s\t%s\n' "$key" "$count" >> "$tmp"
+  mv "$tmp" "$BUDGET_HISTORY_FILE"
+}
+
 check_word_budget() {
   local path="$1"
   local limit="$2"
@@ -420,6 +510,21 @@ check_word_budget() {
   else
     check_warn "$label exceeds token budget ($count > $limit words)"
   fi
+
+  local prior
+  prior="$(read_prior_word_count "$path" 2>/dev/null || true)"
+  if [ -n "$prior" ] && [ "$prior" -gt 0 ] 2>/dev/null; then
+    # Warn when a file grows by more than the configured percent threshold
+    # between doctor runs, so we catch drift before it crosses the absolute
+    # budget. Arithmetic stays integer-only: count > prior * (100 + pct) / 100.
+    local threshold=$(( prior * (100 + BUDGET_GROWTH_THRESHOLD_PERCENT) / 100 ))
+    if [ "$count" -gt "$threshold" ]; then
+      local delta=$(( count - prior ))
+      check_warn "$label grew by $delta words since last doctor run ($prior -> $count, >${BUDGET_GROWTH_THRESHOLD_PERCENT}%)"
+    fi
+  fi
+
+  write_word_count "$path" "$count"
 }
 
 registration_root_matches() {
@@ -427,7 +532,20 @@ registration_root_matches() {
   local root="$2"
   [ -f "$file" ] || return 1
   grep -Fq "$START_MARKER" "$file" || return 1
-  grep -Fq "$root/AGENTS.md" "$file" || grep -Fq "$root/agent-team" "$file" || grep -Fq "$root" "$file"
+
+  # Match only inside the AgentCrew-managed block so loader text in unrelated
+  # parts of the file (a sibling comment, an example, another agent's loader)
+  # cannot cause a false positive when the actual managed path differs.
+  local block
+  block="$(awk -v start="$START_MARKER" -v end="$END_MARKER" '
+    $0 == start { in_block = 1; next }
+    $0 == end { in_block = 0; next }
+    in_block { print }
+  ' "$file")"
+
+  printf '%s\n' "$block" | grep -Fq "$root/AGENTS.md" \
+    || printf '%s\n' "$block" | grep -Fq "$root/agent-team" \
+    || printf '%s\n' "$block" | grep -Fq "$root"
 }
 
 doctor_registration() {
@@ -440,6 +558,18 @@ doctor_registration() {
       check_pass "$name loader is installed and points to this AgentCrew checkout"
     else
       check_warn "$name loader exists but may point to a different AgentCrew checkout ($file)"
+    fi
+    # Loader files steer every future agent session; warn when permissions
+    # let group or world read, write, or execute them (security review LOW-3).
+    if [ -f "$file" ]; then
+      local mode group_other
+      mode="$(stat -c '%a' "$file" 2>/dev/null || stat -f '%Lp' "$file" 2>/dev/null || true)"
+      if [ -n "$mode" ]; then
+        group_other="$(printf '%s' "$mode" | tail -c 2)"
+        if [ "$group_other" != "00" ]; then
+          check_warn "$name loader has permissions $mode; consider 'chmod 600 $file' so other users cannot influence agent behavior"
+        fi
+      fi
     fi
   else
     check_warn "$name loader is not installed ($file)"
@@ -718,6 +848,7 @@ run_doctor() {
   doctor_tools "$root"
 
   printf '\nToken budgets:\n'
+  doctor_init_budget_history "$root"
   doctor_token_budgets "$root"
 
   doctor_project_context "$root"

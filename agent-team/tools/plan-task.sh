@@ -79,6 +79,18 @@ if git -C "$PROJECT_ABS" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   PROJECT_ROOT="$(git -C "$PROJECT_ABS" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$PROJECT_ABS")"
 fi
 
+# Refuse to write outside $HOME unless the project is a git worktree
+# (security review INFO-3).
+case "$PROJECT_ROOT" in
+  "$HOME"|"$HOME"/*) ;;
+  *)
+    if ! git -C "$PROJECT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      printf 'Refusing to write under %s: outside $HOME and not a git worktree.\n' "$PROJECT_ROOT" >&2
+      exit 1
+    fi
+    ;;
+esac
+
 STATE_DIR="$PROJECT_ROOT/.agent-state"
 WORK_PLAN="$STATE_DIR/work-plan.md"
 CLASSIFICATION="$($CLASSIFIER --project "$PROJECT_ROOT" --task "$TASK")" || exit 1

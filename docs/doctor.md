@@ -37,6 +37,7 @@ The doctor checks:
 - whether AgentCrew's own repository ignores its local `.agent-state/`
 - whether AgentCrew is external to the current project when run from a target project
 - whether always-loaded and hot-path files stay within token budget warnings
+- whether any tracked file grew more than 10% in word count since the last doctor run, using `.agent-state/doctor-budget-history.tsv` as per-checkout history
 
 Warnings are informational. Failures indicate missing required files or an invalid AgentCrew root.
 
