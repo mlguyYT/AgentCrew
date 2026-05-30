@@ -1,160 +1,461 @@
 # AgentCrew
 
-AgentCrew is a Markdown-first workflow for coordinating AI coding agents like a small software team.
+**Turn your coding agent into a disciplined team.**
 
-It gives agents roles, playbooks, skills, handoff formats, review rules, and human approval gates.
+AgentCrew is a Markdown-first methodology for agentic coding. Your existing coding agent — Claude Code, Codex, Cursor, OpenClaw, Hermes, or another compatible assistant — loads it as guidance and uses it to work through software tasks with roles, routing, handoffs, quality gates, and human approval.
 
-AgentCrew lives outside your project repositories. Register it once where your agent supports global instructions, or use a tiny adapter that points to the external checkout.
+You do not change how you work. You keep talking to your agent. AgentCrew gives that chat a team process underneath.
 
-It is not a runtime, server, bot, or CI/CD platform by default.
+AgentCrew is not a runtime.  
+It is not a daemon.  
+It is not a replacement for CI.  
+It is a practical operating system for coding agents, written mostly in Markdown and shell.
 
-## Why
+---
 
-Most agent workflows fail in the same places: unclear ownership, giant changes, weak testing, missing review, and agents treating approval as their job.
+## The problem
 
-AgentCrew keeps the useful parts simple:
+A single coding-agent session is usually one context doing every job: scoping, implementing, testing, reviewing, documenting, and sometimes pretending it can approve the work it just wrote.
 
-- roles define responsibility
-- playbooks define process
-- skills define technical guidance
-- templates define output shape
-- policies keep human approval final
+That is not how good software teams work.
 
-AgentCrew lets agents do the work, testing, review, and preparation, but keeps final product direction, risk acceptance, PR approval, and merging with the human.
+The same model that wrote the bug should not be the only reviewer of the bug. The same chat that guessed an API should not be the final authority that the API is correct. A risky authentication change should not be treated like a typo fix. A refactor should not silently expand across unrelated parts of the codebase.
 
-AgentCrew uses staged loading: agents answer simple questions directly, then load only the role, lane, Skills, gates, and templates needed when action is required. Normal user requests are routed automatically; users do not need to name roles or lanes.
+Most teams try to fix this with bigger prompts or “be careful” notes in `CLAUDE.md`, `AGENTS.md`, or editor rules. That helps a little, but the agent can still tunnel-vision, skip tests, lose context, make unrelated edits, or leave humans with a giant diff that is hard to trust.
 
-## Quick Start
+AgentCrew exists to give coding agents a process before they touch the code.
 
-Clone AgentCrew once outside your projects:
+---
+
+## Why we built this
+
+We built AgentCrew after repeatedly running into the same problem with coding agents: they can write code fast, but they do not naturally follow a disciplined development cycle.
+
+Every serious change needs more than implementation. The agent should understand the task, pick the right context, use the right skills, write or update tests, verify that those tests actually work, document the change, and prepare something a human can review.
+
+Without that structure, we found ourselves repeating the same instructions again and again:
+
+- write the tests;
+- run the tests;
+- check the edge cases;
+- document what changed;
+- do not merge;
+- do not make unrelated edits;
+- do not skip the review.
+
+The failure mode is not theoretical. We have seen agent-assisted refactors create messy changes across a codebase, miss important context, and leave humans with days of cleanup. In one case, a refactor that should have been controlled ended up breaking enough pieces that fixing it manually took about a week. The problem was not that the model was useless. The problem was that it had no real process, no specialized role, no skill boundary, and no serious review gate.
+
+We tried bigger prompts, project rules, internal Codex workflows, prompt stacks, and command-based approaches. Some helped. But they still required too much manual steering, especially when we wanted the agent itself to recognize when a task needed planning, testing, review, security attention, or a human decision.
+
+AgentCrew is the system we wanted: not a magical autopilot, and not a replacement for developer judgment. It is a disciplined methodology for agentic coding — roles, skills, routing, handoffs, quality gates, memory, and approval boundaries — so coding agents become easier to trust, easier to review, and more useful in real development work.
+
+---
+
+## What you actually experience
+
+You ask your normal coding agent for an outcome:
+
+> Add Google OAuth login to the signup page.
+
+With AgentCrew loaded, the agent does not jump straight into editing files. It first follows the methodology:
+
+1. **Classify the request**  
+   A pure-bash classifier can identify the task type, risk level, lane, likely role, relevant skills, and quality gates.
+
+2. **Pick the right lane**  
+   Simple, low-risk work can use a fast lane. Risky, multi-step, security-sensitive, or architecture-changing work uses a fuller workflow.
+
+3. **Start with the right role**  
+   The agent may begin as an Advisor or Product Manager to clarify scope and acceptance criteria before implementation.
+
+4. **Implement as Developer**  
+   The Developer role focuses on minimal, relevant changes. It must avoid unrelated edits, hidden failures, unsafe commands, and premature merge decisions.
+
+5. **Check as Tester**  
+   The Tester role focuses on verification. It should run or propose the right tests and report what passed, failed, or could not be checked.
+
+6. **Review as Reviewer or Security Reviewer**  
+   Risky code paths, authentication, authorization, payments, migrations, secrets, and infrastructure changes get stricter review guidance.
+
+7. **Produce a handoff**  
+   The final output is not just “done.” It should include what changed, what was tested, what risks remain, and what needs human approval.
+
+8. **Stop at the human gate**  
+   AgentCrew does not treat the agent as the final approver. A human still decides what lands.
+
+You stay in your normal agent chat. AgentCrew gives that chat a routing system, role instructions, handoff formats, state artifacts, and approval gates, so the work follows a team process instead of one long unstructured session.
+
+---
+
+## Install
+
+Clone AgentCrew somewhere outside your project:
 
 ```bash
-git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
+git clone https://github.com/mlguyYT/AgentCrew ~/AgentCrew
+```
+
+Register AgentCrew with your host agent:
+
+```bash
 ~/AgentCrew/bin/agentcrew install
+```
+
+Verify the setup:
+
+```bash
 ~/AgentCrew/bin/agentcrew doctor
 ```
 
-From any project, ask normally:
+Then open your normal coding agent and start working as usual.
+
+AgentCrew installs a small loader block into your host-agent instruction file, such as:
 
 ```text
-Fix the login form so empty email shows a validation message.
+~/.claude/CLAUDE.md
+~/.codex/AGENTS.md
+~/.hermes/SOUL.md
 ```
 
-AgentCrew is registered globally for supported agents including Claude Code, Codex, OpenClaw, and Hermes Agent. It reads its own instructions, chooses the lane, role, and Skills, and stops where human approval is required. Cursor, GitHub Copilot, and other tools can use the adapter snippets in `agent-team/adapters/` when they need a tool-specific instruction surface.
+The loader points the host agent to the AgentCrew methodology. Your project does not need a new runtime dependency.
 
-Optional: make the current task visible with `~/AgentCrew/bin/agentcrew start --task "your request"`.
+---
 
-Optional: select project defaults with `~/AgentCrew/bin/agentcrew preset`.
-
-Optional: create a testable task brief with `~/AgentCrew/bin/agentcrew brief --task "your request"`.
-
-Optional: create a PR-sized work plan with `~/AgentCrew/bin/agentcrew plan --task "your request"`.
-
-Optional: check implementation readiness with `~/AgentCrew/bin/agentcrew ready`.
-
-Optional: prepare a human-review PR packet with `~/AgentCrew/bin/agentcrew pr-pack`.
-
-No AgentCrew files need to be copied into the project.
-
-## Workflows
-
-Fast Lane is for small, reversible work:
+## What is in the box
 
 ```text
-Developer -> Tester -> Reviewer/PM when needed -> Human
+agent-team/
+├─ agents/              Role definitions such as Advisor, PM, Developer,
+│                       Tester, Reviewer, Security Reviewer, UX Reviewer,
+│                       Documentation Agent, and more
+│
+├─ tools/               CLI helpers, including the pure-bash task classifier
+│
+├─ playbooks/           How to route tasks, handle gates, prepare PRs,
+│                       manage rework, and save useful memory
+│
+├─ recipes/             Workflow recipes for features, bug fixes, refactors,
+│                       migrations, reviews, security-sensitive work, and more
+│
+├─ protocols/           Handoff format, state artifacts, approval boundaries,
+│                       and token-discipline rules
+│
+├─ context/             Route index and lane-specific context profiles
+│
+├─ checklists/          Pre-merge readiness, review checks, memory refreshes,
+│                       and other quality controls
+│
+├─ templates/           Task briefs, work plans, compact handoffs, review
+│                       reports, PR descriptions, and session summaries
+│
+└─ skills/              Technical and professional skills that can be loaded
+                        only when relevant
+
+bin/agentcrew           install, doctor, status, classify, context, start,
+                        brief, plan, ready, pr-pack, checkpoint, save-session,
+                        restore-session, detect-project, preset
 ```
 
-Full Lane is for risky or ambiguous work:
+The methodology is Markdown.  
+The classifier and setup helpers are shell scripts.  
+There is no daemon and no required runtime inside your project.
+
+---
+
+## Fast Lane vs Full Lane
+
+Not every task needs a heavy workflow.
+
+AgentCrew separates work into lanes so the agent does not over-process simple tasks or under-process risky ones.
+
+### Fast Lane
+
+Used for small, low-risk work:
+
+- typo fixes;
+- small documentation updates;
+- simple tests;
+- minor localized changes;
+- straightforward explanations;
+- low-risk cleanup.
+
+The goal is speed with basic discipline.
+
+### Full Lane
+
+Used for work that needs stronger control:
+
+- authentication or authorization changes;
+- payment logic;
+- database migrations;
+- security-sensitive code;
+- infrastructure changes;
+- large refactors;
+- production-risky behavior;
+- unclear requirements;
+- multi-file or multi-phase implementation.
+
+The goal is safer execution, clearer handoffs, and better review.
+
+---
+
+## Roles
+
+AgentCrew gives your coding agent role-specific instructions instead of asking one generic chat to do everything.
+
+Common roles include:
+
+- **Advisor** — explains, guides, and helps reason before implementation.
+- **Product Manager** — clarifies scope, user value, acceptance criteria, and tradeoffs.
+- **Developer** — implements focused changes with minimal unrelated edits.
+- **Tester** — verifies behavior and reports what was tested.
+- **Reviewer** — reviews the implementation for correctness, maintainability, and risk.
+- **Security Reviewer** — checks sensitive paths such as auth, permissions, secrets, and unsafe operations.
+- **UX Reviewer** — reviews user-facing behavior and interaction quality.
+- **Documentation Agent** — updates or reviews documentation, examples, and usage notes.
+- **Release Manager** — helps prepare release notes, readiness checks, and release handoffs.
+
+The point is not to pretend there are separate humans. The point is to make the agent use different constraints for different phases of work.
+
+---
+
+## Project-local discipline
+
+AgentCrew can keep project-local working state in `.agent-state/`.
+
+That state may include:
 
 ```text
-Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Human
+.agent-state/
+├─ current-task.md
+├─ work-plan.md
+├─ human-decisions.md
+├─ handoff.md
+├─ test-report.md
+├─ review-report.md
+├─ pr-pack.md
+└─ session-checkpoints/
 ```
 
-Specialist reviewers and agents are used only when needed: Security, UX / Design, Documentation, Support Triage, Release Manager, LLM, Researcher, CNN, and Skill Validator.
+This gives the agent a controlled memory surface for the current project.
 
-Quality profiles tune how much rigor AgentCrew applies: Light for prototypes and tiny work, Standard by default, Strict for high-impact teams, and Regulated for compliance-heavy work.
+The goal is not to store everything. The goal is to preserve the important parts:
 
-Workflow recipes give common requests a practical handling pattern, such as bug fix, feature, refactor, docs update, review, validation, research, release, incident, or Skill change.
+- what the task is;
+- what decisions were already made;
+- what is in scope;
+- what is out of scope;
+- what changed;
+- what was tested;
+- what still needs human approval.
 
-## What Is Included
+Good agent memory should be compressive, not archival.
+
+---
+
+## Project presets
+
+AgentCrew can detect or configure project presets so the methodology fits the stack.
+
+Examples:
+
+- Python web service;
+- TypeScript frontend;
+- Rust CLI;
+- machine-learning pipeline;
+- documentation-heavy project;
+- infrastructure repository;
+- mobile project;
+- monorepo.
+
+A project preset can add stricter expectations, relevant skills, or extra review gates.
+
+Project-local configuration should tighten the process. It should not remove human approval, skip required gates, or weaken core safety rules.
+
+---
+
+## Safety rules
+
+AgentCrew is built around a simple principle:
+
+> The agent can help prepare the work, but a human still owns the decision to land it.
+
+Core rules:
+
+- Agents must not merge their own work.
+- Agents must not bypass branch protection.
+- Agents must not use `git push --force` unless a human explicitly asks and the risk is understood.
+- Agents must not hide failing tests.
+- Agents must not claim tests passed if they were not run.
+- Agents must not commit secrets.
+- Agents must not make unrelated changes.
+- Agents must not silently expand scope.
+- Agents must not treat their own review as final approval.
+- Human approval is required before landing production work.
+
+AgentCrew cannot make an underlying model perfect. It gives the model a stricter operating process and makes failures easier to catch.
+
+---
+
+## What AgentCrew is not
+
+AgentCrew is not a replacement for your judgment.
+
+It is also not:
+
+- a CI system;
+- a deployment platform;
+- a hosted service;
+- a background daemon;
+- a magical autonomous engineer;
+- a guarantee that an AI agent will always behave correctly.
+
+AgentCrew is a methodology and tool layer that helps coding agents behave more like disciplined collaborators.
+
+You should still review code.  
+You should still run tests.  
+You should still protect your branches.  
+You should still decide what gets merged.
+
+---
+
+## Example workflow
+
+A typical risky feature request might look like this:
 
 ```text
-AGENTS.md              entry point for agents
-bin/                   registration, diagnostics, and project detection commands
-agent-team/            roles, playbooks, skills, templates, policies
-docs/                  install, usage, examples, customization
-examples/              example prompts and workflows
-.github/               optional issue and PR templates
-runtime/               optional future orchestration notes
+User request:
+Add Google OAuth login to the signup flow.
+
+AgentCrew route:
+- Lane: Full
+- Risk: Security-sensitive
+- Starting role: Product Manager
+- Required roles: Developer, Tester, Security Reviewer
+- Required outputs: work plan, test report, security review, human decision log
+
+Expected flow:
+1. Clarify acceptance criteria.
+2. Identify affected files and auth boundaries.
+3. Create a work plan.
+4. Implement minimal changes.
+5. Add or update tests.
+6. Run verification.
+7. Review security-sensitive behavior.
+8. Prepare compact handoff.
+9. Wait for human approval.
 ```
 
-## Useful Docs
+The agent still works in your normal development environment. AgentCrew gives it the process to follow.
+
+---
+
+## CLI examples
+
+Classify a task:
+
+```bash
+~/AgentCrew/bin/agentcrew classify "Add Google OAuth login to signup"
+```
+
+Check setup:
+
+```bash
+~/AgentCrew/bin/agentcrew doctor
+```
+
+Detect a project stack:
+
+```bash
+~/AgentCrew/bin/agentcrew detect-project
+```
+
+Prepare a task brief:
+
+```bash
+~/AgentCrew/bin/agentcrew brief "Fix flaky checkout test"
+```
+
+Prepare a PR pack:
+
+```bash
+~/AgentCrew/bin/agentcrew pr-pack
+```
+
+The CLI is there to support setup, inspection, routing, and artifacts. Daily work still happens in your normal coding agent.
+
+---
+
+## Why Markdown-first?
+
+AgentCrew is Markdown-first on purpose.
+
+Markdown is easy to read, easy to edit, easy to review, and easy for coding agents to load. It keeps the methodology transparent.
+
+Changing how the team works should not require changing a hidden orchestration engine. In AgentCrew, roles, playbooks, skills, templates, and policies are visible files.
+
+That makes the system easier to inspect, customize, version, and improve.
+
+---
+
+## Current status
+
+AgentCrew is in pre-v0.1 development.
+
+The Markdown methodology, host-agent loader, classifier, role files, playbooks, templates, and `.agent-state/` artifact patterns are usable today. The public contract is still stabilizing.
+
+The first tagged release will define the stable contract for:
+
+- role names;
+- classifier output;
+- host-agent loader schema;
+- `agent-team/` directory layout;
+- `.agent-state/` artifact names;
+- core CLI commands.
+
+Runtime-style orchestration, stronger isolation, and backend execution may be developed separately, but the core AgentCrew methodology does not require them.
+
+---
+
+## Roadmap
+
+Near-term priorities:
+
+- stronger classifier tests;
+- clearer golden examples;
+- better setup diagnostics;
+- more project presets;
+- improved documentation;
+- stricter artifact validation;
+- end-to-end demo workflows;
+- clearer security and threat-model documentation.
+
+Longer-term ideas:
+
+- optional runtime execution layer;
+- stronger role isolation;
+- budget-aware execution;
+- richer project dashboards;
+- deeper integration with local and hosted coding agents.
+
+The core principle will stay the same: AgentCrew should make coding agents more disciplined without taking final control away from humans.
+
+---
+
+## Documentation
 
 - [Installation](docs/installation.md)
 - [Setup Doctor](docs/doctor.md)
-- [Loader Management](docs/loader-management.md)
-- [Project Detection](docs/project-detection.md)
 - [Project Presets](docs/project-presets.md)
-- [Task Classifier](docs/task-classifier.md)
-- [Context Manifest](docs/context-manifest.md)
-- [Session Checkpoints](docs/session-checkpoints.md)
-- [Task Intake](docs/task-intake.md)
-- [Acceptance Criteria](docs/acceptance-criteria.md)
-- [Work Planning](docs/work-planning.md)
-- [Implementation Readiness](docs/implementation-readiness.md)
-- [PR Preparation](docs/pr-preparation.md)
-- [Release Management](docs/release-management.md)
-- [Support Triage](docs/support-triage.md)
-- [Status Dashboard](docs/status-dashboard.md)
-- [Human Decision Queue](docs/human-decision-queue.md)
 - [Quality Profiles](docs/quality-profiles.md)
 - [Workflow Recipes](docs/workflow-recipes.md)
-- [Automatic Loading](docs/auto-load.md)
-- [Use in an Existing Project](docs/bootstrap-existing-project.md)
-- [Usage Guide](docs/usage.md)
-- [Examples](docs/examples.md)
-- [Scenario Examples](examples/scenarios/README.md)
-- [Customization](docs/customization.md)
 - [Security](docs/security.md)
-- [Contributing](docs/contributing.md)
+- [Customization](docs/customization.md)
+- [FAQ](docs/faq.md)
+- [Roadmap](docs/roadmap.md)
 
-## Rules That Matter
-
-Agents must not:
-
-- merge pull requests
-- approve as the human
-- bypass branch protection
-- commit secrets
-- hide failing tests
-- make unrelated changes
-- store personal/local setup in shared project state
-
-Human approval stays final.
-
-## Session Saving
-
-To save local pause/resume context in a target project:
-
-```bash
-~/AgentCrew/bin/agentcrew checkpoint --project . --title "short title"
-```
-
-This writes a safe checkpoint under `.agent-state/sessions/`.
-Each project gets its own `.agent-state/` folder, so session memory does not mix across projects.
-
-To list saved sessions or show the latest one:
-
-```bash
-~/AgentCrew/agent-team/tools/list-sessions.sh --project .
-~/AgentCrew/agent-team/tools/list-sessions.sh --project . --latest
-~/AgentCrew/bin/agentcrew restore-session --project .
-```
-
-## Status
-
-AgentCrew is a lightweight methodology package. The core workflow is usable now. The `runtime/` folder is optional design material for future orchestration.
+---
 
 ## License
 
-MIT
+MIT.
