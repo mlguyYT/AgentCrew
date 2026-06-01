@@ -2,14 +2,16 @@
 
 **Turn your coding agent into a disciplined team.**
 
-AgentCrew is a Markdown-first methodology for agentic coding. Your existing coding agent — Claude Code, Codex, Cursor, OpenClaw, Hermes, or another compatible assistant — loads it as guidance and uses it to work through software tasks with roles, routing, handoffs, quality gates, and human approval.
+AgentCrew is a conversation-first, Markdown-first methodology for agentic coding. Your existing coding agent — Claude Code, Codex, Cursor, OpenClaw, Hermes, or another compatible assistant — loads it as guidance and uses it to work through software tasks with roles, routing, handoffs, quality gates, and human approval.
 
 You do not change how you work. You keep talking to your agent. AgentCrew gives that chat a team process underneath.
 
-AgentCrew is not a runtime.  
-It is not a daemon.  
-It is not a replacement for CI.  
-It is a practical operating system for coding agents, written mostly in Markdown and shell.
+The methodology is mostly Markdown and shell. The optional engine is the executable layer host agents can call behind the scenes when automatic multi-agent execution is useful.
+
+AgentCrew is not a daemon.
+It is not a replacement for CI.
+It is not a magical autonomous engineer.
+It is a practical operating system for coding agents.
 
 ---
 
@@ -68,19 +70,25 @@ With AgentCrew loaded, the agent does not jump straight into editing files. It f
 3. **Start with the right role**  
    The agent may begin as an Advisor or Product Manager to clarify scope and acceptance criteria before implementation.
 
-4. **Implement as Developer**  
+4. **Confirm direction and estimate cost**
+   For work that will spend meaningful model tokens, AgentCrew can surface an estimated cost before execution starts.
+
+5. **Plan and dispatch the work**
+   After the user confirms the direction, AgentCrew prepares the work and can let the required agents run through the host agent or optional engine. The user should not need to run AgentCrew commands manually.
+
+6. **Implement as Developer**
    The Developer role focuses on minimal, relevant changes. It must avoid unrelated edits, hidden failures, unsafe commands, and premature merge decisions.
 
-5. **Check as Tester**  
+7. **Check as Tester**
    The Tester role focuses on verification. It should run or propose the right tests and report what passed, failed, or could not be checked.
 
-6. **Review as Reviewer or Security Reviewer**  
+8. **Review as Reviewer or Security Reviewer**
    Risky code paths, authentication, authorization, payments, migrations, secrets, and infrastructure changes get stricter review guidance.
 
-7. **Produce a handoff**  
+9. **Produce a handoff**
    The final output is not just “done.” It should include what changed, what was tested, what risks remain, and what needs human approval.
 
-8. **Stop at the human gate**  
+10. **Stop at the human gate**
    AgentCrew does not treat the agent as the final approver. A human still decides what lands.
 
 You stay in your normal agent chat. AgentCrew gives that chat a routing system, role instructions, handoff formats, state artifacts, and approval gates, so the work follows a team process instead of one long unstructured session.
@@ -154,6 +162,9 @@ agent-team/
 bin/agentcrew           install, doctor, status, classify, context, start,
                         brief, plan, ready, pr-pack, checkpoint, save-session,
                         restore-session, detect-project, preset
+
+engine/                 optional executable layer for host-agent orchestration,
+                        cost previews, and multi-agent execution
 ```
 
 The methodology is Markdown.  
@@ -352,6 +363,8 @@ The agent still works in your normal development environment. AgentCrew gives it
 
 ## CLI examples
 
+Most users should not need these commands during daily work. They exist for setup, diagnostics, host-agent integrations, and advanced inspection.
+
 Classify a task:
 
 ```bash
@@ -382,7 +395,7 @@ Prepare a PR pack:
 ~/AgentCrew/bin/agentcrew pr-pack
 ```
 
-The CLI is there to support setup, inspection, routing, and artifacts. Daily work still happens in your normal coding agent.
+The CLI is internal plumbing for setup, inspection, routing, artifacts, and host-agent execution. Daily work still happens in your normal coding agent chat.
 
 ---
 
@@ -400,20 +413,17 @@ That makes the system easier to inspect, customize, version, and improve.
 
 ## Current status
 
-AgentCrew is in pre-v0.1 development.
+The Markdown methodology, host-agent loader, classifier, role files, playbooks, templates, and `.agent-state/` artifact patterns are usable today. The optional engine is the next executable layer: it lets host agents run AgentCrew behind the scenes while preserving the same human approval boundaries.
 
-The Markdown methodology, host-agent loader, classifier, role files, playbooks, templates, and `.agent-state/` artifact patterns are usable today. The public contract is still stabilizing.
-
-The first tagged release will define the stable contract for:
+The public contract centers on:
 
 - role names;
 - classifier output;
 - host-agent loader schema;
 - `agent-team/` directory layout;
 - `.agent-state/` artifact names;
-- core CLI commands.
-
-Runtime-style orchestration, stronger isolation, and backend execution may be developed separately, but the core AgentCrew methodology does not require them.
+- core CLI commands;
+- optional engine behavior.
 
 ---
 
@@ -432,7 +442,7 @@ Near-term priorities:
 
 Longer-term ideas:
 
-- optional runtime execution layer;
+- hardening the optional engine execution layer;
 - stronger role isolation;
 - budget-aware execution;
 - richer project dashboards;
