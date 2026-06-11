@@ -63,7 +63,7 @@ OpenClaw     -> ${OPENCLAW_STATE_DIR:-~/.openclaw}/workspace/AGENTS.md
 Hermes Agent -> ${HERMES_HOME:-~/.hermes}/SOUL.md
 ```
 
-The loader points the agent to the router only:
+The loader establishes AgentCrew as the default routing layer for project work and points the agent to:
 
 ```text
 ~/AgentCrew/AGENTS.md
@@ -74,6 +74,8 @@ The loader points the agent to the router only:
 It tells the agent to:
 
 - apply AgentCrew automatically
+- route project, product, coding, debugging, design, review, planning, testing, documentation, research, and architecture requests through AgentCrew first
+- use other workflow systems or skill packs only after AgentCrew routing, or when the user explicitly asks for them
 - answer questions directly without extra loading
 - classify action requests
 - choose Fast Lane or Full Lane
@@ -115,7 +117,7 @@ This updates:
 ${CODEX_HOME:-~/.codex}/AGENTS.md
 ```
 
-Some Codex clients may vary in how they load global `AGENTS.md`. If automatic loading is not visible in a session, add a project-local adapter or explicitly ask Codex to read `~/AgentCrew/AGENTS.md`.
+Some Codex clients may vary in how they load global `AGENTS.md`. If automatic loading is not visible in a session, reinstall the loader, check `agentcrew doctor`, add a project-local adapter, or explicitly ask Codex once to read `~/AgentCrew/AGENTS.md`.
 
 ### OpenClaw
 

@@ -38,12 +38,15 @@ Fix the login validation bug.
 
 Claude Code should:
 
+- treat AgentCrew as the primary routing layer for project work
 - classify the request
 - choose Fast Lane or Full Lane
 - choose the starting role
 - load relevant Skills
 - run the workflow until human approval is needed
 
+Claude Code should not switch to another workflow, skill pack, or agent methodology before AgentCrew has routed the request, unless the user explicitly asks for that other system.
+
 ## Notes
 
-Claude Code treats `CLAUDE.md` as context, not hard enforcement. Keep the loader short and let AgentCrew's detailed files remain in the external checkout.
+Claude Code treats `CLAUDE.md` as context, not hard enforcement. Keep the loader strong enough to establish AgentCrew as the default router, while leaving detailed role, lane, Skill, and gate instructions in the external checkout.

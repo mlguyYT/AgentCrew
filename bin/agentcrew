@@ -285,7 +285,23 @@ AgentCrew is installed at:
 $root
 \`\`\`
 
-When working in any project, apply AgentCrew automatically. Read \`$root/AGENTS.md\` first. Use Direct Answer Mode for questions and staged loading for action. Keep human approval final and do not merge pull requests.
+## AgentCrew Activation Policy
+
+For any project, product, coding, debugging, design, review, planning, testing, documentation, research, or architecture request, apply AgentCrew automatically.
+
+The user should not need to say "use AgentCrew" or name a role, lane, Skill, playbook, or command.
+
+Before using another workflow, skill pack, planning system, or agent methodology, first route the request through AgentCrew:
+
+1. Read \`$root/AGENTS.md\`.
+2. Use Direct Answer Mode for simple questions.
+3. Use staged loading for action.
+4. Classify the request and choose the lane, role, Skills, gates, and next human approval point.
+5. Use other tools or skills only as execution aids after AgentCrew routing, or when the user explicitly asks for that other system.
+
+Do not replace AgentCrew with another workflow by default.
+
+Keep human approval final and do not merge pull requests.
 EOF
 }
 
@@ -300,7 +316,23 @@ AgentCrew is installed at:
 $root
 \`\`\`
 
-When working in any project, apply AgentCrew automatically. Read \`$root/AGENTS.md\` first. Use Direct Answer Mode for questions and staged loading for action. Keep human approval final and do not merge pull requests.
+## AgentCrew Activation Policy
+
+For any project, product, coding, debugging, design, review, planning, testing, documentation, research, or architecture request, apply AgentCrew automatically.
+
+The user should not need to say "use AgentCrew" or name a role, lane, Skill, playbook, or command.
+
+Before using another workflow, skill pack, planning system, or agent methodology, first route the request through AgentCrew:
+
+1. Read \`$root/AGENTS.md\`.
+2. Use Direct Answer Mode for simple questions.
+3. Use staged loading for action.
+4. Classify the request and choose the lane, role, Skills, gates, and next human approval point.
+5. Use other tools or skills only as execution aids after AgentCrew routing, or when the user explicitly asks for that other system.
+
+Do not replace AgentCrew with another workflow by default.
+
+Keep human approval final and do not merge pull requests.
 EOF
 }
 
@@ -315,7 +347,23 @@ AgentCrew is installed at:
 $root
 \`\`\`
 
-When working in any project, apply AgentCrew automatically. Read \`$root/AGENTS.md\` first. Use Direct Answer Mode for questions and staged loading for action. Keep human approval final and do not merge pull requests.
+## AgentCrew Activation Policy
+
+For any project, product, coding, debugging, design, review, planning, testing, documentation, research, or architecture request, apply AgentCrew automatically.
+
+The user should not need to say "use AgentCrew" or name a role, lane, Skill, playbook, or command.
+
+Before using another workflow, skill pack, planning system, or agent methodology, first route the request through AgentCrew:
+
+1. Read \`$root/AGENTS.md\`.
+2. Use Direct Answer Mode for simple questions.
+3. Use staged loading for action.
+4. Classify the request and choose the lane, role, Skills, gates, and next human approval point.
+5. Use other tools or skills only as execution aids after AgentCrew routing, or when the user explicitly asks for that other system.
+
+Do not replace AgentCrew with another workflow by default.
+
+Keep human approval final and do not merge pull requests.
 
 AgentCrew is a coding-team workflow. It does not override OpenClaw identity, memory, channel, heartbeat, or safety instructions. If AgentCrew and OpenClaw instructions conflict, preserve safety, privacy, and human approval.
 EOF
@@ -332,7 +380,23 @@ AgentCrew is installed at:
 $root
 \`\`\`
 
-When working in any project, apply AgentCrew automatically. Read \`$root/AGENTS.md\` first. Use Direct Answer Mode for questions and staged loading for action. Keep human approval final and do not merge pull requests.
+## AgentCrew Activation Policy
+
+For any project, product, coding, debugging, design, review, planning, testing, documentation, research, or architecture request, apply AgentCrew automatically.
+
+The user should not need to say "use AgentCrew" or name a role, lane, Skill, playbook, or command.
+
+Before using another workflow, skill pack, planning system, or agent methodology, first route the request through AgentCrew:
+
+1. Read \`$root/AGENTS.md\`.
+2. Use Direct Answer Mode for simple questions.
+3. Use staged loading for action.
+4. Classify the request and choose the lane, role, Skills, gates, and next human approval point.
+5. Use other tools or skills only as execution aids after AgentCrew routing, or when the user explicitly asks for that other system.
+
+Do not replace AgentCrew with another workflow by default.
+
+Keep human approval final and do not merge pull requests.
 
 AgentCrew is a coding-team workflow. It does not replace Hermes Agent's identity, memory, skills, session history, gateway, profile, tool policy, or credential handling. If AgentCrew and Hermes instructions conflict, preserve safety, privacy, and human approval.
 EOF

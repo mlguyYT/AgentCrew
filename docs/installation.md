@@ -272,6 +272,8 @@ This writes small global loaders for supported tools and keeps AgentCrew outside
 
 Supported automatic registrations currently include Claude Code, Codex, OpenClaw, and Hermes Agent. The default installer registers OpenClaw and Hermes Agent when they are detected; use `--agent openclaw` or `--agent hermes` to force registration explicitly.
 
+The loader is intentionally stronger than a path hint. It tells the host agent to route project, product, coding, debugging, design, review, planning, testing, documentation, research, and architecture requests through AgentCrew first. Other workflow systems or skill packs should be used only after AgentCrew routing, or when the user explicitly asks for them.
+
 Tool adapter guidance lives in:
 
 ```text

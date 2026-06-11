@@ -31,6 +31,8 @@ Fix the login form so empty email shows a validation message.
 
 After one-time registration, AgentCrew should be loaded automatically. It should read its own instructions, classify the task, choose the lane, role, and Skills, and stop where human approval is required.
 
+AgentCrew should be the first routing layer for project work. Other workflow systems, skill packs, or agent methodologies should be used only as execution aids after AgentCrew routing, or when you explicitly ask for them.
+
 Add extra rules to your prompt only when you want to constrain or override the default workflow.
 
 Paths in the examples below are relative to the external AgentCrew checkout unless a project path is explicitly named.

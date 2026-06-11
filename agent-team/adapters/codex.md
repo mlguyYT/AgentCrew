@@ -37,12 +37,15 @@ Fix the login validation bug.
 
 Codex should:
 
+- treat AgentCrew as the primary routing layer for project work
 - classify the request
 - choose Fast Lane or Full Lane
 - choose the starting role
 - load relevant Skills
 - run the workflow until human approval is needed
 
+Codex should not switch to another workflow, skill pack, or agent methodology before AgentCrew has routed the request, unless the user explicitly asks for that other system.
+
 ## Notes
 
-Codex behavior can vary by client and version. If a Codex client does not load global `AGENTS.md`, use a project-local adapter or explicitly ask Codex to read `~/AgentCrew/AGENTS.md`.
+Codex behavior can vary by client and version. If a Codex client does not load global `AGENTS.md`, use a project-local adapter or explicitly ask Codex once to read `~/AgentCrew/AGENTS.md`.

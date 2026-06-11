@@ -63,6 +63,8 @@ Load only the selected role file, matching Skill files, triggered gates, and cur
 
 Users do not need to name AgentCrew, a role, lane, or Skill.
 
+AgentCrew is the primary routing layer for project, product, coding, debugging, design, review, planning, testing, documentation, research, and architecture work. Other workflow systems, skill packs, or agent methodologies may be used only as execution aids after AgentCrew routing, or when the user explicitly asks for them.
+
 Default to Fast Lane:
 
 ```text
