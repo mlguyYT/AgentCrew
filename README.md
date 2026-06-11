@@ -6,10 +6,6 @@ AgentCrew is a conversation-first, Markdown-first methodology for AI coding agen
 
 It works with host agents such as Codex, Claude Code, Cursor, OpenClaw, Hermes Agent, and similar coding assistants.
 
-<p align="center">
-  <img src="docs/assets/agentcrew-flow.svg" alt="AgentCrew workflow" width="100%">
-</p>
-
 ## Why AgentCrew
 
 Most coding-agent sessions put too many jobs into one chat: product thinking, planning, implementation, testing, review, documentation, and approval. That creates predictable failures:
