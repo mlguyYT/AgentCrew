@@ -41,7 +41,7 @@
 
   <path class="arrow" d="M720 225 H805" marker-end="url(#arrowhead)"/>
 
-  <rect class="panel" x="830" y="120" width="310" height="220" rx="16"/>
+  <rect class="panel" x="830" y="120" width="310" height="250" rx="16"/>
   <text class="ink role" x="860" y="168">Roles run as needed</text>
 
   <rect class="chip" x="860" y="195" width="112" height="42" rx="21"/>
@@ -62,7 +62,7 @@
   <rect class="chip" x="997" y="309" width="118" height="42" rx="21"/>
   <text class="ink small" x="1022" y="337">Security</text>
 
-  <path class="arrow" d="M985 350 V420" marker-end="url(#arrowhead)"/>
+  <path class="arrow" d="M985 370 V420" marker-end="url(#arrowhead)"/>
 
   <rect class="gate" x="795" y="430" width="380" height="78" rx="16"/>
   <text class="ink role" x="830" y="478">Human approval stays final</text>
