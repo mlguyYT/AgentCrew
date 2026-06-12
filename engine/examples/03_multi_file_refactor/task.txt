@@ -1,0 +1,1 @@
+Refactor the duplicated `normalize_email` helper from src/users.py and src/auth.py into a new src/email_utils.py module. Update both call sites to import it. Update docs/api.md to reference the new module. Preserve behavior exactly.

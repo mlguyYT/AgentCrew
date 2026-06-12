@@ -1,0 +1,21 @@
+project:
+  name: security-sensitive-demo
+
+quality_profile: strict
+
+required_specialists:
+  - paths: ["src/auth/**", "src/security/**"]
+    roles: ["Security Reviewer"]
+  - paths: ["src/payments/**", "src/billing/**"]
+    roles: ["Security Reviewer"]
+
+budget:
+  daily_max_usd: 5.00
+  per_run_warn_usd: 0.25
+  per_run_block_usd: 2.00
+
+# Set models for a real run. Mock-demo ignores these.
+models:
+  Developer: claude-sonnet-4-6
+  Tester: claude-sonnet-4-6
+  Security Reviewer: claude-opus-4-7

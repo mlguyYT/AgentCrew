@@ -86,7 +86,7 @@ AgentCrew can also estimate execution cost before spending meaningful model toke
 
 ```text
 AGENTS.md              entry point for host agents
-bin/agentcrew          install, doctor, classify, context, checkpoint, restore
+bin/agentcrew          install, doctor, classify, context, engine commands
 agent-team/            roles, playbooks, skills, templates, policies, gates
 engine/                optional executable layer for orchestration
 docs/                  installation, usage, examples, customization
@@ -103,6 +103,36 @@ Project-specific runtime state, when needed, belongs in the target project:
 ```
 
 Each project gets separate state so memory does not mix across projects.
+
+## Optional Engine
+
+AgentCrew works without the engine. The Markdown methodology is the default contract and remains readable, portable, and vendor-neutral.
+
+The included `engine/` is the optional executable layer for teams that want more automation:
+
+- classifier-driven routing;
+- structured role execution;
+- cost previews before execution;
+- project-local run artifacts;
+- handoffs, decisions, audits, and summaries;
+- provider-neutral model backends.
+
+Install the engine only when you want executable runs:
+
+```bash
+cd ~/AgentCrew/engine
+python3 -m venv .venv
+.venv/bin/pip install -e .
+```
+
+Then from any project:
+
+```bash
+~/AgentCrew/bin/agentcrew route --task "Fix login validation" --project .
+~/AgentCrew/bin/agentcrew run --task "Fix login validation" --project . --backend mock-demo
+```
+
+The engine supports local and OpenAI-compatible backends, plus optional provider-specific adapters. No provider is required by the core methodology, and human approval remains final.
 
 ## Roles
 

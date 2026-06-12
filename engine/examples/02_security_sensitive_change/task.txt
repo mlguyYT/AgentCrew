@@ -1,0 +1,1 @@
+Fix the timing-safe comparison in src/auth/middleware.py so the token check uses hmac.compare_digest instead of ==. Keep behavior otherwise identical.

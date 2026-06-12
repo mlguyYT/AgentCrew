@@ -11,6 +11,13 @@ usage() {
   printf '%s\n' "Usage: agentcrew COMMAND [options]"
   printf '%s\n' ""
   printf '%s\n' "Commands:"
+  printf '%s\n' "  run                 Delegate a task to the optional engine"
+  printf '%s\n' "  route               Preview engine routing for a task"
+  printf '%s\n' "  backends            List optional engine provider backends"
+  printf '%s\n' "  models              List recommended local engine models"
+  printf '%s\n' "  show                Show the latest engine run summary"
+  printf '%s\n' "  audit               Show an engine run audit report"
+  printf '%s\n' "  decisions           View or append engine decision records"
   printf '%s\n' "  install             Register AgentCrew with supported coding agents"
   printf '%s\n' "  uninstall           Remove AgentCrew global loader blocks"
   printf '%s\n' "  status              Show registrations and project dashboard"
@@ -934,6 +941,29 @@ run_doctor() {
 }
 
 
+run_proxy_to_engine() {
+  local root="$1"
+  local command="$2"
+  shift 2
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+
+  local engine_dir="$root/engine"
+  [ -d "$engine_dir/agentcrew" ] || die "Engine missing at $engine_dir" 1
+
+  if [ -x "$engine_dir/.venv/bin/agentcrew-engine" ]; then
+    exec "$engine_dir/.venv/bin/agentcrew-engine" "$command" "$@"
+  fi
+
+  command -v python3 >/dev/null 2>&1 || die "python3 is required to run the AgentCrew engine" 1
+  if [ "$command" = "run" ]; then
+    if ! PYTHONPATH="$engine_dir${PYTHONPATH:+:$PYTHONPATH}" python3 -c "import pydantic, yaml" >/dev/null 2>&1; then
+      die "AgentCrew engine dependencies are not installed. The Markdown workflow still works, but engine execution requires optional Python dependencies. Run: cd $engine_dir && python3 -m venv .venv && .venv/bin/pip install -e ." 1
+    fi
+  fi
+  PYTHONPATH="$engine_dir${PYTHONPATH:+:$PYTHONPATH}" exec python3 -m agentcrew.cli "$command" "$@"
+}
+
 run_detect_project() {
   local root="$1"
   local project="$2"
@@ -1144,6 +1174,10 @@ run_status() {
 
 COMMAND="${1:-}"
 [ "$#" -gt 0 ] && shift || true
+
+if [ "$COMMAND" = "run" ] || [ "$COMMAND" = "route" ] || [ "$COMMAND" = "backends" ] || [ "$COMMAND" = "models" ] || [ "$COMMAND" = "show" ] || [ "$COMMAND" = "audit" ] || [ "$COMMAND" = "decisions" ]; then
+  run_proxy_to_engine "$DEFAULT_ROOT" "$COMMAND" "$@"
+fi
 
 AGENT="all"
 ROOT="$DEFAULT_ROOT"

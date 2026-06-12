@@ -1,0 +1,41 @@
+[project]
+name = "agentcrew-engine"
+version = "0.1.0"
+description = "Platform-independent multi-agent coding team. Roles, handoffs, and bounded tools — bring your own LLM."
+requires-python = ">=3.10"
+# Core has ZERO LLM-vendor dependencies. The orchestrator, agents, tools,
+# handoff schema, and CLI all work without any AI SDK installed. Install
+# the extra(s) you want per backend.
+dependencies = [
+    "pydantic>=2.6.0",
+    # YAML for .agentcrew/config.yaml — users edit this file by hand, so a
+    # real YAML parser (not a hand-rolled subset) is the right call.
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# Pick one or more — each is fully optional. Adding a new backend means
+# adding a new extra here and a new provider_<name>.py.
+openai = ["httpx>=0.27.0"]  # OpenAI-compatible HTTP; also works with Ollama, vLLM, llama.cpp, Together, Groq, etc.
+anthropic = ["anthropic>=0.88.0"]
+all = ["httpx>=0.27.0", "anthropic>=0.88.0"]
+dev = ["pytest>=8.0.0", "httpx>=0.27.0"]
+
+[project.scripts]
+agentcrew-engine = "agentcrew.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agentcrew"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# -ra: show extra summary; -q: quiet; deselect live_api by default so a plain
+# `pytest` run doesn't burn tokens.
+addopts = "-ra -q -m 'not live_api'"
+markers = [
+    "live_api: tests that call real LLM providers (opt-in; require OPENAI_API_KEY or another configured provider key)",
+]

@@ -1,0 +1,13 @@
+project:
+  name: refactor-demo
+
+# Refactors that touch docs/ should run Documentation Agent so the
+# public-facing description stays in sync with the code change.
+required_specialists:
+  - paths: ["docs/**", "**/*.md"]
+    roles: ["Documentation Agent"]
+
+budget:
+  daily_max_usd: 5.00
+  per_run_warn_usd: 0.30
+  per_run_block_usd: 2.00
