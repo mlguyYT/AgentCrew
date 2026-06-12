@@ -14,7 +14,11 @@ They help AgentCrew choose default Skills, validation commands, review gates, ar
 presets:
   react_frontend: react-frontend.md
   python_api: python-api.md
+  python_web: python-web.md
   node_service: node-service.md
+  rust_cli: rust-cli.md
+  mobile: mobile.md
+  ml_pipeline: ml-pipeline.md
   general_library: general-library.md
   cli_tool: cli-tool.md
 ```
