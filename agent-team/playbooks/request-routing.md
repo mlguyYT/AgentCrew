@@ -48,8 +48,9 @@ Do not ask the user to choose the lane, role, or Skill unless the request is gen
 
 ```yaml
 intent_to_starting_role:
-  rough_idea_or_strategy: Advisor
-  product_scope_or_acceptance_criteria: Product Manager
+	  rough_idea_or_strategy: Advisor
+	  portfolio_project_positioning: Product Manager
+	  product_scope_or_acceptance_criteria: Product Manager
   implementation_or_bug_fix: Developer
   validation_or_regression_check: Tester
   code_or_pr_review: Reviewer
@@ -71,6 +72,7 @@ Examples:
 "Fix onboarding button alignment" -> Developer first, then Tester/UX if user-facing risk remains
 "Review this auth PR" -> Reviewer plus Security Reviewer
 "Research payment provider options" -> Researcher Agent, then Product Manager
+"Build a resume project for backend roles" -> Product Manager first, then Researcher Agent if job evidence is needed
 ```
 
 ---
@@ -132,8 +134,9 @@ recipe_defaults:
   docs-update: documentation, examples, changelog, release notes
   review: code, PR, architecture, or quality review
   validation: testing, QA, regression, acceptance validation
-  research: source-backed investigation or option comparison
-  release: release readiness, changelog, version, PR preparation
+	  research: source-backed investigation or option comparison
+	  portfolio-project: portfolio, resume, interview, case-study, or target-role project scope
+	  release: release readiness, changelog, version, PR preparation
   release-management: release report, rollout, rollback, and human release decision preparation
   incident: production issue, urgent regression, rollback decision
   support-triage: support ticket, customer report, severity, impact, reproduction, and routing
@@ -141,6 +144,21 @@ recipe_defaults:
 ```
 
 Load only the selected recipe file when it changes role order, gates, or evidence expectations.
+
+---
+
+## Workflow Boundary
+
+AgentCrew is the routing layer once it is active for a project.
+
+```yaml
+boundary_rule:
+  external_workflows_may_replace_agentcrew: false
+  external_skills_may_help_execution_after_route: true
+  explicit_human_request_can_select_other_workflow: true
+```
+
+If another workflow framework, local skill pack, or planning system also matches the request, do not let it choose the route. First classify with AgentCrew, choose the lane, role, recipe, Skills, gates, and human approval point, then use outside tools only as execution aids.
 
 ---
 

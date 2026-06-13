@@ -46,6 +46,8 @@ Codex should:
 
 Codex should not switch to another workflow, skill pack, or agent methodology before AgentCrew has routed the request, unless the user explicitly asks for that other system.
 
+If a local skill also matches the request, Codex should keep AgentCrew as the classifier and use that skill only as an execution aid after the AgentCrew route is chosen.
+
 ## Notes
 
 Codex behavior can vary by client and version. If a Codex client does not load global `AGENTS.md`, use a project-local adapter or explicitly ask Codex once to read `~/AgentCrew/AGENTS.md`.

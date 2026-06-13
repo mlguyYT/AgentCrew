@@ -217,8 +217,8 @@ EOF
 - gates: Reviewer when risk is meaningful
 EOF
       ;;
-    research)
-      cat <<EOF
+	    research)
+	      cat <<EOF
 ### WP-001: Define decision criteria
 - owner: Researcher Agent
 - goal: make the research question decision-ready
@@ -227,9 +227,36 @@ EOF
 - validation: source quality check
 - gates: Product Manager or Human if decision is needed
 EOF
-      ;;
-    release)
-      cat <<EOF
+	      ;;
+	    portfolio-project)
+	      cat <<EOF
+### WP-001: Confirm target-role evidence
+- owner: Product Manager / Researcher Agent
+- goal: map role requirements to project evidence
+- files_or_areas: role-fit matrix, job description, portfolio constraints
+- acceptance: target role, hiring signal, and evidence artifacts are explicit
+- validation: role-fit matrix reviewed
+- gates: target-role evidence check
+
+### WP-002: Cut MVP to the minimum convincing project
+- owner: Product Manager
+- goal: keep only features that prove the target role
+- files_or_areas: MVP scope, out-of-scope list, demo path
+- acceptance: every MVP feature maps to job requirement -> evidence -> talking point
+- validation: anti-scope-creep check
+- gates: human scope approval
+
+### WP-003: Build, validate, and package story
+- owner: Developer / Tester / Documentation Agent
+- goal: implement the approved slice and prepare demo/resume artifacts
+- files_or_areas: implementation, tests, README, demo script, resume bullets
+- acceptance: demo path works and public claims are supported by evidence
+- validation: tests plus demo script review
+- gates: human approval of public claims
+EOF
+	      ;;
+	    release)
+	      cat <<EOF
 ### WP-001: Check release readiness
 - owner: Tester / Reviewer
 - goal: verify branch, validation baseline, changelog, and risks

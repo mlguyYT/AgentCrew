@@ -20,7 +20,7 @@ When a user asks the engine to run a task, this is what happens:
    and `agent-team/templates/task-routing.md` shapes.
 3. The engine (optionally) **asks you to approve the routing** before
    any role runs. If the classifier returned `Direct Answer Mode`, no
-   role runs — the engine surfaces the routing and exits.
+   role workflow runs and no `.agent-state/` artifacts are created.
 4. For each role in the workflow (e.g. Developer → Tester):
    - The engine loads the role's system prompt from
      **`agent-team/agents/<slug>.md`** (read at runtime — not a copy).
@@ -35,7 +35,8 @@ When a user asks the engine to run a task, this is what happens:
      `security-review-report.md`) per
      `agent-team/protocols/state-artifacts.md`.
 5. The engine stops on the first human-gate decision or after the
-   workflow completes.
+   workflow completes. Critical-risk `Human decision` gates require an
+   explicit human confirmation callback; they are not accepted by default.
 
 There is **no separate engine planner**, **no engine classification
 logic**, **no parallel role registry**. The methodology owns all of
@@ -191,6 +192,12 @@ agentcrew-engine backends            # list providers
 agentcrew-engine models              # recommended local models per role
 agentcrew-engine --help
 ```
+
+When `run --from-agent` is used by a host agent, the engine emits JSONL
+events. If a non-zero estimated model cost is detected, it emits
+`cost_approval_required` and exits before role execution so the host agent
+can ask the human. If a critical-risk workflow reaches a `Human decision`
+gate, it emits `human_decision_required` and stops.
 
 ## Pointing the engine at any AgentCrew install
 

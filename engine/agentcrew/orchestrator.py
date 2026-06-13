@@ -82,8 +82,13 @@ def auto_approve(_r: Routing) -> bool:
     return True
 
 
-def auto_accept_risk(_r: Routing, _role: str) -> bool:
-    return True
+def require_explicit_risk_acceptance(_r: Routing, _role: str) -> bool:
+    """Safe default for human-only risk gates.
+
+    Callers that have a real human confirmation surface should pass their own
+    callback. The engine must not accept critical risk by default.
+    """
+    return False
 
 
 def auto_approve_cost(gate: CostGate) -> bool:
@@ -104,6 +109,7 @@ class TeamRun:
     agent_runs: list[AgentRun] = field(default_factory=list)
     cost_estimate: RunEstimate | None = None
     actual_cost_usd: float = 0.0
+    direct_answer: str = ""
 
     def summary(self) -> str:
         lines = [
@@ -218,7 +224,7 @@ def run(
     provider: Provider,
     model_for_role: dict[str, str],
     routing_approver: RoutingApprover = auto_approve,
-    risk_acceptor: RiskAcceptor = auto_accept_risk,
+    risk_acceptor: RiskAcceptor = require_explicit_risk_acceptance,
     cost_approver: CostApprover = auto_approve_cost,
     state_root: Path | None = None,
     cwd_for_classifier: str | None = None,
@@ -243,40 +249,24 @@ def run(
     if project_config is not None:
         _apply_project_config(routing, project_config, project_dir, model_for_role)
 
-    layout = build_layout(project_dir) if state_root is None else _custom_layout(state_root)
-    layout.state_dir.mkdir(parents=True, exist_ok=True)
     run_id = _make_run_id()
-    run_dir = layout.run_dir(run_id)
-
-    # Load decisions ONCE for this run. Every role sees the same text.
-    decisions_section = render_decisions_section(load_recent_decisions(layout.decisions, limit=10))
-
-    write_current_task(
-        layout,
-        task=task,
-        routing=routing,
-        owner=routing.starting_role or "Human",
-    )
-    write_routing(layout, run_dir, routing)
-
     state = TeamRun(
         run_id=run_id,
         task=task,
         project_dir=project_dir,
-        run_dir=run_dir,
+        run_dir=project_dir / ".agent-state" / "runs" / run_id,
         routing=routing,
     )
 
     # Direct Answer Mode: the classifier flagged this as advisory. Invoke
     # the Advisor (per agent-team/agents/advisor.md) to actually answer the
-    # user. State artifact: advisor-answer.md in the run dir.
+    # user. Per Direct Answer Mode, do not create .agent-state artifacts.
     if routing.is_direct_answer():
         advisor_model = model_for_role.get("Advisor")
         if not advisor_model:
             # Without a model we just surface the routing — same as before.
             state.final_decision = "direct_answer_or_advisory"
             state.next_owner = "human"
-            (run_dir / "summary.md").write_text(state.summary())
             return state
 
         advisor_agent = build_agent(root, "Advisor", advisor_model)
@@ -290,24 +280,29 @@ def run(
         if advisor_run.submission is None or not advisor_run.submission.get("answer"):
             state.final_decision = "direct_answer_or_advisory_protocol_failure"
             state.next_owner = "human"
-            (run_dir / "error.md").write_text(
-                "Advisor did not submit a valid answer for Direct Answer Mode.\n"
-            )
-            (run_dir / "summary.md").write_text(state.summary())
             return state
 
         answer = advisor_run.submission["answer"]
-        (run_dir / "advisor-answer.md").write_text(
-            f"# Advisor Answer\n\n## Question\n{task}\n\n## Answer\n{answer}\n"
-        )
-        # Also surface to the canonical handoff.md so `agentcrew status` sees it.
-        layout.handoff.write_text(
-            f"## Advisor -> Human Answer\n\n### Question\n{task}\n\n### Answer\n{answer}\n"
-        )
+        state.direct_answer = answer
         state.final_decision = "answered"
         state.next_owner = "human"
-        (run_dir / "summary.md").write_text(state.summary())
         return state
+
+    layout = build_layout(project_dir) if state_root is None else _custom_layout(state_root)
+    layout.state_dir.mkdir(parents=True, exist_ok=True)
+    run_dir = layout.run_dir(run_id)
+    state.run_dir = run_dir
+
+    # Load decisions ONCE for this run. Every role sees the same text.
+    decisions_section = render_decisions_section(load_recent_decisions(layout.decisions, limit=10))
+
+    write_current_task(
+        layout,
+        task=task,
+        routing=routing,
+        owner=routing.starting_role or "Human",
+    )
+    write_routing(layout, run_dir, routing)
 
     # Human gate on the routing.
     if not routing_approver(routing):
@@ -541,7 +536,7 @@ def run(
     # Map each agent_run back to the role that produced it (same order
     # they appended to state.agent_runs and state.handoffs).
     actual_total = 0.0
-    for ar, hf in zip(state.agent_runs[-len(state.handoffs):], state.handoffs):
+    for ar, hf in zip(state.agent_runs, state.handoffs):
         if hasattr(ar, "usage") and ar.usage:
             actual_total += actual_cost_from_usage(hf.model or "", ar.usage)
     state.actual_cost_usd = actual_total

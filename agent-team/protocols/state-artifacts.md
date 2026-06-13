@@ -51,7 +51,15 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   documentation-report.md
   support-triage-report.md
   release-report.md
-  memory.md
+	  llm-report.md
+	  research-report.md
+	  cnn-report.md
+	  skill-validation-report.md
+	  role-fit-matrix.md
+	  mvp-scope.md
+	  resume-bullets.md
+	  demo-script.md
+	  memory.md
 ```
 
 Use only the files that are useful for the current project. `agentcrew start` can create `current-task.md`; `agentcrew status` reads these files when present and reports missing files as `not set`.
@@ -112,6 +120,30 @@ support-triage-report.md:
 
 release-report.md:
   purpose: latest Release Manager readiness, rollout, rollback, risk, and human-decision summary
+
+llm-report.md:
+  purpose: latest LLM Agent findings for prompts, RAG, model behavior, tool use, evaluations, and LLM safety
+
+research-report.md:
+  purpose: latest Researcher Agent source-backed findings, assumptions, confidence, and open questions
+
+cnn-report.md:
+  purpose: latest CNN Agent findings for computer vision architecture, datasets, training, evaluation, and inference
+
+skill-validation-report.md:
+  purpose: latest Skill Validator findings for new or changed Skills and registry updates
+
+role-fit-matrix.md:
+  purpose: target-role requirements mapped to project features, evidence artifacts, interview talking points, and over-scope risks
+
+mvp-scope.md:
+  purpose: minimum convincing portfolio project scope, out-of-scope ideas, technical evidence, and human scope approval state
+
+resume-bullets.md:
+  purpose: human-approved resume or portfolio claims with links to supporting evidence
+
+demo-script.md:
+  purpose: concise demo flow, technical talking points, caveats, and questions to prepare for
 
 memory.md:
   purpose: short project context worth preserving between sessions
@@ -183,7 +215,7 @@ Low / Medium / High / Critical
 Light / Standard / Strict / Regulated
 
 ## Recipe
-bug-fix / feature / refactor / docs-update / review / validation / research / release / incident / skill-change
+bug-fix / feature / refactor / docs-update / review / validation / research / portfolio-project / release / incident / skill-change
 
 ## Owner
 Developer / Tester / Reviewer / Specialist / Human

@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Added
+- Portfolio/project-positioning route, playbook, recipe, templates, and gates for resume, interview, case-study, and target-role projects.
+- Stronger workflow-boundary guidance so AgentCrew remains the classifier when another local workflow or skill pack also matches a request.
+
+### Fixed
+- Engine critical-risk `Human decision` gates now require explicit human confirmation instead of auto-accepting by default.
+- Engine Direct Answer Mode no longer creates `.agent-state/` artifacts for simple advisory questions.
+- Top-level `agentcrew --root ... route/run/show/audit/decisions` and command-local `agentcrew route --root ...` now resolve the requested AgentCrew checkout consistently.
+- Host-agent JSONL mode stops for non-zero model cost approval before role execution.
+- LLM, Researcher, CNN, and Skill Validator reports are now first-class state/status artifacts.
+- GitHub agent task template no longer requires users to choose AgentCrew lane or role manually.
+
 ## v0.1.0 - 2026-05-28
 
 First tagged release of AgentCrew. Bundles the full Markdown-first workflow,

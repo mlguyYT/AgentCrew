@@ -38,8 +38,8 @@ The standalone project dashboard is also available inside AgentCrew:
 - project name, git branch, default branch, HEAD, and worktree state
 - whether `.agent-state/` exists
 - current task fields, including quality profile and recipe, when `.agent-state/current-task.md` exists
-- latest test, review, security, UX, documentation, support triage, and release report presence
-- project preset, task brief, work plan, readiness report, PR packet, decisions, handoff, memory, and latest saved session
+- latest test, review, security, UX, documentation, support triage, release, LLM, research, CNN, and Skill validation report presence
+- project preset, task brief, work plan, readiness report, PR packet, portfolio artifacts, decisions, handoff, memory, and latest saved session
 - pending human decision queue, open questions, and the human-approval reminder
 
 ---

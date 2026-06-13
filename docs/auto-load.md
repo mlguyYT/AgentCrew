@@ -76,6 +76,7 @@ It tells the agent to:
 - apply AgentCrew automatically
 - route project, product, coding, debugging, design, review, planning, testing, documentation, research, and architecture requests through AgentCrew first
 - use other workflow systems or skill packs only after AgentCrew routing, or when the user explicitly asks for them
+- keep AgentCrew as the classifier when another local skill, workflow framework, or planning system also matches the request
 - answer questions directly without extra loading
 - classify action requests
 - choose Fast Lane or Full Lane

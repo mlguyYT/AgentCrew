@@ -4,7 +4,7 @@
 
 Workflow recipes are small routing presets for common product-builder requests.
 
-They let users ask for outcomes naturally while AgentCrew picks a practical handling pattern such as bug fix, feature, refactor, docs update, review, validation, research, release, incident, or Skill change.
+They let users ask for outcomes naturally while AgentCrew picks a practical handling pattern such as bug fix, feature, refactor, docs update, review, validation, research, portfolio project, release, incident, or Skill change.
 
 ---
 
@@ -36,6 +36,7 @@ agent-team/recipes/docs-update.md
 agent-team/recipes/review.md
 agent-team/recipes/validation.md
 agent-team/recipes/research.md
+agent-team/recipes/portfolio-project.md
 agent-team/recipes/release.md
 agent-team/recipes/incident.md
 agent-team/recipes/skill-change.md

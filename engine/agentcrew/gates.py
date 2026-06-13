@@ -36,6 +36,8 @@ _GATE_FILES: dict[str, str] = {
     "specialist routing check": "agent-team/playbooks/specialist-review-routing.md",
     "specialist review when triggered": "agent-team/playbooks/specialist-review-routing.md",
     "product behavior review": "agent-team/checklists/acceptance-criteria.md",
+    "portfolio scope check": "agent-team/playbooks/portfolio-project-scope.md",
+    "target-role evidence check": "agent-team/playbooks/portfolio-project-scope.md",
     "dependency and supply-chain gate": "agent-team/playbooks/dependency-supply-chain.md",
     "behavior-preserving refactor check": "agent-team/playbooks/behavior-preserving-refactor.md",
     "compatibility rollout check": "agent-team/playbooks/compatibility-rollout.md",
@@ -67,6 +69,8 @@ _GATE_ROLES: dict[str, set[str]] = {
     "compatibility rollout check": {"Developer", "Reviewer", "Security Reviewer"},
     "integration-test need check": {"Tester"},
     "product behavior review": {"Product Manager", "Reviewer"},
+    "portfolio scope check": {"Product Manager", "Reviewer", "Documentation Agent"},
+    "target-role evidence check": {"Product Manager", "Researcher Agent", "Documentation Agent"},
     "specialist routing check": set(),  # general, all roles
     "specialist review when triggered": set(),  # general, all roles
 }

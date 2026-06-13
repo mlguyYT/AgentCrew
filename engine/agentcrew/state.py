@@ -46,6 +46,10 @@ _REPORT_FILE_BY_ROLE: dict[str, str] = {
     "Documentation Agent": "documentation-report.md",
     "Support Triage Agent": "support-triage-report.md",
     "Release Manager": "release-report.md",
+    "LLM Agent": "llm-report.md",
+    "Researcher Agent": "research-report.md",
+    "CNN Agent": "cnn-report.md",
+    "Skill Validator": "skill-validation-report.md",
 }
 
 

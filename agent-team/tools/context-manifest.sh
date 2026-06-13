@@ -206,6 +206,13 @@ for skill in "${SKILLS[@]}"; do
 done
 
 [ -n "$RECIPE" ] && [ "$RECIPE" != "bug-fix" ] && add_unique LOAD_NOW "agent-team/recipes/$RECIPE.md"
+if [ "$RECIPE" = "portfolio-project" ]; then
+  add_unique LOAD_NOW 'agent-team/playbooks/portfolio-project-scope.md'
+  add_unique LOAD_NOW 'agent-team/templates/role-fit-matrix.md'
+  add_unique LOAD_NOW 'agent-team/templates/mvp-scope.md'
+  add_unique LOAD_LATER 'agent-team/templates/resume-bullets.md'
+  add_unique LOAD_LATER 'agent-team/templates/demo-script.md'
+fi
 if [ "$PROFILE" != "standard" ] || [ "${LANE#Fast}" = "$LANE" ]; then
   add_unique LOAD_NOW 'agent-team/playbooks/quality-profile-selection.md'
   [ -n "$PROFILE" ] && add_unique LOAD_NOW "agent-team/quality-profiles/$PROFILE.md"
@@ -257,6 +264,8 @@ for gate in "${GATES[@]}"; do
     *refactor*) add_unique LOAD_LATER 'agent-team/playbooks/behavior-preserving-refactor.md' ;;
     *compatibility*) add_unique LOAD_LATER 'agent-team/playbooks/compatibility-rollout.md' ;;
     *integration*) add_unique LOAD_LATER 'agent-team/checklists/integration-test-escalation.md' ;;
+    *portfolio*) add_unique LOAD_LATER 'agent-team/playbooks/portfolio-project-scope.md' ;;
+    *target-role*) add_unique LOAD_LATER 'agent-team/playbooks/portfolio-project-scope.md' ;;
   esac
 done
 

@@ -78,6 +78,7 @@ RX_RESEARCH='(research|compare|investigate options|source-backed|sources|citatio
 RX_LLM='(llm|prompt|rag|embedding|vector search|tool calling|function calling|structured output|model|eval|hallucination|prompt injection)'
 RX_CNN='(cnn|computer vision|image classification|object detection|segmentation|image dataset|augmentation|model training|training|inference optimization|inference)'
 RX_SKILL='(skill|skills registry|skill changed|new skill|authoring guide)'
+RX_PORTFOLIO='(portfolio|resume project|resume-project|cv project|interview project|case study project|case-study project|job description|job posting|target role|hiring signal|recruiter|interview talking point|demo project)'
 
 add_unique() {
   # First arg is an array name interpolated into an `eval` below. Defensive
@@ -162,6 +163,20 @@ elif matches '^(test|validate|verify|qa|run tests|run validation)|regression che
   WORKFLOW="Tester -> Human"
   NEXT_ROLES=("Human")
   add_unique REASONS "request asks for validation"
+elif matches "$RX_PORTFOLIO"; then
+  INTENT="portfolio_project_positioning"
+  STARTING_ROLE="Product Manager"
+  WORKFLOW="Product Manager -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Documentation Agent -> Human"
+  NEXT_ROLES=("Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Documentation Agent" "Human")
+  add_unique SPECIALISTS "Researcher Agent"
+  add_unique SPECIALISTS "Documentation Agent"
+  add_unique SKILLS "product-owner-pro"
+  add_unique SKILLS "researcher-pro"
+  add_unique GATES "portfolio scope check"
+  add_unique GATES "target-role evidence check"
+  add_unique HUMAN_DECISIONS "approve target role and MVP scope"
+  add_unique HUMAN_DECISIONS "approve public resume or demo claims"
+  add_unique REASONS "request targets portfolio, resume, interview, case-study, or target-role project positioning"
 elif matches '(^| )(fix|change|add|update|create|build|implement|improve|refactor|remove|replace)( |$)'; then
   INTENT="implementation_or_bug_fix"
   STARTING_ROLE="Developer"
@@ -258,6 +273,10 @@ case "$INTENT" in
   source_backed_research_or_current_info)
     add_unique GATES "source quality check"
     ;;
+  portfolio_project_positioning)
+    add_unique GATES "portfolio scope check"
+    add_unique GATES "target-role evidence check"
+    ;;
   prompt_rag_tool_calling_or_model_behavior)
     add_unique GATES "LLM review"
     ;;
@@ -274,7 +293,7 @@ if matches '(auth|authentication|authorization|permission|permissions|secret|tok
   add_unique SPECIALISTS "Security Reviewer"
   add_unique REASONS "security or supply-chain trigger present"
 fi
-if matches '(ui|ux|design|user-facing|onboarding|form|navigation|accessibility|responsive|layout|copy|visual)'; then
+if matches '(^|[^a-z0-9])(ui|ux)([^a-z0-9]|$)|design|user-facing|onboarding|form|navigation|accessibility|responsive|layout|copy|visual'; then
   add_unique SPECIALISTS "UX / Design Reviewer"
   add_unique REASONS "user-facing or design trigger present"
 fi
@@ -302,6 +321,12 @@ fi
 if matches "$RX_SKILL"; then
   add_unique SPECIALISTS "Skill Validator"
 fi
+if matches "$RX_PORTFOLIO"; then
+  add_unique SPECIALISTS "Researcher Agent"
+  add_unique SPECIALISTS "Documentation Agent"
+  add_unique SKILLS "product-owner-pro"
+  add_unique SKILLS "researcher-pro"
+fi
 
 # Skill hints from task text.
 if matches '(typescript|\.ts|\.tsx)'; then add_unique SKILLS "typescript-pro"; fi
@@ -316,7 +341,7 @@ if matches '(c\+\+|cpp|cmake)'; then add_unique SKILLS "cpp-pro"; fi
 if matches '(golang| go |go.mod)'; then add_unique SKILLS "go-pro"; fi
 if matches '(rust|cargo)'; then add_unique SKILLS "rust-pro"; fi
 if matches '(php|composer|laravel)'; then add_unique SKILLS "php-pro"; fi
-if matches '(shell|bash|script|makefile)'; then add_unique SKILLS "shell-pro"; fi
+if matches '(^|[^a-z0-9])(shell|bash|script|makefile)([^a-z0-9]|$)'; then add_unique SKILLS "shell-pro"; fi
 if matches '(kubernetes|k8s|helm|deployment yaml|manifest)'; then add_unique SKILLS "kubernetes"; fi
 
 # Risk classification. Critical overrides high, high overrides medium.
@@ -355,6 +380,8 @@ elif [ "$INTENT" = "validation_or_regression_check" ]; then
   RECIPE="validation"
 elif [ "$INTENT" = "source_backed_research_or_current_info" ]; then
   RECIPE="research"
+elif [ "$INTENT" = "portfolio_project_positioning" ]; then
+  RECIPE="portfolio-project"
 elif [ "$INTENT" = "docs_examples_or_changelog" ]; then
   RECIPE="docs-update"
 elif [ "$INTENT" = "skill_creation_or_skill_change" ]; then
@@ -423,6 +450,15 @@ case "$INTENT" in
     WORKFLOW="Documentation Agent -> Reviewer if behavior claims changed -> Human"
     NEXT_ROLES=("Reviewer if behavior claims changed" "Human")
     ;;
+  portfolio_project_positioning)
+    if [ "$RISK" = "medium" ]; then
+      WORKFLOW="Product Manager -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Reviewer -> Documentation Agent -> Human"
+      NEXT_ROLES=("Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Reviewer" "Documentation Agent" "Human")
+    else
+      WORKFLOW="Product Manager -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Documentation Agent -> Human"
+      NEXT_ROLES=("Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Documentation Agent" "Human")
+    fi
+    ;;
   prompt_rag_tool_calling_or_model_behavior)
     WORKFLOW="LLM Agent -> Developer/Tester if implementation follows -> Human"
     NEXT_ROLES=("Developer if implementation follows" "Tester if implementation follows" "Human")
@@ -469,6 +505,14 @@ case "$RISK" in
         add_unique HUMAN_DECISIONS "accept critical risk before merge"
         add_unique REASONS "critical risk holds Researcher entry but requires human risk acceptance"
         ;;
+      portfolio_project_positioning)
+        STARTING_ROLE="Product Manager"
+        LANE="Full Lane plus explicit human decision"
+        WORKFLOW="Product Manager -> Advisor for risk acceptance -> Human decision -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Reviewer -> Documentation Agent -> Human"
+        NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Reviewer" "Documentation Agent" "Human")
+        add_unique HUMAN_DECISIONS "accept critical risk before implementation"
+        add_unique REASONS "critical portfolio/project-positioning risk keeps Product Manager entry but requires explicit human risk acceptance"
+        ;;
       *)
         STARTING_ROLE="Advisor"
         LANE="Full Lane plus explicit human decision"
@@ -500,6 +544,13 @@ case "$RISK" in
         WORKFLOW="Researcher Agent -> Product Manager -> Human"
         NEXT_ROLES=("Product Manager" "Human")
         add_unique REASONS "high risk holds Researcher entry and adds Product Manager review"
+        ;;
+      portfolio_project_positioning)
+        STARTING_ROLE="Product Manager"
+        LANE="Full Lane"
+        WORKFLOW="Product Manager -> Advisor for risk review if needed -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Reviewer -> Documentation Agent -> Human"
+        NEXT_ROLES=("Advisor for risk review if needed" "Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Reviewer" "Documentation Agent" "Human")
+        add_unique REASONS "high risk portfolio/project-positioning work keeps Product Manager entry and uses Full Lane"
         ;;
       docs_examples_or_changelog)
         LANE="Full Lane"
@@ -533,6 +584,10 @@ esac
 if matches '(user-facing|behavior|compatibility|rollout|migration|scope|acceptance criteria|unclear)'; then
   add_unique REVIEWERS "Product Manager"
   add_unique GATES "product behavior review"
+fi
+if [ "$INTENT" = "portfolio_project_positioning" ]; then
+  add_unique GATES "portfolio scope check"
+  add_unique GATES "target-role evidence check"
 fi
 if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
   add_unique GATES "specialist routing check"
@@ -586,6 +641,13 @@ if [ "$INTENT" != "direct_answer_or_advisory" ]; then
   add_unique FILES_TO_LOAD "agent-team/recipes/$RECIPE.md"
   add_unique FILES_TO_LOAD "agent-team/skills/registry.md"
   add_unique FILES_TO_LOAD "agent-team/templates/task-routing.md"
+  if [ "$INTENT" = "portfolio_project_positioning" ]; then
+    add_unique FILES_TO_LOAD "agent-team/playbooks/portfolio-project-scope.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/role-fit-matrix.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/mvp-scope.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/resume-bullets.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/demo-script.md"
+  fi
   if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
     add_unique FILES_TO_LOAD "agent-team/playbooks/specialist-review-routing.md"
   fi

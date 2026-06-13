@@ -307,6 +307,7 @@ Before using another workflow, skill pack, planning system, or agent methodology
 5. Use other tools or skills only as execution aids after AgentCrew routing, or when the user explicitly asks for that other system.
 
 Do not replace AgentCrew with another workflow by default.
+If another local skill, workflow framework, planning system, or agent methodology also matches the request, keep AgentCrew as the classifier and use the other system only as an execution aid after routing.
 
 Keep human approval final and do not merge pull requests.
 EOF
@@ -338,6 +339,7 @@ Before using another workflow, skill pack, planning system, or agent methodology
 5. Use other tools or skills only as execution aids after AgentCrew routing, or when the user explicitly asks for that other system.
 
 Do not replace AgentCrew with another workflow by default.
+If another local skill, workflow framework, planning system, or agent methodology also matches the request, keep AgentCrew as the classifier and use the other system only as an execution aid after routing.
 
 Keep human approval final and do not merge pull requests.
 EOF
@@ -369,6 +371,7 @@ Before using another workflow, skill pack, planning system, or agent methodology
 5. Use other tools or skills only as execution aids after AgentCrew routing, or when the user explicitly asks for that other system.
 
 Do not replace AgentCrew with another workflow by default.
+If another local skill, workflow framework, planning system, or agent methodology also matches the request, keep AgentCrew as the classifier and use the other system only as an execution aid after routing.
 
 Keep human approval final and do not merge pull requests.
 
@@ -402,6 +405,7 @@ Before using another workflow, skill pack, planning system, or agent methodology
 5. Use other tools or skills only as execution aids after AgentCrew routing, or when the user explicitly asks for that other system.
 
 Do not replace AgentCrew with another workflow by default.
+If another local skill, workflow framework, planning system, or agent methodology also matches the request, keep AgentCrew as the classifier and use the other system only as an execution aid after routing.
 
 Keep human approval final and do not merge pull requests.
 
@@ -666,6 +670,7 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/playbooks/pr-preparation.md" "PR preparation playbook exists"
   check_file_exists "$root/agent-team/playbooks/release-management.md" "release management playbook exists"
   check_file_exists "$root/agent-team/playbooks/support-triage.md" "support triage playbook exists"
+  check_file_exists "$root/agent-team/playbooks/portfolio-project-scope.md" "portfolio project scope playbook exists"
   check_file_exists "$root/agent-team/playbooks/quality-profile-selection.md" "quality profile selection playbook exists"
   check_file_exists "$root/agent-team/playbooks/human-decision-queue.md" "human decision queue playbook exists"
   check_file_exists "$root/agent-team/playbooks/token-safe-mode.md" "Token-Safe Mode playbook exists"
@@ -704,6 +709,7 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/recipes/review.md" "workflow recipe exists: review"
   check_file_exists "$root/agent-team/recipes/validation.md" "workflow recipe exists: validation"
   check_file_exists "$root/agent-team/recipes/research.md" "workflow recipe exists: research"
+  check_file_exists "$root/agent-team/recipes/portfolio-project.md" "workflow recipe exists: portfolio-project"
   check_file_exists "$root/agent-team/recipes/release.md" "workflow recipe exists: release"
   check_file_exists "$root/agent-team/recipes/incident.md" "workflow recipe exists: incident"
   check_file_exists "$root/agent-team/recipes/skill-change.md" "workflow recipe exists: skill-change"
@@ -747,9 +753,10 @@ doctor_templates() {
   local template
 
   for template in \
-    pr-description test-report review-report security-review-report \
-    ux-design-review-report documentation-report support-triage-report release-report skill-validation-report \
-    memory-summary task-routing current-task project-preset task-brief work-plan readiness-report pr-pack human-decision-queue compact-handoff compact-test-report compact-review-report compact-research-report
+	    pr-description test-report review-report security-review-report \
+	    ux-design-review-report documentation-report support-triage-report release-report skill-validation-report \
+	    memory-summary task-routing current-task project-preset task-brief work-plan readiness-report pr-pack human-decision-queue compact-handoff compact-test-report compact-review-report compact-research-report \
+	    role-fit-matrix mvp-scope resume-bullets demo-script
   do
     check_file_exists "$root/agent-team/templates/$template.md" "template exists: $template"
   done
@@ -1176,15 +1183,37 @@ run_status() {
   "$status_tool" --project "$project"
 }
 
+PRE_ROOT="$DEFAULT_ROOT"
+if [ "${1:-}" = "--root" ]; then
+  [ "$#" -ge 2 ] || die "Missing value for --root" 2
+  PRE_ROOT="$2"
+  shift 2
+fi
+
 COMMAND="${1:-}"
 [ "$#" -gt 0 ] && shift || true
 
 if [ "$COMMAND" = "run" ] || [ "$COMMAND" = "route" ] || [ "$COMMAND" = "backends" ] || [ "$COMMAND" = "models" ] || [ "$COMMAND" = "show" ] || [ "$COMMAND" = "audit" ] || [ "$COMMAND" = "decisions" ]; then
-  run_proxy_to_engine "$DEFAULT_ROOT" "$COMMAND" "$@"
+  ENGINE_ROOT="$PRE_ROOT"
+  ENGINE_ARGS=()
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --root)
+        [ "$#" -ge 2 ] || die "Missing value for --root" 2
+        ENGINE_ROOT="$2"
+        shift 2
+        ;;
+      *)
+        ENGINE_ARGS+=("$1")
+        shift
+        ;;
+    esac
+  done
+  run_proxy_to_engine "$ENGINE_ROOT" "$COMMAND" "${ENGINE_ARGS[@]}"
 fi
 
 AGENT="all"
-ROOT="$DEFAULT_ROOT"
+ROOT="$PRE_ROOT"
 DRY_RUN="false"
 FORCE="false"
 PROJECT="."

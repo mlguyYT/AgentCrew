@@ -22,6 +22,7 @@ direct_question_or_advice: Direct Answer Mode -> Human
 small_scoped_task: Developer -> Tester -> Human
 small_task_with_meaningful_risk: Developer -> Tester -> Reviewer -> Human
 scope_or_product_behavior_change: Product Manager -> Developer -> Tester -> Human
+portfolio_or_target_role_project: Product Manager -> Researcher Agent if job evidence is needed -> Human scope approval
 high_risk_or_ambiguous: Full Lane
 review_request: Reviewer
 validation_request: Tester
@@ -43,6 +44,7 @@ Load only:
 - selected role file from `agent-team/agents/`
 - `agent-team/playbooks/request-routing.md` only when route is ambiguous
 - `agent-team/playbooks/project-presets.md` when project-shape defaults would help
+- `agent-team/playbooks/portfolio-project-scope.md` when the user wants a portfolio, resume, interview, case-study, or target-role project
 - `agent-team/playbooks/task-intake.md` when creating `.agent-state/current-task.md`
 - `agent-team/playbooks/acceptance-criteria.md` when creating `.agent-state/task-brief.md`
 - `agent-team/playbooks/work-planning.md` when creating `.agent-state/work-plan.md`

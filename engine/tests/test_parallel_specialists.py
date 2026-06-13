@@ -77,6 +77,10 @@ def _all_models() -> dict[str, str]:
     }
 
 
+def _accept_risk(_routing, _role) -> bool:
+    return True
+
+
 class _BlockingMock(MockProvider):
     """MockProvider that sleeps before submitting, so we can detect concurrency."""
 
@@ -143,6 +147,7 @@ def test_trailing_specialists_run_concurrently(project):
         provider=provider,
         model_for_role=_all_models(),
         routing_approver=auto_approve,
+        risk_acceptor=_accept_risk,
     )
 
     # Sanity: the run got to specialists at all.
@@ -183,6 +188,7 @@ def test_specialists_persisted_in_deterministic_order(project):
         provider=provider,
         model_for_role=_all_models(),
         routing_approver=auto_approve,
+        risk_acceptor=_accept_risk,
     )
 
     # The acting order from routing is Release Manager before Security Reviewer

@@ -19,7 +19,7 @@ Low / Medium / High / Critical
 Light / Standard / Strict / Regulated
 
 ## Recipe
-bug-fix / feature / refactor / docs-update / review / validation / research / release / incident / skill-change
+bug-fix / feature / refactor / docs-update / review / validation / research / portfolio-project / release / incident / skill-change
 
 ## Owner
 Developer / Tester / Reviewer / Product Manager / Specialist / Human

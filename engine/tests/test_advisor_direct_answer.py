@@ -1,4 +1,4 @@
-"""Direct Answer Mode invokes the Advisor and persists an answer (#1)."""
+"""Direct Answer Mode invokes the Advisor without creating state artifacts."""
 
 from pathlib import Path
 
@@ -32,7 +32,7 @@ def _all_models() -> dict[str, str]:
     }
 
 
-def test_advisor_runs_in_direct_answer_mode_and_persists_answer(project):
+def test_advisor_runs_in_direct_answer_mode_without_state(project):
     root = find_agentcrew_root()
     result = run_team(
         task="Should I use SSE or websockets for the dashboard?",
@@ -45,18 +45,8 @@ def test_advisor_runs_in_direct_answer_mode_and_persists_answer(project):
     assert result.routing.is_direct_answer()
     assert result.final_decision == "answered"
     assert result.next_owner == "human"
-
-    # advisor-answer.md exists with the question and an answer body
-    answer_path = result.run_dir / "advisor-answer.md"
-    assert answer_path.exists()
-    content = answer_path.read_text()
-    assert "## Question" in content
-    assert "## Answer" in content
-    assert "SSE" in content or "Server-Sent Events" in content
-
-    # handoff.md surfaces the answer too
-    handoff_md = (project / ".agent-state" / "handoff.md").read_text()
-    assert "Advisor -> Human Answer" in handoff_md
+    assert "SSE" in result.direct_answer or "Server-Sent Events" in result.direct_answer
+    assert not (project / ".agent-state").exists()
 
 
 def test_advisor_missing_model_falls_back_to_routing_only(project):
@@ -73,8 +63,8 @@ def test_advisor_missing_model_falls_back_to_routing_only(project):
     )
     assert result.routing.is_direct_answer()
     assert result.final_decision == "direct_answer_or_advisory"
-    # No advisor-answer.md was written
-    assert not (result.run_dir / "advisor-answer.md").exists()
+    assert result.direct_answer == ""
+    assert not (project / ".agent-state").exists()
 
 
 def test_advisor_protocol_failure_surfaces_cleanly(project):
@@ -93,4 +83,5 @@ def test_advisor_protocol_failure_surfaces_cleanly(project):
         routing_approver=auto_approve,
     )
     assert result.final_decision == "direct_answer_or_advisory_protocol_failure"
-    assert (result.run_dir / "error.md").exists()
+    assert result.direct_answer == ""
+    assert not (project / ".agent-state").exists()

@@ -47,6 +47,8 @@ Claude Code should:
 
 Claude Code should not switch to another workflow, skill pack, or agent methodology before AgentCrew has routed the request, unless the user explicitly asks for that other system.
 
+If a local skill also matches the request, Claude Code should keep AgentCrew as the classifier and use that skill only as an execution aid after the AgentCrew route is chosen.
+
 ## Notes
 
 Claude Code treats `CLAUDE.md` as context, not hard enforcement. Keep the loader strong enough to establish AgentCrew as the default router, while leaving detailed role, lane, Skill, and gate instructions in the external checkout.

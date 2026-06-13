@@ -45,32 +45,12 @@ body:
     validations:
       required: false
 
-  - type: dropdown
-    id: lane
+  - type: textarea
+    id: routing_hints
     attributes:
-      label: Recommended lane
-      options:
-        - Fast Lane
-        - Full Lane
-        - Unsure
+      label: Routing hints
+      description: Optional. Add only if you want to suggest a lane, role, Skill, risk, or review focus. AgentCrew will classify the task automatically.
+      placeholder: |
+        Example: This may need Security Reviewer because it touches auth.
     validations:
-      required: true
-
-  - type: dropdown
-    id: role
-    attributes:
-      label: Primary agent role
-      options:
-        - Product Manager
-        - Developer
-        - Tester
-        - Reviewer
-        - Security Reviewer
-        - UX / Design Reviewer
-        - Documentation Agent
-        - Advisor
-        - Idea Consultant
-        - Skill Validator
-        - Unsure
-    validations:
-      required: true
+      required: false

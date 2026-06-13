@@ -19,9 +19,10 @@ recipes:
   refactor: behavior-preserving structural improvement
   docs-update: documentation, examples, changelog, release notes
   review: code, PR, architecture, or quality review
-  validation: testing, QA, regression, acceptance validation
-  research: source-backed investigation or option comparison
-  release: release readiness, changelog, version, PR preparation
+	  validation: testing, QA, regression, acceptance validation
+	  research: source-backed investigation or option comparison
+	  portfolio-project: portfolio, resume, interview, case-study, or target-role project scope
+	  release: release readiness, changelog, version, PR preparation
   incident: production issue, outage, urgent regression, rollback decision
   skill-change: AgentCrew Skill creation or update
 ```

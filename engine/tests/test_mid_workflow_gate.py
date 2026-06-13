@@ -155,6 +155,22 @@ def test_risk_acceptor_rejection_stops_run(project):
     assert "Developer" not in senders_after_gate
 
 
+def test_default_risk_acceptor_rejects_critical_run(project):
+    root = find_agentcrew_root()
+    result = run_team(
+        task="Rotate the production secret in deploy config",
+        project_dir=project,
+        root=root,
+        provider=_mock_for_critical_run(),
+        model_for_role=_models(),
+        routing_approver=auto_approve,
+    )
+    assert result.final_decision == "mid_workflow_human_decision_rejected"
+    senders_after_gate = {h.sender for h in result.handoffs}
+    assert "Product Manager" not in senders_after_gate
+    assert "Developer" not in senders_after_gate
+
+
 def test_risk_acceptor_not_called_on_low_risk(project):
     """Low-risk runs never hit the mid-workflow gate."""
     root = find_agentcrew_root()

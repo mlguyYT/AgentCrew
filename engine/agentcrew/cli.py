@@ -138,6 +138,16 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
         "block": gate.block,
         "reason": gate.reason,
     })
+    if est.total_usd > 0 or gate.warn or gate.block:
+        _emit({
+            "event": "cost_approval_required",
+            "ts": time.time(),
+            "estimated_total_usd": round(est.total_usd, 4),
+            "warn": gate.warn,
+            "block": gate.block,
+            "reason": gate.reason or "Host agent must get human cost approval before execution.",
+        })
+        return 1
 
     # Now run the team. We need to interleave role events with the loop, so we
     # wrap the provider to emit role_started/role_finished from inside.
@@ -179,6 +189,18 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
 
     provider.run_agent = _instrumented_run_agent  # type: ignore[assignment]
 
+    def _from_agent_risk_acceptor(routing, role):
+        _emit({
+            "event": "human_decision_required",
+            "ts": time.time(),
+            "decision": "accept critical risk before implementation",
+            "role_about_to_run": role,
+            "risk": routing.risk,
+            "lane": routing.lane,
+            "human_decisions": routing.human_decisions,
+        })
+        return False
+
     from .orchestrator import auto_approve, run as run_team
 
     result = run_team(
@@ -188,6 +210,7 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
         provider=provider,
         model_for_role=models,
         routing_approver=auto_approve,  # already approved above
+        risk_acceptor=_from_agent_risk_acceptor,
         cwd_for_classifier=str(project.resolve()),
     )
 
@@ -245,6 +268,30 @@ def _interactive_routing_approver(routing: Routing) -> bool:
     while True:
         try:
             answer = input("\nApprove this routing and execute the workflow? [y/N] ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print("\n(no input — declining)")
+            return False
+        if answer in ("y", "yes"):
+            return True
+        if answer in ("", "n", "no"):
+            return False
+        print("Please answer y or n.")
+
+
+def _interactive_risk_acceptor(routing: Routing, role: str) -> bool:
+    print("\n" + "!" * 60)
+    print("Human-only risk decision required before execution continues.")
+    print(f"Risk: {routing.risk}")
+    print(f"Lane: {routing.lane}")
+    print(f"Next role if accepted: {role}")
+    if routing.human_decisions:
+        print("Required decisions:")
+        for decision in routing.human_decisions:
+            print(f"  - {decision}")
+    print("!" * 60)
+    while True:
+        try:
+            answer = input("\nDo you accept this critical risk and continue? [y/N] ").strip().lower()
         except (EOFError, KeyboardInterrupt):
             print("\n(no input — declining)")
             return False
@@ -508,8 +555,12 @@ def main(argv: list[str] | None = None) -> int:
             model_for_role=models,
             routing_approver=approver,
             cost_approver=cost_approver,
+            risk_acceptor=_interactive_risk_acceptor,
             cwd_for_classifier=str(args.project.resolve()),
         )
+        if result.direct_answer:
+            print(result.direct_answer)
+            return 0
         print(result.summary())
         print()
         print(f"Artifacts written to: {result.run_dir}")

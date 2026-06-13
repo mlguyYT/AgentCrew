@@ -7,7 +7,7 @@ Short task title.
 Original request or concise paraphrase.
 
 ## Recipe
-bug-fix / feature / refactor / docs-update / review / validation / research / release / incident / skill-change
+bug-fix / feature / refactor / docs-update / review / validation / research / portfolio-project / release / incident / skill-change
 
 ## Lane
 Fast Lane / Full Lane / Full Lane plus explicit human decision

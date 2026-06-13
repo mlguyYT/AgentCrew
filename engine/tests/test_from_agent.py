@@ -16,13 +16,15 @@ def project(tmp_path: Path) -> Path:
     return p
 
 
-def _run_cli(project: Path) -> list[dict]:
+def _run_cli(project: Path, *, extra_env: dict | None = None, expected_returncode: int = 0) -> list[dict]:
     """Run the CLI in --from-agent mode and parse the JSONL stream."""
     repo_root = Path(__file__).resolve().parent.parent
     env = {
         "PATH": "/usr/local/bin:/usr/bin:/bin",
         "AGENTCREW_ROOT": str(repo_root.parent),
     }
+    if extra_env:
+        env.update(extra_env)
     result = subprocess.run(
         [
             str(repo_root / ".venv/bin/agentcrew-engine"),
@@ -37,7 +39,7 @@ def _run_cli(project: Path) -> list[dict]:
         env=env,
         check=False,
     )
-    assert result.returncode == 0, f"CLI failed: {result.stderr}"
+    assert result.returncode == expected_returncode, f"CLI failed: {result.stderr}\nstdout={result.stdout}"
     events = []
     for line in result.stdout.splitlines():
         line = line.strip()
@@ -83,3 +85,15 @@ def test_every_event_has_event_and_ts(project):
         assert "event" in ev
         assert "ts" in ev
         assert isinstance(ev["ts"], (int, float))
+
+
+def test_from_agent_stops_for_cost_approval_when_model_has_price(project):
+    events = _run_cli(
+        project,
+        extra_env={"AGENTCREW_MODEL": "gpt-4o-mini"},
+        expected_returncode=1,
+    )
+    types = [e["event"] for e in events]
+    assert "cost_preview" in types
+    assert types[-1] == "cost_approval_required"
+    assert "role_started" not in types

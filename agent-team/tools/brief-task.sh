@@ -151,13 +151,18 @@ criteria_for_recipe() {
       printf '%s\n' '- [ ] failures include concise reproduction or evidence'
       printf '%s\n' '- [ ] recommendation is clear: pass, rework, or human decision'
       ;;
-    research)
-      printf '%s\n' '- [ ] decision-relevant sources are cited or listed'
-      printf '%s\n' '- [ ] facts, assumptions, and recommendations are separated'
-      printf '%s\n' '- [ ] confidence and open questions are stated'
-      ;;
-    release)
-      printf '%s\n' '- [ ] release notes or changelog reflect shipped behavior'
+	    research)
+	      printf '%s\n' '- [ ] decision-relevant sources are cited or listed'
+	      printf '%s\n' '- [ ] facts, assumptions, and recommendations are separated'
+	      printf '%s\n' '- [ ] confidence and open questions are stated'
+	      ;;
+	    portfolio-project)
+	      printf '%s\n' '- [ ] target role and project positioning are explicit'
+	      printf '%s\n' '- [ ] every MVP feature maps to a hiring signal and evidence artifact'
+	      printf '%s\n' '- [ ] over-scope ideas are deferred outside MVP'
+	      ;;
+	    release)
+	      printf '%s\n' '- [ ] release notes or changelog reflect shipped behavior'
       printf '%s\n' '- [ ] validation baseline is documented'
       printf '%s\n' '- [ ] final release, merge, or deployment decision remains human-only'
       ;;

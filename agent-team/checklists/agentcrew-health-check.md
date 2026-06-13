@@ -87,6 +87,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/pr-preparation.md`
 - [ ] `agent-team/playbooks/release-management.md`
 - [ ] `agent-team/playbooks/support-triage.md`
+- [ ] `agent-team/playbooks/portfolio-project-scope.md`
 - [ ] `agent-team/playbooks/quality-profile-selection.md`
 - [ ] `agent-team/playbooks/human-decision-queue.md`
 - [ ] `agent-team/playbooks/lane-escalation.md`
@@ -133,6 +134,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/recipes/review.md`
 - [ ] `agent-team/recipes/validation.md`
 - [ ] `agent-team/recipes/research.md`
+- [ ] `agent-team/recipes/portfolio-project.md`
 - [ ] `agent-team/recipes/release.md`
 - [ ] `agent-team/recipes/incident.md`
 - [ ] `agent-team/recipes/skill-change.md`
@@ -221,6 +223,10 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/templates/llm-report.md`
 - [ ] `agent-team/templates/research-report.md`
 - [ ] `agent-team/templates/cnn-report.md`
+- [ ] `agent-team/templates/role-fit-matrix.md`
+- [ ] `agent-team/templates/mvp-scope.md`
+- [ ] `agent-team/templates/resume-bullets.md`
+- [ ] `agent-team/templates/demo-script.md`
 - [ ] `agent-team/templates/memory-summary.md`
 - [ ] `agent-team/templates/skill-validation-report.md`
 - [ ] `agent-team/tools/classify-task.sh`

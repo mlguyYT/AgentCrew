@@ -265,6 +265,7 @@ docs-update  docs, examples, changelog, release notes
 review       code, PR, architecture, or quality review
 validation   testing, QA, regression, acceptance validation
 research     source-backed investigation or option comparison
+portfolio-project portfolio, resume, interview, or target-role project scope
 release      release readiness and PR preparation
 incident     production issue, urgent regression, rollback decision
 skill-change AgentCrew Skill creation or update
