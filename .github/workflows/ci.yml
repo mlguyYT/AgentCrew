@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  checks:
+    name: Repository checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: |
+          bash -n bin/agentcrew
+          bash -n agent-team/tools/*.sh
+
+      - name: Python syntax
+        run: python3 -m py_compile engine/agentcrew/*.py
+
+      - name: AgentCrew doctor
+        run: ./bin/agentcrew doctor

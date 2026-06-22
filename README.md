@@ -2,37 +2,25 @@
 
 **Turn your coding agent into a disciplined software team.**
 
+[![CI](https://github.com/mlguyYT/AgentCrew/actions/workflows/ci.yml/badge.svg)](https://github.com/mlguyYT/AgentCrew/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](VERSION)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Works with Codex](https://img.shields.io/badge/works%20with-Codex-111827.svg)](agent-team/adapters/codex.md)
+[![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-111827.svg)](agent-team/adapters/claude-code.md)
+[![Works with Cursor](https://img.shields.io/badge/works%20with-Cursor-111827.svg)](agent-team/adapters/cursor.md)
+
 AgentCrew is a conversation-first, Markdown-first methodology for AI coding agents. Install it once, open any project, and ask normally. AgentCrew routes the request to the right role, applies the right workflow, loads only the needed context, and stops where human approval is required.
 
 It works with host agents such as Codex, Claude Code, Cursor, OpenClaw, Hermes Agent, and similar coding assistants.
 
-## Why AgentCrew
+AgentCrew is not a daemon, CI/CD system, autonomous engineer, or replacement for human product judgment. It is a lightweight workflow layer that helps coding agents act with clearer roles, safer gates, and better handoffs.
 
-Most coding-agent sessions put too many jobs into one chat: product thinking, planning, implementation, testing, review, documentation, and approval. That creates predictable failures:
+<p align="center">
+  <img src="docs/assets/agentcrew-workflow.svg" alt="AgentCrew request routing workflow" width="100%">
+</p>
 
-- unclear scope;
-- giant diffs;
-- skipped tests;
-- weak review;
-- lost context;
-- unrelated edits;
-- agents acting like they can approve their own work.
-
-AgentCrew gives the agent a team process before it touches the code.
-
-```text
-roles define responsibility
-playbooks define process
-skills define technical guidance
-templates define output shape
-policies keep human approval final
-```
-
-AgentCrew lets agents do the work, testing, review, and preparation, but keeps final product direction, risk acceptance, PR approval, and merging with the human.
-
-## Use It
-
-Clone AgentCrew once outside your projects:
+## Quick Start
 
 ```bash
 git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
@@ -40,9 +28,7 @@ git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 ~/AgentCrew/bin/agentcrew doctor
 ```
 
-Then open any project and enjoy development with your AgentCrew.
-
-Ask for the outcome in plain language:
+Then open any project and ask for the outcome:
 
 ```text
 Fix the login form so empty email shows a validation message.
@@ -55,6 +41,22 @@ I want to add team billing to this app. Help me shape it and implement the first
 ```
 
 You do not need to say "use AgentCrew", name a role, choose a lane, or run workflow commands during normal use. AgentCrew is loaded by the host agent and should classify the request automatically.
+
+## Why AgentCrew
+
+Most coding-agent sessions put too many jobs into one chat: product thinking, planning, implementation, testing, review, documentation, and approval. That creates predictable failures: unclear scope, giant diffs, skipped tests, weak review, lost context, unrelated edits, and agents acting like they can approve their own work.
+
+AgentCrew gives the agent a team process before it touches the code.
+
+```text
+roles define responsibility
+playbooks define process
+skills define technical guidance
+templates define output shape
+policies keep human approval final
+```
+
+AgentCrew lets agents do the work, testing, review, and preparation, but keeps final product direction, risk acceptance, PR approval, and merging with the human.
 
 ## What You Experience
 

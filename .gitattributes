@@ -1,0 +1,5 @@
+*.md linguist-detectable=true
+*.md linguist-language=Markdown
+docs/** linguist-documentation=false
+agent-team/** linguist-documentation=false
+examples/** linguist-documentation=false

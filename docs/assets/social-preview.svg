@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">AgentCrew social preview</title>
+  <desc id="desc">AgentCrew turns a coding agent chat into a disciplined software team with routing, roles, Skills, gates, and human approval.</desc>
+  <defs>
+    <style>
+      .bg { fill: #111827; }
+      .panel { fill: #ffffff; opacity: 0.08; }
+      .ink { fill: #f8fafc; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .muted { fill: #cbd5e1; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .accent { fill: #93c5fd; }
+      .green { fill: #86efac; }
+      .gold { fill: #fde68a; }
+      .title { font-size: 82px; font-weight: 800; }
+      .tag { font-size: 34px; font-weight: 520; }
+      .label { font-size: 24px; font-weight: 720; }
+    </style>
+  </defs>
+  <rect class="bg" width="1280" height="640"/>
+  <rect class="panel" x="64" y="64" width="1152" height="512" rx="32"/>
+  <text class="ink title" x="112" y="205">AgentCrew</text>
+  <text class="muted tag" x="116" y="267">Turn your coding agent into a disciplined software team.</text>
+  <text class="muted tag" x="116" y="326">Roles. Playbooks. Skills. Gates. Human approval.</text>
+
+  <rect class="accent" x="128" y="414" width="150" height="58" rx="12"/>
+  <text class="bg label" x="164" y="452">Route</text>
+  <rect class="green" x="316" y="414" width="150" height="58" rx="12"/>
+  <text class="bg label" x="354" y="452">Build</text>
+  <rect class="gold" x="504" y="414" width="150" height="58" rx="12"/>
+  <text class="bg label" x="536" y="452">Approve</text>
+
+  <text class="muted label" x="820" y="448">Markdown-first</text>
+  <text class="muted label" x="820" y="486">Vendor-neutral</text>
+</svg>
