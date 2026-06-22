@@ -13,6 +13,7 @@
       .title { font-size: 82px; font-weight: 800; }
       .tag { font-size: 34px; font-weight: 520; }
       .label { font-size: 24px; font-weight: 720; }
+      .center { text-anchor: middle; dominant-baseline: middle; }
     </style>
   </defs>
   <rect class="bg" width="1280" height="640"/>
@@ -22,11 +23,11 @@
   <text class="muted tag" x="116" y="326">Roles. Playbooks. Skills. Gates. Human approval.</text>
 
   <rect class="accent" x="128" y="414" width="150" height="58" rx="12"/>
-  <text class="bg label" x="164" y="452">Route</text>
+  <text class="bg label center" x="203" y="444">Route</text>
   <rect class="green" x="316" y="414" width="150" height="58" rx="12"/>
-  <text class="bg label" x="354" y="452">Build</text>
+  <text class="bg label center" x="391" y="444">Build</text>
   <rect class="gold" x="504" y="414" width="150" height="58" rx="12"/>
-  <text class="bg label" x="536" y="452">Approve</text>
+  <text class="bg label center" x="579" y="444">Approve</text>
 
   <text class="muted label" x="820" y="448">Markdown-first</text>
   <text class="muted label" x="820" y="486">Vendor-neutral</text>

@@ -1,79 +1,87 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-labelledby="title desc">
   <title id="title">AgentCrew workflow</title>
   <desc id="desc">A user request is classified into a lane, routed through focused roles, handed off through compact artifacts, and stopped at a human approval gate.</desc>
+
   <defs>
     <style>
+      :root { color-scheme: light; }
       .bg { fill: #ffffff; }
       .band { fill: #f6f8fb; }
       .card { fill: #ffffff; stroke: #d7dee8; stroke-width: 2; }
       .route { fill: #eef6ff; stroke: #94bff4; stroke-width: 2; }
       .role { fill: #f3f8f2; stroke: #a8cfa1; stroke-width: 2; }
       .gate { fill: #fff6df; stroke: #e5bb52; stroke-width: 2; }
-      .ink { fill: #172033; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .muted { fill: #59677a; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .title { font-size: 34px; font-weight: 750; }
-      .label { font-size: 23px; font-weight: 720; }
-      .body { font-size: 18px; }
-      .small { font-size: 16px; }
-      .center { text-anchor: middle; dominant-baseline: middle; }
+      .ink,
+      .muted {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      .ink { fill: #172033; }
+      .muted { fill: #59677a; }
+      .headline { font-size: 34px; font-weight: 700; letter-spacing: 0; }
+      .subtitle { font-size: 18px; font-weight: 400; }
+      .label { font-size: 23px; font-weight: 700; letter-spacing: 0; }
+      .body { font-size: 16px; font-weight: 400; }
+      .small { font-size: 15px; font-weight: 400; }
+      .center { text-anchor: middle; }
       .arrow { stroke: #6f7f93; stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     </style>
-    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-      <path d="M2,2 L10,6 L2,10 Z" fill="#6f7f93"/>
+
+    <marker id="arrowhead" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M3,3 L14,8 L3,13 Z" fill="#6f7f93"/>
     </marker>
   </defs>
 
   <rect class="bg" width="1280" height="520"/>
   <rect class="band" x="32" y="34" width="1216" height="452" rx="22"/>
 
-  <text class="ink title" x="72" y="86">AgentCrew routes normal chat into a disciplined delivery loop</text>
-  <text class="muted body" x="72" y="118">Users ask for the outcome. AgentCrew chooses the lane, roles, Skills, gates, and next human approval point.</text>
+  <text class="ink headline" x="72" y="86">AgentCrew routes normal chat into a disciplined delivery loop</text>
+  <text class="muted subtitle" x="72" y="118">Users ask for the outcome. AgentCrew chooses the lane, roles, Skills, gates, and next human approval point.</text>
 
   <rect class="card" x="72" y="174" width="180" height="104" rx="10"/>
-  <text class="ink label center" x="162" y="214">User asks</text>
-  <text class="muted small center" x="162" y="247">plain language</text>
+  <text class="ink label center" x="162" y="222">User asks</text>
+  <text class="muted body center" x="162" y="252">plain language</text>
 
   <path class="arrow" d="M252 226 H310" marker-end="url(#arrowhead)"/>
 
   <rect class="route" x="322" y="162" width="190" height="128" rx="10"/>
-  <text class="ink label center" x="417" y="203">Classify</text>
-  <text class="muted small center" x="417" y="235">risk, lane, recipe</text>
-  <text class="muted small center" x="417" y="259">Skills and gates</text>
+  <text class="ink label center" x="417" y="209">Classify</text>
+  <text class="muted body center" x="417" y="239">risk, lane, recipe</text>
+  <text class="muted body center" x="417" y="263">Skills and gates</text>
 
   <path class="arrow" d="M512 226 H570" marker-end="url(#arrowhead)"/>
 
   <rect class="role" x="582" y="144" width="606" height="164" rx="10"/>
-  <text class="ink label center" x="885" y="184">Focused role chain</text>
+  <text class="ink label center" x="885" y="188">Focused role chain</text>
 
   <rect class="card" x="618" y="210" width="94" height="54" rx="8"/>
-  <text class="ink small center" x="665" y="238">PM</text>
+  <text class="ink small center" x="665" y="243">PM</text>
 
   <path class="arrow" d="M712 237 H748" marker-end="url(#arrowhead)"/>
 
   <rect class="card" x="758" y="210" width="112" height="54" rx="8"/>
-  <text class="ink small center" x="814" y="238">Developer</text>
+  <text class="ink small center" x="814" y="243">Developer</text>
 
   <path class="arrow" d="M870 237 H906" marker-end="url(#arrowhead)"/>
 
   <rect class="card" x="916" y="210" width="92" height="54" rx="8"/>
-  <text class="ink small center" x="962" y="238">Tester</text>
+  <text class="ink small center" x="962" y="243">Tester</text>
 
   <path class="arrow" d="M1008 237 H1042" marker-end="url(#arrowhead)"/>
 
   <rect class="card" x="1052" y="210" width="116" height="54" rx="8"/>
-  <text class="ink small center" x="1110" y="238">Reviewer</text>
+  <text class="ink small center" x="1110" y="243">Reviewer</text>
 
-  <text class="muted small center" x="885" y="288">Specialists join only when triggered.</text>
-
-  <path class="arrow" d="M832 308 V358" marker-end="url(#arrowhead)"/>
+  <text class="muted body center" x="885" y="289">Specialists join only when triggered.</text>
 
   <rect class="card" x="568" y="370" width="260" height="76" rx="10"/>
-  <text class="ink label center" x="698" y="400">Compact handoff</text>
-  <text class="muted small center" x="698" y="429">evidence, decision, next action</text>
+  <text class="ink label center" x="698" y="407">Compact handoff</text>
+  <text class="muted body center" x="698" y="434">evidence, decision, next action</text>
+
+  <path class="arrow" d="M885 308 V334 H698 V358" marker-end="url(#arrowhead)"/>
 
   <path class="arrow" d="M828 408 H900" marker-end="url(#arrowhead)"/>
 
   <rect class="gate" x="914" y="360" width="250" height="96" rx="10"/>
-  <text class="ink label center" x="1039" y="396">Human gate</text>
-  <text class="muted small center" x="1039" y="427">approval, risk, merge</text>
+  <text class="ink label center" x="1039" y="400">Human gate</text>
+  <text class="muted body center" x="1039" y="431">approval, risk, merge</text>
 </svg>
