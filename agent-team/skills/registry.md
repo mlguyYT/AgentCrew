@@ -39,6 +39,7 @@ rules:
 | Product Owner Pro | `professional/product-owner-pro.md` | backlog, acceptance criteria, stakeholders, prioritization, roadmap, MVP, scope |
 | LLM Pro | `professional/llm-pro.md` | LLM, prompts, RAG, embeddings, tool calling, structured output, evals, prompt injection |
 | Researcher Pro | `professional/researcher-pro.md` | research, sources, citations, current info, comparison, standards, regulations |
+| Proportionate Design | `professional/proportionate-design.md` | SVG, diagram, workflow graphic, README visual, visual asset, alignment, spacing, proportion, box layout |
 | CNN | `ml/cnn.md` | CNN, computer vision, image classification, detection, segmentation, augmentation, inference |
 
 ## Ambiguity
