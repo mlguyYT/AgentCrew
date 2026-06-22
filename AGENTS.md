@@ -87,6 +87,8 @@ routing:
   - run the workflow until human approval is needed
 ```
 
+If the target project contains `.agent-state/project-constraints.md`, read it before implementation, cloud operations, public artifact changes, commit/push preparation, review, handoff, or memory saving. Active no-commit or no-push mode must be repeated in work summaries.
+
 If the user explicitly names a role, lane, or Skill, honor it unless it conflicts with safety, repository rules, or human approval.
 
 ---
@@ -155,6 +157,15 @@ Optional helpers:
 ```
 
 Memory and shared state must not include secrets, raw customer data, sensitive production data, large logs, personal Git identity, personal email, private key paths, deploy-key paths, local machine paths, or workstation-specific auth commands.
+
+Use these project-state artifacts when present:
+
+```text
+.agent-state/project-constraints.md
+.agent-state/artifact-map.md
+.agent-state/cloud-resources.md
+.agent-state/eval-metrics.md
+```
 
 Before committing shared state, use:
 

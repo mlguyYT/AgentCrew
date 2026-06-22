@@ -21,8 +21,9 @@ Then apply this order:
 ```yaml
 routing_order:
   - understand the requested outcome
-  - identify whether the user asked for planning, implementation, validation, review, research, or documentation
-  - classify risk using route-index and task-classification
+	  - identify whether the user asked for planning, implementation, validation, review, research, or documentation
+	  - load project constraints when `.agent-state/project-constraints.md` exists
+	  - classify risk using route-index and task-classification
   - choose Fast Lane or Full Lane
   - select the quality profile
   - select the workflow recipe
@@ -30,8 +31,9 @@ routing_order:
   - choose the starting role
   - run project detection when stack context is unclear and the detector is available
   - select candidate Skills from the registry
-  - identify required gates and specialist triggers
-  - produce a compact route summary
+	  - identify required gates and specialist triggers
+	  - identify cloud, artifact classification, public/private boundary, and no-commit gates
+	  - produce a compact route summary
   - create `.agent-state/current-task.md` when a durable current task artifact is useful
   - create `.agent-state/task-brief.md` when acceptance criteria are missing or vague
   - create `.agent-state/work-plan.md` when work needs sequencing or PR slicing
@@ -99,8 +101,10 @@ full_lane_when:
   - billing or payments
   - customer data or sensitive data
   - database migration or data loss risk
-  - infrastructure, deployment, CI, runtime, or container change
-  - public API, protocol, compatibility, or rollout change
+	  - infrastructure, deployment, CI, runtime, or container change
+	  - cost-bearing cloud resource or public endpoint
+	  - public API, protocol, compatibility, or rollout change
+	  - public/private product boundary is unclear
   - large refactor or architecture decision
   - unclear product direction
   - rollback is difficult
@@ -261,8 +265,9 @@ ask_when:
   - product direction is unclear and multiple outcomes would be materially different
   - risk acceptance is required
   - data loss, security, migration, public behavior, or legacy compatibility decision is needed
-  - required credentials or environment access is missing
-  - the requested action conflicts with safety or repository rules
+	  - required credentials or environment access is missing
+	  - the requested action conflicts with safety or repository rules
+	  - project constraints block commit, push, publication, cloud creation, or public/private placement
 ```
 
 Otherwise, classify, route, and proceed.

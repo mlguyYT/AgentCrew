@@ -77,10 +77,15 @@ memory_fields:
   - current status
   - decisions
   - important files or areas
-  - commands run
-  - test results or limitations
-  - known risks
-  - next steps
+	  - commands run
+	  - test results or limitations
+	  - current repo status
+	  - open untracked files that affect the task
+	  - active cloud resources and teardown status
+	  - current eval metrics when evaluation gates exist
+	  - known risks
+	  - next steps
+	  - next safe action under project constraints
 ```
 
 Use:
@@ -156,9 +161,10 @@ bad_memory:
 
 ```text
 Identify durable context
-  -> refresh against current branch, HEAD, validation, risks, and next steps
+  -> refresh against current branch, HEAD, validation, risks, cloud resources, untracked files, eval metrics, and next steps
   -> remove secrets and noise
   -> remove personal/local setup details
+  -> preserve active project constraints and commit/push mode
   -> write memory summary
   -> mark open questions
   -> tell the human where it was saved

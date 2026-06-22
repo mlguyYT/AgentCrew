@@ -61,6 +61,7 @@ PROJECT_ROOT="$PROJECT_ABS"
 if git -C "$PROJECT_ABS" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   PROJECT_ROOT="$(git -C "$PROJECT_ABS" rev-parse --show-toplevel 2>/dev/null || printf '%s' "$PROJECT_ABS")"
 fi
+PROJECT_CONSTRAINTS_FILE="$PROJECT_ROOT/.agent-state/project-constraints.md"
 
 TASK_LOWER="$(printf '%s' "$TASK" | tr '[:upper:]' '[:lower:]')"
 
@@ -79,6 +80,10 @@ RX_LLM='(llm|prompt|rag|embedding|vector search|tool calling|function calling|st
 RX_CNN='(cnn|computer vision|image classification|object detection|segmentation|image dataset|augmentation|model training|training|inference optimization|inference)'
 RX_SKILL='(skill|skills registry|skill changed|new skill|authoring guide)'
 RX_PORTFOLIO='(portfolio|resume project|resume-project|cv project|interview project|case study project|case-study project|job description|job posting|target role|hiring signal|recruiter|interview talking point|demo project)'
+RX_CLOUD='(cloud|deploy|deployment|endpoint|hosted|paid resource|cost-bearing|cost bearing|teardown|delete resource|resource id|vector search|managed service|bucket|queue|cloud database)'
+RX_ARTIFACT='(artifact|generated|chunk|chunks|spec|specs|log|logs|output|outputs|temporary file|runtime file|untracked file)'
+RX_PRIVATE_BOUNDARY='(public repo|public repository|private repo|private repository|private product|private feature|customer-specific|customer sensitive|commercial|proposal|sensitive wording|public/private|public private)'
+RX_COMMIT_BOUNDARY='(^|[^a-z0-9])(commit|push|merge|pr)([^a-z0-9]|$)|default branch|pull request'
 
 add_unique() {
   # First arg is an array name interpolated into an `eval` below. Defensive
@@ -150,6 +155,16 @@ if matches '(^| )(how|what|why|when|where|can|could|should|is|are|does|do|did|wo
   NEXT_ROLES=("Human")
   HUMAN_DECISIONS=("none")
   add_unique REASONS "question or advice request does not require repository action"
+elif matches "$RX_CLOUD"; then
+  INTENT="release_readiness_or_deployment_preparation"
+  STARTING_ROLE="Release Manager"
+  WORKFLOW="Release Manager -> Tester/Reviewer/Security Reviewer if evidence or risk requires -> Human"
+  NEXT_ROLES=("Tester if validation evidence is missing" "Reviewer if release risk is meaningful" "Security Reviewer if access, endpoint, or data risk is present" "Human")
+  add_unique SPECIALISTS "Release Manager"
+  add_unique GATES "cloud operation gate"
+  add_unique GATES "project constraints check"
+  add_unique HUMAN_DECISIONS "confirm cost-bearing cloud action before execution"
+  add_unique REASONS "cloud, deployment, endpoint, paid resource, or teardown trigger present"
 elif matches '(^| )(review|reviewer|code review|pr review|pull request review|audit)( |$)'; then
   INTENT="code_or_pr_review"
   STARTING_ROLE="Reviewer"
@@ -177,6 +192,17 @@ elif matches "$RX_PORTFOLIO"; then
   add_unique HUMAN_DECISIONS "approve target role and MVP scope"
   add_unique HUMAN_DECISIONS "approve public resume or demo claims"
   add_unique REASONS "request targets portfolio, resume, interview, case-study, or target-role project positioning"
+elif matches "$RX_PRIVATE_BOUNDARY"; then
+  INTENT="public_private_boundary_decision"
+  STARTING_ROLE="Product Manager"
+  WORKFLOW="Product Manager -> Documentation Agent/Security Reviewer if needed -> Human"
+  NEXT_ROLES=("Documentation Agent if public wording changes" "Security Reviewer if sensitive data or access risk is present" "Human")
+  add_unique GATES "public/private boundary check"
+  add_unique GATES "artifact classification check"
+  add_unique GATES "project constraints check"
+  add_unique REVIEWERS "Product Manager"
+  add_unique HUMAN_DECISIONS "approve public/private artifact or feature placement"
+  add_unique REASONS "public/private product or sensitive wording boundary trigger present"
 elif matches '(^| )(fix|change|add|update|create|build|implement|improve|refactor|remove|replace)( |$)'; then
   INTENT="implementation_or_bug_fix"
   STARTING_ROLE="Developer"
@@ -273,10 +299,15 @@ case "$INTENT" in
   source_backed_research_or_current_info)
     add_unique GATES "source quality check"
     ;;
-  portfolio_project_positioning)
-    add_unique GATES "portfolio scope check"
-    add_unique GATES "target-role evidence check"
-    ;;
+	  portfolio_project_positioning)
+	    add_unique GATES "portfolio scope check"
+	    add_unique GATES "target-role evidence check"
+	    ;;
+	  public_private_boundary_decision)
+	    add_unique GATES "public/private boundary check"
+	    add_unique GATES "artifact classification check"
+	    add_unique GATES "project constraints check"
+	    ;;
   prompt_rag_tool_calling_or_model_behavior)
     add_unique GATES "LLM review"
     ;;
@@ -382,6 +413,8 @@ elif [ "$INTENT" = "source_backed_research_or_current_info" ]; then
   RECIPE="research"
 elif [ "$INTENT" = "portfolio_project_positioning" ]; then
   RECIPE="portfolio-project"
+elif [ "$INTENT" = "public_private_boundary_decision" ]; then
+  RECIPE="feature"
 elif [ "$INTENT" = "docs_examples_or_changelog" ]; then
   RECIPE="docs-update"
 elif [ "$INTENT" = "skill_creation_or_skill_change" ]; then
@@ -604,6 +637,32 @@ fi
 if matches '(database|cache|queue|socket|timer|filesystem|external service|distributed)'; then
   add_unique GATES "integration-test need check"
 fi
+if [ -f "$PROJECT_CONSTRAINTS_FILE" ]; then
+  add_unique GATES "project constraints check"
+  add_unique REASONS "target project has standing AgentCrew project constraints"
+fi
+if matches "$RX_CLOUD"; then
+  add_unique GATES "cloud operation gate"
+  add_unique GATES "project constraints check"
+  add_unique HUMAN_DECISIONS "confirm cost-bearing cloud action before execution"
+  add_unique REASONS "cloud, deployment, endpoint, paid resource, or teardown trigger present"
+fi
+if matches "$RX_ARTIFACT"; then
+  add_unique GATES "artifact classification check"
+  add_unique REASONS "generated, temporary, runtime, log, output, or untracked artifact trigger present"
+fi
+if matches "$RX_PRIVATE_BOUNDARY"; then
+  add_unique GATES "public/private boundary check"
+  add_unique GATES "project constraints check"
+  add_unique REVIEWERS "Product Manager"
+  add_unique HUMAN_DECISIONS "approve public/private artifact or feature placement"
+  add_unique REASONS "public/private product or sensitive wording boundary trigger present"
+fi
+if matches "$RX_COMMIT_BOUNDARY"; then
+  add_unique GATES "project constraints check"
+  add_unique GATES "no-commit mode check"
+  add_unique HUMAN_DECISIONS "explicit approval before commit, push, merge, or PR action"
+fi
 
 if [ "$INTENT" = "direct_answer_or_advisory" ]; then
   RISK="low"
@@ -638,20 +697,37 @@ if [ "$INTENT" != "direct_answer_or_advisory" ]; then
   add_unique FILES_TO_LOAD "agent-team/agents/$(printf '%s' "$STARTING_ROLE" | tr '[:upper:]' '[:lower:]' | sed 's# / #-#g; s# #\-#g').md"
   add_unique FILES_TO_LOAD "agent-team/playbooks/quality-profile-selection.md"
   add_unique FILES_TO_LOAD "agent-team/quality-profiles/$QUALITY_PROFILE.md"
-  add_unique FILES_TO_LOAD "agent-team/recipes/$RECIPE.md"
-  add_unique FILES_TO_LOAD "agent-team/skills/registry.md"
-  add_unique FILES_TO_LOAD "agent-team/templates/task-routing.md"
-  if [ "$INTENT" = "portfolio_project_positioning" ]; then
-    add_unique FILES_TO_LOAD "agent-team/playbooks/portfolio-project-scope.md"
+	  add_unique FILES_TO_LOAD "agent-team/recipes/$RECIPE.md"
+	  add_unique FILES_TO_LOAD "agent-team/skills/registry.md"
+	  add_unique FILES_TO_LOAD "agent-team/templates/task-routing.md"
+	  if [ -f "$PROJECT_CONSTRAINTS_FILE" ] || matches "$RX_CLOUD" || matches "$RX_PRIVATE_BOUNDARY" || matches "$RX_COMMIT_BOUNDARY"; then
+	    add_unique FILES_TO_LOAD "agent-team/playbooks/project-constraints.md"
+	  fi
+	  if [ "$INTENT" = "portfolio_project_positioning" ]; then
+	    add_unique FILES_TO_LOAD "agent-team/playbooks/portfolio-project-scope.md"
     add_unique FILES_TO_LOAD "agent-team/templates/role-fit-matrix.md"
     add_unique FILES_TO_LOAD "agent-team/templates/mvp-scope.md"
     add_unique FILES_TO_LOAD "agent-team/templates/resume-bullets.md"
     add_unique FILES_TO_LOAD "agent-team/templates/demo-script.md"
   fi
-  if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
-    add_unique FILES_TO_LOAD "agent-team/playbooks/specialist-review-routing.md"
-  fi
-fi
+	  if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
+	    add_unique FILES_TO_LOAD "agent-team/playbooks/specialist-review-routing.md"
+	  fi
+	  if matches "$RX_CLOUD"; then
+	    add_unique FILES_TO_LOAD "agent-team/playbooks/cloud-operations.md"
+	    add_unique FILES_TO_LOAD "agent-team/checklists/cloud-operation.md"
+	    add_unique FILES_TO_LOAD "agent-team/templates/cloud-resources.md"
+	  fi
+	  if matches "$RX_ARTIFACT"; then
+	    add_unique FILES_TO_LOAD "agent-team/playbooks/artifact-classification.md"
+	    add_unique FILES_TO_LOAD "agent-team/templates/artifact-map.md"
+	  fi
+	  if matches "$RX_PRIVATE_BOUNDARY"; then
+	    add_unique FILES_TO_LOAD "agent-team/playbooks/public-private-boundary.md"
+	    add_unique FILES_TO_LOAD "agent-team/playbooks/artifact-classification.md"
+	    add_unique FILES_TO_LOAD "agent-team/templates/artifact-map.md"
+	  fi
+	fi
 
 printf '%s\n' "task_classification:"
 printf '  task: %s\n' "$(yaml_quote "$TASK")"

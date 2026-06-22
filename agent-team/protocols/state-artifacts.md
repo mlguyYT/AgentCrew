@@ -35,8 +35,12 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
 ```text
 .agent-state/
   sessions/
+  project-constraints.md
   current-task.md
   project-preset.md
+  artifact-map.md
+  cloud-resources.md
+  eval-metrics.md
   task-brief.md
   work-plan.md
   readiness-report.md
@@ -51,18 +55,20 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   documentation-report.md
   support-triage-report.md
   release-report.md
-	  llm-report.md
-	  research-report.md
-	  cnn-report.md
-	  skill-validation-report.md
-	  role-fit-matrix.md
-	  mvp-scope.md
-	  resume-bullets.md
-	  demo-script.md
-	  memory.md
+  llm-report.md
+  research-report.md
+  cnn-report.md
+  skill-validation-report.md
+  role-fit-matrix.md
+  mvp-scope.md
+  resume-bullets.md
+  demo-script.md
+  memory.md
 ```
 
 Use only the files that are useful for the current project. `agentcrew start` can create `current-task.md`; `agentcrew status` reads these files when present and reports missing files as `not set`.
+
+If `project-constraints.md` exists, agents should read it before action and summarize active no-commit, no-push, public/private, cloud, or sensitive wording constraints in work summaries.
 
 `sessions/` stores timestamped local session checkpoints created by the optional AgentCrew save-session and checkpoint utilities.
 The save-session utility resolves the target git repository root automatically, so checkpoints from different projects do not conflict.
@@ -76,8 +82,20 @@ Structured checkpoint blocks use `agent-team/protocols/checkpoint-blocks.md`.
 current-task.md:
   purpose: active task, acceptance criteria, lane, and owner
 
+project-constraints.md:
+  purpose: standing project guardrails such as workflow boundary, commit/push mode, public/private boundary, cloud teardown rules, sensitive wording, and next safe action
+
 project-preset.md:
   purpose: selected project-shape preset with default Skills, validation, review gates, and architecture focus
+
+artifact-map.md:
+  purpose: classification of planned or generated artifacts as public repo, private local note, ignored runtime file, cloud resource, or temporary log/output
+
+cloud-resources.md:
+  purpose: cost confirmation, active cloud resources, endpoints, teardown commands, deletion verification, and remaining cloud risk
+
+eval-metrics.md:
+  purpose: baseline and current evaluation metrics, command, dataset, delta, and acceptance status
 
 task-brief.md:
   purpose: scoped task brief with provisional acceptance criteria, scope, test plan, gates, and open questions

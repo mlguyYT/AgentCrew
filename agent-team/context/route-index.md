@@ -10,6 +10,7 @@ Use this file immediately after `AGENTS.md` to route work without loading the wh
 - Agents must not merge, approve as human, bypass protection, hide failures, commit secrets, or make unrelated changes.
 - Default lane is Fast Lane.
 - Default quality profile is standard unless project or task context says otherwise.
+- If `.agent-state/project-constraints.md` exists, load it before code, docs, cloud, public artifact, commit/push, review, or memory work.
 - Load detailed files only after routing confirms they apply.
 - For advisory questions, load no additional AgentCrew files unless evidence or implementation is needed.
 
@@ -43,15 +44,19 @@ Load only:
 - selected context profile from `agent-team/context/`
 - selected role file from `agent-team/agents/`
 - `agent-team/playbooks/request-routing.md` only when route is ambiguous
-- `agent-team/playbooks/project-presets.md` when project-shape defaults would help
-- `agent-team/playbooks/portfolio-project-scope.md` when the user wants a portfolio, resume, interview, case-study, or target-role project
-- `agent-team/playbooks/task-intake.md` when creating `.agent-state/current-task.md`
-- `agent-team/playbooks/acceptance-criteria.md` when creating `.agent-state/task-brief.md`
-- `agent-team/playbooks/work-planning.md` when creating `.agent-state/work-plan.md`
+- `agent-team/playbooks/project-presets.md` when project-shape defaults help
+- `agent-team/playbooks/project-constraints.md` for standing constraints, no-commit mode, or public/private/cloud constraints
+- `agent-team/playbooks/cloud-operations.md` for cost-bearing or deployed resources
+- `agent-team/playbooks/artifact-classification.md` for generated, ignored, cloud, or temporary artifacts
+- `agent-team/playbooks/public-private-boundary.md` for private product, customer, commercial, or strategy boundaries
+- `agent-team/playbooks/portfolio-project-scope.md` for portfolio, resume, interview, case-study, or target-role projects
+- `agent-team/playbooks/task-intake.md` for `.agent-state/current-task.md`
+- `agent-team/playbooks/acceptance-criteria.md` for `.agent-state/task-brief.md`
+- `agent-team/playbooks/work-planning.md` for `.agent-state/work-plan.md`
 - `agent-team/playbooks/implementation-readiness.md` before Developer starts non-trivial work
-- `agent-team/playbooks/pr-preparation.md` before human PR review when a compact approval packet is useful
-- `agent-team/playbooks/release-management.md` when release readiness, rollout, rollback, or deployment preparation is in scope
-- `agent-team/playbooks/support-triage.md` when support tickets, customer reports, severity, impact, or reproduction triage is in scope
+- `agent-team/playbooks/pr-preparation.md` before human PR review
+- `agent-team/playbooks/release-management.md` for release, rollout, rollback, or deployment preparation
+- `agent-team/playbooks/support-triage.md` for support, customer reports, severity, impact, or reproduction
 - selected `agent-team/recipes/*.md` when a recipe changes handling
 - selected lane playbook
 - `agent-team/playbooks/quality-profile-selection.md` when profile choice affects gates or output detail

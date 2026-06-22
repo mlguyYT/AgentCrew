@@ -110,30 +110,53 @@ if [ "$IS_GIT_REPO" = "true" ]; then
       DEFAULT_BRANCH="unknown"
     fi
   fi
-  STATUS_SHORT="$(git -C "$PROJECT_ROOT" status --short 2>/dev/null || true)"
-  if [ -z "$STATUS_SHORT" ]; then
-    WORKTREE="clean"
-  else
-    WORKTREE="changes present"
-  fi
-  print_value "current_branch" "$BRANCH"
-  print_value "default_branch" "$DEFAULT_BRANCH"
-  print_value "head" "$HEAD_SHA"
-  print_value "worktree" "$WORKTREE"
-else
-  print_value "current_branch" "unknown"
-  print_value "default_branch" "unknown"
-  print_value "head" "unknown"
-  print_value "worktree" "not a git repository"
-fi
+	  STATUS_SHORT="$(git -C "$PROJECT_ROOT" status --short 2>/dev/null || true)"
+	  if [ -z "$STATUS_SHORT" ]; then
+	    WORKTREE="clean"
+	  else
+	    WORKTREE="changes present"
+	  fi
+	  UNTRACKED_COUNT="$(printf '%s\n' "$STATUS_SHORT" | awk 'BEGIN { count = 0 } /^\?\?/ { count++ } END { print count }')"
+	  print_value "current_branch" "$BRANCH"
+	  print_value "default_branch" "$DEFAULT_BRANCH"
+	  print_value "head" "$HEAD_SHA"
+	  print_value "worktree" "$WORKTREE"
+	  print_value "untracked_files" "$UNTRACKED_COUNT"
+	else
+	  print_value "current_branch" "unknown"
+	  print_value "default_branch" "unknown"
+	  print_value "head" "unknown"
+	  print_value "worktree" "not a git repository"
+	  print_value "untracked_files" "unknown"
+	fi
 
 printf '%s\n' ""
 printf '%s\n' "AgentCrew State"
-if [ -d "$STATE_DIR" ]; then
-  printf '  - state_dir: present\n'
+	if [ -d "$STATE_DIR" ]; then
+	  printf '  - state_dir: present\n'
+	else
+	  printf '  - state_dir: not found\n'
+	fi
+
+printf '%s\n' ""
+printf '%s\n' "Project Guardrails"
+PROJECT_CONSTRAINTS="$STATE_DIR/project-constraints.md"
+ARTIFACT_MAP="$STATE_DIR/artifact-map.md"
+CLOUD_RESOURCES="$STATE_DIR/cloud-resources.md"
+EVAL_METRICS="$STATE_DIR/eval-metrics.md"
+file_status "project_constraints" "$PROJECT_CONSTRAINTS"
+if [ -f "$PROJECT_CONSTRAINTS" ]; then
+  COMMIT_POLICY="$(section_value "$PROJECT_CONSTRAINTS" "Commit Policy")"
+  NEXT_SAFE_ACTION="$(section_value "$PROJECT_CONSTRAINTS" "Next Safe Action")"
+  print_value "commit_policy" "$COMMIT_POLICY"
+  print_value "next_safe_action" "$NEXT_SAFE_ACTION"
 else
-  printf '  - state_dir: not found\n'
+  print_value "commit_policy" "not set"
+  print_value "next_safe_action" "not set"
 fi
+file_status "artifact_map" "$ARTIFACT_MAP"
+file_status "cloud_resources" "$CLOUD_RESOURCES"
+file_status "eval_metrics" "$EVAL_METRICS"
 
 CURRENT_TASK="$STATE_DIR/current-task.md"
 printf '%s\n' ""
@@ -183,6 +206,10 @@ file_status "demo_script" "$STATE_DIR/demo-script.md"
 printf '%s\n' ""
 printf '%s\n' "Memory And Decisions"
 file_status "project_preset" "$STATE_DIR/project-preset.md"
+file_status "project_constraints" "$STATE_DIR/project-constraints.md"
+file_status "artifact_map" "$STATE_DIR/artifact-map.md"
+file_status "cloud_resources" "$STATE_DIR/cloud-resources.md"
+file_status "eval_metrics" "$STATE_DIR/eval-metrics.md"
 file_status "task_brief" "$STATE_DIR/task-brief.md"
 file_status "work_plan" "$STATE_DIR/work-plan.md"
 file_status "readiness" "$STATE_DIR/readiness-report.md"

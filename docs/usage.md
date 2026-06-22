@@ -202,6 +202,8 @@ Use status to check AgentCrew registrations and the current project state:
 
 It summarizes loader registration, git state, `.agent-state/` artifacts, latest saved session, reports, and open human attention items.
 
+When `.agent-state/project-constraints.md` exists, agents should read it before implementation, cloud operations, public artifact changes, commit/push preparation, review, handoff, or memory saving. Use it for standing constraints such as no-commit mode, public/private boundaries, sensitive wording, generated file policy, cloud teardown rules, and the next safe action.
+
 ---
 
 ## Human decision queue

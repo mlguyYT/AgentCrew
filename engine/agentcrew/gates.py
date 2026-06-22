@@ -42,6 +42,11 @@ _GATE_FILES: dict[str, str] = {
     "behavior-preserving refactor check": "agent-team/playbooks/behavior-preserving-refactor.md",
     "compatibility rollout check": "agent-team/playbooks/compatibility-rollout.md",
     "integration-test need check": "agent-team/checklists/integration-test-escalation.md",
+    "cloud operation gate": "agent-team/playbooks/cloud-operations.md",
+    "artifact classification check": "agent-team/playbooks/artifact-classification.md",
+    "public/private boundary check": "agent-team/playbooks/public-private-boundary.md",
+    "project constraints check": "agent-team/playbooks/project-constraints.md",
+    "no-commit mode check": "agent-team/playbooks/project-constraints.md",
 }
 
 
@@ -71,6 +76,11 @@ _GATE_ROLES: dict[str, set[str]] = {
     "product behavior review": {"Product Manager", "Reviewer"},
     "portfolio scope check": {"Product Manager", "Reviewer", "Documentation Agent"},
     "target-role evidence check": {"Product Manager", "Researcher Agent", "Documentation Agent"},
+    "cloud operation gate": {"Developer", "Tester", "Reviewer", "Security Reviewer", "Release Manager"},
+    "artifact classification check": {"Developer", "Reviewer", "Documentation Agent", "Security Reviewer"},
+    "public/private boundary check": {"Product Manager", "Reviewer", "Documentation Agent", "Security Reviewer"},
+    "project constraints check": set(),
+    "no-commit mode check": set(),
     "specialist routing check": set(),  # general, all roles
     "specialist review when triggered": set(),  # general, all roles
 }

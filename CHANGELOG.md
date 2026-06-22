@@ -5,6 +5,7 @@
 ### Added
 - Portfolio/project-positioning route, playbook, recipe, templates, and gates for resume, interview, case-study, and target-role projects.
 - Stronger workflow-boundary guidance so AgentCrew remains the classifier when another local workflow or skill pack also matches a request.
+- Project guardrail artifacts, cloud-operation safety, artifact classification, public/private boundary guidance, and eval-metrics state for long-running project work.
 
 ### Fixed
 - Engine critical-risk `Human decision` gates now require explicit human confirmation instead of auto-accepting by default.

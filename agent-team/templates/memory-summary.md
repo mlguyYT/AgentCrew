@@ -12,7 +12,11 @@ Current state of the work.
 ## Current Reality
 - default branch:
 - current HEAD:
+- repo status:
+- open untracked files:
 - validation baseline:
+- eval metrics:
+- active cloud resources:
 - open risks:
 - next steps:
 
@@ -30,6 +34,13 @@ Commands run and results, or why validation was not run.
 ## Risks / Constraints
 - risk or constraint 1
 - risk or constraint 2
+
+## Project Guardrails
+- commit policy:
+- public/private boundary:
+- generated artifact policy:
+- cloud teardown state:
+- next safe action:
 
 ## Open Questions
 - question 1

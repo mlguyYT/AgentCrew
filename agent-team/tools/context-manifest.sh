@@ -266,6 +266,11 @@ for gate in "${GATES[@]}"; do
     *integration*) add_unique LOAD_LATER 'agent-team/checklists/integration-test-escalation.md' ;;
     *portfolio*) add_unique LOAD_LATER 'agent-team/playbooks/portfolio-project-scope.md' ;;
     *target-role*) add_unique LOAD_LATER 'agent-team/playbooks/portfolio-project-scope.md' ;;
+    *cloud*) add_unique LOAD_LATER 'agent-team/playbooks/cloud-operations.md'; add_unique LOAD_LATER 'agent-team/checklists/cloud-operation.md'; add_unique LOAD_LATER 'agent-team/templates/cloud-resources.md' ;;
+    *artifact*) add_unique LOAD_LATER 'agent-team/playbooks/artifact-classification.md'; add_unique LOAD_LATER 'agent-team/templates/artifact-map.md' ;;
+    *public/private*) add_unique LOAD_LATER 'agent-team/playbooks/public-private-boundary.md'; add_unique LOAD_LATER 'agent-team/playbooks/artifact-classification.md' ;;
+    *constraints*) add_unique LOAD_LATER 'agent-team/playbooks/project-constraints.md'; add_unique LOAD_LATER 'agent-team/templates/project-constraints.md' ;;
+    *no-commit*) add_unique LOAD_LATER 'agent-team/playbooks/project-constraints.md'; add_unique LOAD_LATER 'agent-team/checklists/project-constraints.md' ;;
   esac
 done
 

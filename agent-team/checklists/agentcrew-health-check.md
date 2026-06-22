@@ -87,6 +87,10 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/pr-preparation.md`
 - [ ] `agent-team/playbooks/release-management.md`
 - [ ] `agent-team/playbooks/support-triage.md`
+- [ ] `agent-team/playbooks/project-constraints.md`
+- [ ] `agent-team/playbooks/cloud-operations.md`
+- [ ] `agent-team/playbooks/artifact-classification.md`
+- [ ] `agent-team/playbooks/public-private-boundary.md`
 - [ ] `agent-team/playbooks/portfolio-project-scope.md`
 - [ ] `agent-team/playbooks/quality-profile-selection.md`
 - [ ] `agent-team/playbooks/human-decision-queue.md`
@@ -160,6 +164,8 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/checklists/llm-review.md`
 - [ ] `agent-team/checklists/research-quality.md`
 - [ ] `agent-team/checklists/cnn-review.md`
+- [ ] `agent-team/checklists/cloud-operation.md`
+- [ ] `agent-team/checklists/project-constraints.md`
 
 ---
 
@@ -216,6 +222,10 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/templates/documentation-report.md`
 - [ ] `agent-team/templates/support-triage-report.md`
 - [ ] `agent-team/templates/release-report.md`
+- [ ] `agent-team/templates/project-constraints.md`
+- [ ] `agent-team/templates/artifact-map.md`
+- [ ] `agent-team/templates/cloud-resources.md`
+- [ ] `agent-team/templates/eval-metrics.md`
 - [ ] `agent-team/templates/compact-handoff.md`
 - [ ] `agent-team/templates/compact-test-report.md`
 - [ ] `agent-team/templates/compact-review-report.md`

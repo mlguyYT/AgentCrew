@@ -125,6 +125,9 @@ After installation, AgentCrew should live outside the project it is guiding:
       documentation-agent.md
       support-triage-agent.md
       release-manager.md
+      llm-agent.md
+      researcher-agent.md
+      cnn-agent.md
       skill-validator.md
 
     playbooks/
@@ -142,10 +145,20 @@ After installation, AgentCrew should live outside the project it is guiding:
       pr-preparation.md
       release-management.md
       support-triage.md
+      project-constraints.md
+      cloud-operations.md
+      artifact-classification.md
+      public-private-boundary.md
+      portfolio-project-scope.md
       quality-profile-selection.md
       human-decision-queue.md
       lane-escalation.md
       specialist-review-routing.md
+      default-branch-merge.md
+      dependency-supply-chain.md
+      behavior-preserving-refactor.md
+      compatibility-rollout.md
+      token-safe-mode.md
       skill-loading.md
       skill-validation.md
       memory-saving.md
@@ -173,6 +186,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       review.md
       validation.md
       research.md
+      portfolio-project.md
       release.md
       incident.md
       skill-change.md
@@ -187,6 +201,7 @@ After installation, AgentCrew should live outside the project it is guiding:
       communication.md
       handoff-format.md
       state-artifacts.md
+      checkpoint-blocks.md
       token-discipline.md
 
     conventions/
@@ -227,6 +242,21 @@ After installation, AgentCrew should live outside the project it is guiding:
       documentation-report.md
       support-triage-report.md
       release-report.md
+      compact-handoff.md
+      compact-test-report.md
+      compact-review-report.md
+      compact-research-report.md
+      project-constraints.md
+      artifact-map.md
+      cloud-resources.md
+      eval-metrics.md
+      role-fit-matrix.md
+      mvp-scope.md
+      resume-bullets.md
+      demo-script.md
+      llm-report.md
+      research-report.md
+      cnn-report.md
       memory-summary.md
       skill-validation-report.md
 
@@ -244,13 +274,27 @@ After installation, AgentCrew should live outside the project it is guiding:
     checklists/
       agentcrew-health-check.md
       definition-of-done.md
+      acceptance-criteria.md
+      work-planning.md
+      implementation-readiness.md
+      pr-preparation.md
       testing.md
       code-review.md
       design-review.md
       documentation.md
+      human-approval.md
+      release-readiness.md
+      support-triage.md
+      llm-review.md
+      research-quality.md
+      cnn-review.md
       security.md
       memory-saving.md
       skill-validation.md
+      shared-memory-refresh.md
+      integration-test-escalation.md
+      cloud-operation.md
+      project-constraints.md
 
 /path/to/your-project/
   application files

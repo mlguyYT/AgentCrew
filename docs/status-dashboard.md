@@ -37,9 +37,10 @@ The standalone project dashboard is also available inside AgentCrew:
 - global loader registrations for Claude Code, Codex, OpenClaw, and Hermes Agent
 - project name, git branch, default branch, HEAD, and worktree state
 - whether `.agent-state/` exists
+- project guardrails: constraints, commit policy, next safe action, artifact map, cloud resources, and eval metrics
 - current task fields, including quality profile and recipe, when `.agent-state/current-task.md` exists
 - latest test, review, security, UX, documentation, support triage, release, LLM, research, CNN, and Skill validation report presence
-- project preset, task brief, work plan, readiness report, PR packet, portfolio artifacts, decisions, handoff, memory, and latest saved session
+- project preset, task brief, work plan, readiness report, PR packet, portfolio artifacts, decisions, handoff, memory, untracked-file count, and latest saved session
 - pending human decision queue, open questions, and the human-approval reminder
 
 ---
@@ -79,6 +80,21 @@ Expected sections:
 Missing files or sections are reported as `not set`. That is normal for projects that have not saved AgentCrew state yet.
 
 Use `agentcrew start --task "..."` to create the current-task artifact from a plain request.
+
+---
+
+## Project Guardrails
+
+When present, status reads:
+
+```text
+.agent-state/project-constraints.md
+.agent-state/artifact-map.md
+.agent-state/cloud-resources.md
+.agent-state/eval-metrics.md
+```
+
+These files preserve standing constraints, public/private artifact classification, active cloud resources, teardown state, and current evaluation metrics.
 
 ---
 

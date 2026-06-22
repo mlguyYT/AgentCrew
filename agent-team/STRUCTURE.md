@@ -53,10 +53,14 @@ agent-team/
     work-planning.md
     implementation-readiness.md
     pr-preparation.md
-	    release-management.md
-	    support-triage.md
-	    portfolio-project-scope.md
-	    quality-profile-selection.md
+    release-management.md
+    support-triage.md
+    project-constraints.md
+    cloud-operations.md
+    artifact-classification.md
+    public-private-boundary.md
+    portfolio-project-scope.md
+    quality-profile-selection.md
     human-decision-queue.md
     lane-escalation.md
     specialist-review-routing.md
@@ -91,9 +95,9 @@ agent-team/
     docs-update.md
     review.md
     validation.md
-	    research.md
-	    portfolio-project.md
-	    release.md
+    research.md
+    portfolio-project.md
+    release.md
     incident.md
     skill-change.md
 
@@ -151,12 +155,16 @@ agent-team/
     compact-handoff.md
     compact-test-report.md
     compact-review-report.md
-	    compact-research-report.md
-	    role-fit-matrix.md
-	    mvp-scope.md
-	    resume-bullets.md
-	    demo-script.md
-	    llm-report.md
+    compact-research-report.md
+    project-constraints.md
+    artifact-map.md
+    cloud-resources.md
+    eval-metrics.md
+    role-fit-matrix.md
+    mvp-scope.md
+    resume-bullets.md
+    demo-script.md
+    llm-report.md
     research-report.md
     cnn-report.md
     memory-summary.md
@@ -218,8 +226,10 @@ agent-team/
     security.md
     memory-saving.md
     skill-validation.md
-    shared-memory-refresh.md
-    integration-test-escalation.md
+	    shared-memory-refresh.md
+	    integration-test-escalation.md
+	    cloud-operation.md
+	    project-constraints.md
 ```
 
 AgentCrew repository structure:
@@ -242,7 +252,11 @@ Recommended project-state artifact structure:
 ```text
 .agent-state/
   sessions/
+  project-constraints.md
   current-task.md
+  artifact-map.md
+  cloud-resources.md
+  eval-metrics.md
   task-brief.md
   work-plan.md
   readiness-report.md
@@ -256,16 +270,16 @@ Recommended project-state artifact structure:
   ux-design-review-report.md
   documentation-report.md
   support-triage-report.md
-	  release-report.md
-	  llm-report.md
-	  research-report.md
-	  cnn-report.md
-	  skill-validation-report.md
-	  role-fit-matrix.md
-	  mvp-scope.md
-	  resume-bullets.md
-	  demo-script.md
-	  memory.md
+  release-report.md
+  llm-report.md
+  research-report.md
+  cnn-report.md
+  skill-validation-report.md
+  role-fit-matrix.md
+  mvp-scope.md
+  resume-bullets.md
+  demo-script.md
+  memory.md
 ```
 
 `.agent-state/` is for project-specific handoff artifacts. It is not part of the reusable AgentCrew package.
