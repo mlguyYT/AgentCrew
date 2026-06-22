@@ -1,47 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
   <title id="title">Before and after AgentCrew</title>
-  <desc id="desc">Without AgentCrew, one agent chat handles everything manually. With AgentCrew, requests are routed through lanes, roles, skills, gates, and human approval.</desc>
+  <desc id="desc">Without AgentCrew, one agent chat handles everything manually. With AgentCrew, requests are routed through lanes, roles, Skills, gates, and human approval.</desc>
   <defs>
     <style>
       .bg { fill: #ffffff; }
-      .panel { fill: #f7f8fb; stroke: #d8dee8; stroke-width: 2; }
-      .bad { fill: #fff1f0; stroke: #f2a7a0; stroke-width: 2; }
-      .good { fill: #eff6ff; stroke: #9fc2ff; stroke-width: 2; }
-      .gate { fill: #fff8e8; stroke: #f0c76a; stroke-width: 2; }
-      .ink { fill: #172033; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .muted { fill: #536174; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-      .head { font-size: 34px; font-weight: 700; }
-      .sub { font-size: 24px; }
-      .body { font-size: 22px; }
-      .label { font-size: 24px; font-weight: 700; }
-      .arrow { stroke: #5f6f87; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .bad { fill: #fff4f2; stroke: #ee9a91; stroke-width: 2.25; }
+      .good { fill: #edf6ff; stroke: #8dbaff; stroke-width: 2.25; }
+      .gate { fill: #fff3d3; stroke: #dca83a; stroke-width: 2.25; }
+      .ink { fill: #0f172a; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+      .muted { fill: #334155; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+      .head { font-size: 36px; font-weight: 800; }
+      .sub { font-size: 24px; font-weight: 500; }
+      .body { font-size: 22px; font-weight: 500; }
+      .label { font-size: 25px; font-weight: 750; }
+      .pillText { font-size: 22px; font-weight: 700; }
+      .center { text-anchor: middle; }
+      .arrow { stroke: #4b5d73; stroke-width: 4.25; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     </style>
-    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
-      <path d="M2,2 L10,6 L2,10 Z" fill="#5f6f87"/>
+    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#4b5d73"/>
     </marker>
   </defs>
 
   <rect class="bg" width="1200" height="520"/>
-  <text class="ink head" x="60" y="65">From one overloaded chat to a routed team process</text>
-  <text class="muted sub" x="60" y="104">AgentCrew keeps the normal chat UX, then adds structure under the surface.</text>
+  <text class="ink head" x="60" y="68">From one overloaded chat to a routed team process</text>
+  <text class="muted sub" x="60" y="108">AgentCrew keeps the normal chat UX, then adds structure under the surface.</text>
 
   <rect class="bad" x="60" y="150" width="500" height="300" rx="18"/>
-  <text class="ink label" x="95" y="200">Without AgentCrew</text>
-  <text class="muted body" x="95" y="245">One chat guesses the process</text>
-  <text class="muted body" x="95" y="285">Manual reminders for tests and review</text>
-  <text class="muted body" x="95" y="325">Risky work can look like small work</text>
-  <text class="muted body" x="95" y="365">Context grows until quality drops</text>
-  <text class="muted body" x="95" y="405">Approval boundaries become blurry</text>
+  <text class="ink label" x="95" y="201">Without AgentCrew</text>
+  <text class="muted body" x="95" y="246">One chat guesses the process</text>
+  <text class="muted body" x="95" y="286">Manual reminders for tests and review</text>
+  <text class="muted body" x="95" y="326">Risky work can look like small work</text>
+  <text class="muted body" x="95" y="366">Context grows until quality drops</text>
+  <text class="muted body" x="95" y="406">Approval boundaries become blurry</text>
 
-  <path class="arrow" d="M580 300 H635" marker-end="url(#arrowhead)"/>
+  <path class="arrow" d="M578 300 H622" marker-end="url(#arrowhead)"/>
 
-  <rect class="good" x="660" y="150" width="480" height="300" rx="18"/>
-  <text class="ink label" x="695" y="200">With AgentCrew</text>
-  <text class="muted body" x="695" y="245">Request is classified automatically</text>
-  <text class="muted body" x="695" y="285">Lane, role, skills, and gates are selected</text>
-  <text class="muted body" x="695" y="325">Only relevant context is loaded</text>
-  <text class="muted body" x="695" y="365">Testing and review are explicit</text>
+  <rect class="good" x="640" y="150" width="500" height="300" rx="18"/>
+  <text class="ink label" x="675" y="201">With AgentCrew</text>
+  <text class="muted body" x="675" y="246">Request is classified automatically</text>
+  <text class="muted body" x="675" y="286">Lane, role, skills, and gates are selected</text>
+  <text class="muted body" x="675" y="326">Only relevant context is loaded</text>
+  <text class="muted body" x="675" y="366">Testing and review are explicit</text>
 
-  <rect class="gate" x="695" y="390" width="390" height="44" rx="22"/>
-  <text class="ink body" x="725" y="420">Human approval remains final</text>
+  <rect class="gate" x="675" y="390" width="430" height="44" rx="22"/>
+  <text class="ink pillText center" x="890" y="420">Human approval remains final</text>
 </svg>
