@@ -41,7 +41,7 @@
 
   <path class="arrow" d="M512 226 H570" marker-end="url(#arrowhead)"/>
 
-  <rect class="role" x="582" y="144" width="500" height="164" rx="10"/>
+  <rect class="role" x="582" y="144" width="606" height="164" rx="10"/>
   <text class="ink label" x="618" y="185">Focused role chain</text>
 
   <rect class="card" x="618" y="210" width="94" height="54" rx="8"/>
