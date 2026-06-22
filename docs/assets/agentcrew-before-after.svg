@@ -12,7 +12,7 @@
       .head { font-size: 36px; font-weight: 800; }
       .sub { font-size: 24px; font-weight: 500; }
       .body { font-size: 22px; font-weight: 500; }
-      .label { font-size: 25px; font-weight: 750; }
+      .label { font-size: 25px; font-weight: 700; }
       .pillText { font-size: 22px; font-weight: 700; }
       .center { text-anchor: middle; }
       .arrow { stroke: #4b5d73; stroke-width: 4.25; fill: none; stroke-linecap: round; stroke-linejoin: round; }
