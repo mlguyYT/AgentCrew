@@ -34,7 +34,9 @@ def _run_cli(project: Path, *, extra_env: dict | None = None, expected_returncod
         env.update(extra_env)
     result = subprocess.run(
         [
-            str(repo_root / ".venv/bin/agentcrew-engine"),
+            sys.executable,
+            "-m",
+            "agentcrew.cli",
             "run",
             "--task", "Fix broken.py so add_numbers returns a + b",
             "--project", str(project),
