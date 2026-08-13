@@ -35,6 +35,7 @@ This checklist helps Reviewer Agents and humans review PRs consistently.
 - [ ] Does it follow project conventions?
 - [ ] Is the implementation modular and loosely coupled?
 - [ ] Does it preserve clean architecture boundaries?
+- [ ] If an architecture decision was triggered, does implementation conform to the architecture report and its fitness checks?
 - [ ] Is business logic in the correct layer for this project?
 - [ ] Will this scale without forcing a broad rewrite soon?
 - [ ] Would a future developer understand this?

@@ -136,6 +136,7 @@ skill_file() {
     kubernetes) printf '%s\n' 'agent-team/skills/platform/kubernetes.md' ;;
     reviewer-pro) printf '%s\n' 'agent-team/skills/professional/reviewer-pro.md' ;;
     product-owner-pro) printf '%s\n' 'agent-team/skills/professional/product-owner-pro.md' ;;
+    software-architecture) printf '%s\n' 'agent-team/skills/professional/software-architecture.md' ;;
     llm-pro) printf '%s\n' 'agent-team/skills/professional/llm-pro.md' ;;
     researcher-pro) printf '%s\n' 'agent-team/skills/professional/researcher-pro.md' ;;
     cnn) printf '%s\n' 'agent-team/skills/ml/cnn.md' ;;
@@ -246,6 +247,10 @@ if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
 fi
 for specialist in "${SPECIALISTS[@]}"; do
   case "$specialist" in
+    'Software Architect Agent')
+      [ "$STARTING_ROLE" = 'Software Architect Agent' ] || add_unique LOAD_LATER 'agent-team/agents/software-architect-agent.md'
+      add_unique LOAD_LATER 'agent-team/templates/architecture-report.md'
+      ;;
     'Security Reviewer') add_unique LOAD_LATER 'agent-team/agents/security-reviewer.md'; add_unique LOAD_LATER 'agent-team/templates/security-review-report.md' ;;
     'UX / Design Reviewer') add_unique LOAD_LATER 'agent-team/agents/ux-design-reviewer.md'; add_unique LOAD_LATER 'agent-team/templates/ux-design-review-report.md' ;;
     'Documentation Agent') add_unique LOAD_LATER 'agent-team/agents/documentation-agent.md'; add_unique LOAD_LATER 'agent-team/templates/documentation-report.md' ;;
@@ -260,6 +265,7 @@ done
 
 for gate in "${GATES[@]}"; do
   case "$gate" in
+    *architecture*) add_unique LOAD_LATER 'agent-team/playbooks/architecture-decisions.md'; add_unique LOAD_LATER 'agent-team/checklists/architecture-review.md'; add_unique LOAD_LATER 'agent-team/templates/architecture-report.md' ;;
     *supply-chain*) add_unique LOAD_LATER 'agent-team/playbooks/dependency-supply-chain.md' ;;
     *refactor*) add_unique LOAD_LATER 'agent-team/playbooks/behavior-preserving-refactor.md' ;;
     *compatibility*) add_unique LOAD_LATER 'agent-team/playbooks/compatibility-rollout.md' ;;

@@ -19,9 +19,16 @@ jobs:
         run: |
           bash -n bin/agentcrew
           bash -n agent-team/tools/*.sh
+          ./bin/agentcrew loader --root "$PWD" > /dev/null
 
       - name: Python syntax
         run: python3 -m py_compile engine/agentcrew/*.py
+
+      - name: Install engine test dependencies
+        run: python3 -m pip install -e "./engine[dev]"
+
+      - name: Engine tests
+        run: python3 -m pytest engine/tests
 
       - name: AgentCrew doctor
         run: ./bin/agentcrew doctor

@@ -184,6 +184,7 @@ fi
 
 printf '%s\n' ""
 printf '%s\n' "Reports"
+file_status "architecture" "$STATE_DIR/architecture-report.md"
 file_status "test" "$STATE_DIR/test-report.md"
 file_status "review" "$STATE_DIR/review-report.md"
 file_status "security" "$STATE_DIR/security-review-report.md"

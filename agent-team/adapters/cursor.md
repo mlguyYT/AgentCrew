@@ -8,7 +8,13 @@ Cursor rule storage can vary by version and workspace setup, so AgentCrew does n
 
 ## Recommended rule text
 
-Add this as a global or user rule in Cursor:
+Generate the current vendor-neutral loader:
+
+```bash
+~/AgentCrew/bin/agentcrew loader
+```
+
+Add that output as a global or user rule in Cursor. The essential instruction shape is:
 
 ```text
 AgentCrew is installed at ~/AgentCrew.

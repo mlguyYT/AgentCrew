@@ -44,6 +44,9 @@ Who notices the change and how.
 - reviewer or specialist gate if triggered
 - human approval point
 
+## Architecture Impact
+- boundaries, contracts, data ownership, runtime dependencies, or quality attributes affected; otherwise None
+
 ## Open Questions
 - blockers only, or None.
 

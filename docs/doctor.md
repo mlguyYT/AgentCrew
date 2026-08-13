@@ -29,8 +29,8 @@ From another project, point to the external checkout if needed:
 The doctor checks:
 
 - core AgentCrew files such as `AGENTS.md`, `agent-team/`, route index, playbooks, protocols, and Skills registry
-- required Agent role files
-- required output templates, including task routing and human decision queue templates
+- required Agent role files, including Software Architect Agent
+- required output templates, including task routing, architecture report, and human decision queue templates
 - Claude Code, Codex, OpenClaw, and Hermes Agent global loader registrations
 - local tool availability such as `git`, the project detector, the task classifier, context manifest, project preset selector, task intake, task brief, work plan, readiness check, PR packet preparation, session save/restore, and the status dashboard
 - setup docs such as installation, automatic loading, loader management, project detection, project presets, task classifier, context manifest, session checkpoints, task intake, acceptance criteria, work planning, implementation readiness, PR preparation, release management, support triage, status dashboard, and human decision queue docs

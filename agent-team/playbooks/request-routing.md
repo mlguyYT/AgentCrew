@@ -53,6 +53,7 @@ intent_to_starting_role:
 	  rough_idea_or_strategy: Advisor
 	  portfolio_project_positioning: Product Manager
 	  product_scope_or_acceptance_criteria: Product Manager
+  architecture_design_or_decision: Software Architect Agent
   implementation_or_bug_fix: Developer
   validation_or_regression_check: Tester
   code_or_pr_review: Reviewer
@@ -73,6 +74,7 @@ Examples:
 "Improve onboarding" -> Product Manager first, then Developer/Tester/UX if scope is clear
 "Fix onboarding button alignment" -> Developer first, then Tester/UX if user-facing risk remains
 "Review this auth PR" -> Reviewer plus Security Reviewer
+"Design service boundaries for this billing subsystem" -> Software Architect Agent, then Product Manager and human architecture decision
 "Research payment provider options" -> Researcher Agent, then Product Manager
 "Build a resume project for backend roles" -> Product Manager first, then Researcher Agent if job evidence is needed
 ```
@@ -187,6 +189,7 @@ product_manager_required_when:
 
 specialist_required_when:
   - specialist-review-routing trigger is present
+  - significant architecture boundaries, contracts, data ownership, runtime dependencies, or quality attributes change
 ```
 
 Fast Lane examples:
@@ -196,6 +199,7 @@ Developer -> Tester -> Human
 Developer -> Tester -> Reviewer -> Human
 Product Manager -> Developer -> Tester -> Reviewer -> Human
 Developer -> Tester -> Security Reviewer -> Human
+Software Architect Agent -> Product Manager -> Human
 ```
 
 ---

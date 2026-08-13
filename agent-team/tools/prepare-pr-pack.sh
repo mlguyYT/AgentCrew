@@ -78,6 +78,7 @@ REVIEW_REPORT="$STATE_DIR/review-report.md"
 SECURITY_REPORT="$STATE_DIR/security-review-report.md"
 UX_REPORT="$STATE_DIR/ux-design-review-report.md"
 DOC_REPORT="$STATE_DIR/documentation-report.md"
+ARCHITECTURE_REPORT="$STATE_DIR/architecture-report.md"
 HUMAN_DECISIONS="$STATE_DIR/human-decisions.md"
 PR_PACK="$STATE_DIR/pr-pack.md"
 
@@ -249,6 +250,7 @@ artifact() {
   printf -- '- readiness_report: %s\n' "$(file_state "$READINESS_REPORT")"
   printf -- '- test_report: %s\n' "$(file_state "$TEST_REPORT")"
   printf -- '- review_report: %s\n' "$(file_state "$REVIEW_REPORT")"
+  printf -- '- architecture_report: %s\n' "$(file_state "$ARCHITECTURE_REPORT")"
   printf -- '- security_review_report: %s\n' "$(file_state "$SECURITY_REPORT")"
   printf -- '- ux_design_review_report: %s\n' "$(file_state "$UX_REPORT")"
   printf -- '- documentation_report: %s\n' "$(file_state "$DOC_REPORT")"
@@ -265,6 +267,7 @@ artifact() {
   printf -- '- integration_tests: see test report when present\n\n'
   printf '## Review Evidence\n'
   printf -- '- reviewer: %s\n' "$REVIEW_STATUS"
+  printf -- '- architecture: %s\n' "$(file_state "$ARCHITECTURE_REPORT")"
   printf -- '- security: %s\n' "$(file_state "$SECURITY_REPORT")"
   printf -- '- ux_design: %s\n' "$(file_state "$UX_REPORT")"
   printf -- '- documentation: %s\n\n' "$(file_state "$DOC_REPORT")"

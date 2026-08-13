@@ -43,6 +43,8 @@ Is the PR focused?
 - modularity: acceptable / needs rework
 - clean architecture boundaries: preserved / unclear / violated
 - scalability concerns: none / documented below
+- architecture decision conformance: not triggered / conforms / unclear / violated
+- architecture fitness checks: pass / fail / missing / not applicable
 
 ## Test Coverage
 - sufficient / insufficient

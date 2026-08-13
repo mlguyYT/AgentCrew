@@ -27,6 +27,7 @@ agent-team/
     advisor.md
     idea-consultant.md
     product-manager.md
+    software-architect-agent.md
     developer.md
     tester.md
     reviewer.md
@@ -43,6 +44,9 @@ agent-team/
   playbooks/
     fast-lane.md
     full-lane.md
+    developer-execution-loop.md
+    tester-validation-loop.md
+    reviewer-inspection-loop.md
     pr-process.md
     rework-loop.md
     task-classification.md
@@ -68,6 +72,7 @@ agent-team/
     dependency-supply-chain.md
     behavior-preserving-refactor.md
     compatibility-rollout.md
+    architecture-decisions.md
     token-safe-mode.md
     skill-loading.md
     skill-validation.md
@@ -77,7 +82,11 @@ agent-team/
     README.md
     react-frontend.md
     python-api.md
+    python-web.md
     node-service.md
+    rust-cli.md
+    mobile.md
+    ml-pipeline.md
     general-library.md
     cli-tool.md
 
@@ -147,6 +156,7 @@ agent-team/
     pr-description.md
     test-report.md
     review-report.md
+    architecture-report.md
     security-review-report.md
     ux-design-review-report.md
     documentation-report.md
@@ -196,6 +206,8 @@ agent-team/
     professional/
       reviewer-pro.md
       product-owner-pro.md
+      software-architecture.md
+      proportionate-design.md
       llm-pro.md
       researcher-pro.md
     ml/
@@ -216,6 +228,7 @@ agent-team/
     pr-preparation.md
     testing.md
     code-review.md
+    architecture-review.md
     design-review.md
     documentation.md
     llm-review.md
@@ -226,10 +239,10 @@ agent-team/
     security.md
     memory-saving.md
     skill-validation.md
-	    shared-memory-refresh.md
-	    integration-test-escalation.md
-	    cloud-operation.md
-	    project-constraints.md
+    shared-memory-refresh.md
+    integration-test-escalation.md
+    cloud-operation.md
+    project-constraints.md
 ```
 
 AgentCrew repository structure:
@@ -257,6 +270,7 @@ Recommended project-state artifact structure:
   artifact-map.md
   cloud-resources.md
   eval-metrics.md
+  architecture-report.md
   task-brief.md
   work-plan.md
   readiness-report.md

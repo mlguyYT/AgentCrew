@@ -25,6 +25,7 @@ ready_for_human_review / blocked / draft
 - readiness_report:
 - test_report:
 - review_report:
+- architecture_report:
 - specialist_reports:
 - human_decisions:
 
@@ -36,6 +37,7 @@ ready_for_human_review / blocked / draft
 
 ## Review Evidence
 - reviewer:
+- architecture:
 - security:
 - ux_design:
 - documentation:

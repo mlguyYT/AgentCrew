@@ -49,9 +49,14 @@ Use only when helpful:
 
 ### Commands
 - command: pass/fail
+
+### Validation
+- status: passed | failed | unavailable | not_applicable
+- limitation: required when status is unavailable or not_applicable
 ```
 
 Do not add optional sections by default.
+Actual command results take precedence over a claimed validation status.
 
 ---
 

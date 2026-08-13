@@ -8,6 +8,16 @@ Refactoring should make the project easier to maintain while preserving contract
 
 ---
 
+## Runtime Contract
+
+- Capture externally visible behavior before changing structure.
+- Preserve APIs, schemas, keys, events, configuration, and compatibility unless change is explicit.
+- Extract one boundary at a time and keep behavior changes separate.
+- Run characterization and focused tests before and after each boundary.
+- Record discovered legacy bugs and test gaps instead of silently correcting them.
+
+---
+
 ## Behavior Categories
 
 Before and after a refactor, classify observed behavior as:

@@ -66,6 +66,22 @@ def test_optional_sections_only_appear_when_used():
 
     md2 = _h().render_markdown()
     assert "### Acceptance Criteria" not in md2  # not added by default
+    assert "### Validation" not in md2
+
+
+def test_validation_limitation_renders_when_declared():
+    md = _h(
+        validation_status="unavailable",
+        validation_limitation="Project has no test runner configured.",
+    ).render_markdown()
+    assert "### Validation" in md
+    assert "- status: unavailable" in md
+    assert "Project has no test runner configured." in md
+
+
+def test_unavailable_validation_requires_a_limitation():
+    with pytest.raises(ValidationError):
+        _h(validation_status="unavailable")
 
 
 def test_submit_handoff_schema_pins_sender_and_receivers():

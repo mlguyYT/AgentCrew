@@ -74,23 +74,73 @@ def _empty_handoff(sender: str, receiver: str = "Tester", decision: str = "ready
 
 def _mock_for_critical_run() -> MockProvider:
     """Scripts every role the orchestrator might invoke on a critical-risk run."""
-    return MockProvider(
-        scripts={
-            role: [ScriptedTurn(submission=_empty_handoff(role))]
-            for role in (
-                "Advisor", "Idea Consultant", "Product Manager",
-                "Developer", "Tester", "Reviewer",
-                "Security Reviewer", "Release Manager",
-            )
-        }
-    )
+    scripts = {
+        role: [ScriptedTurn(submission=_empty_handoff(role))]
+        for role in (
+            "Advisor", "Idea Consultant", "Product Manager",
+            "Developer", "Tester", "Reviewer",
+            "Security Reviewer", "Release Manager",
+        )
+    }
+    scripts["Developer"] = [
+        ScriptedTurn(
+            tool_calls=[
+                {"name": "read_file", "input": {"path": "broken.py"}},
+                {
+                    "name": "edit_file",
+                    "input": {
+                        "path": "broken.py",
+                        "old_string": "return a - b",
+                        "new_string": "return a + b",
+                    },
+                },
+                {
+                    "name": "bash",
+                    "input": {"command": "python3 -m py_compile broken.py"},
+                },
+            ],
+            submission=_empty_handoff("Developer"),
+        )
+    ]
+    scripts["Tester"] = [
+        ScriptedTurn(
+            tool_calls=[
+                {
+                    "name": "bash",
+                    "input": {"command": "python3 -m unittest -q"},
+                }
+            ],
+            submission=_empty_handoff("Tester"),
+        )
+    ]
+    scripts["Reviewer"] = [
+        ScriptedTurn(
+            submission=_empty_handoff("Reviewer"),
+        ),
+        ScriptedTurn(
+            tool_calls=[
+                {"name": "read_file", "input": {"path": "broken.py"}}
+            ],
+            submission=_empty_handoff("Reviewer"),
+        )
+    ]
+    return MockProvider(scripts=scripts)
 
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
     p = tmp_path / "proj"
     p.mkdir()
-    (p / "broken.py").write_text("x = 1\n")
+    (p / "broken.py").write_text(
+        "def add_numbers(a, b):\n    return a - b\n"
+    )
+    (p / "test_broken.py").write_text(
+        "import unittest\n"
+        "from broken import add_numbers\n\n"
+        "class AddNumbersTest(unittest.TestCase):\n"
+        "    def test_adds(self):\n"
+        "        self.assertEqual(add_numbers(2, 3), 5)\n"
+    )
     return p
 
 
@@ -129,6 +179,10 @@ def test_risk_acceptor_called_on_critical_run(project):
     assert seen[0][0] == "critical"
     # And consulted exactly once (not before every role).
     assert len(seen) == 1
+    assert [handoff.sender for handoff in result.handoffs].count(
+        "Reviewer"
+    ) == 2
+    assert len(list(result.run_dir.glob("*-review-evidence.json"))) == 2
 
 
 def test_risk_acceptor_rejection_stops_run(project):

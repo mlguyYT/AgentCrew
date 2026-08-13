@@ -34,6 +34,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `bin/agentcrew ready --dry-run --project .` previews an implementation-readiness report
 - [ ] `bin/agentcrew pr-pack --dry-run --project .` previews a PR packet
 - [ ] `bin/agentcrew status --project .` shows registrations and project dashboard
+- [ ] `bin/agentcrew loader` prints vendor-neutral loader text without modifying files
 - [ ] `agent-team/` exists
 - [ ] `README.md` or project docs explain how to use AgentCrew
 - [ ] Optional tool adapters point to `AGENTS.md` and `agent-team/`
@@ -56,6 +57,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/agents/advisor.md`
 - [ ] `agent-team/agents/idea-consultant.md`
 - [ ] `agent-team/agents/product-manager.md`
+- [ ] `agent-team/agents/software-architect-agent.md`
 - [ ] `agent-team/agents/developer.md`
 - [ ] `agent-team/agents/tester.md`
 - [ ] `agent-team/agents/reviewer.md`
@@ -75,6 +77,9 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 
 - [ ] `agent-team/playbooks/fast-lane.md`
 - [ ] `agent-team/playbooks/full-lane.md`
+- [ ] `agent-team/playbooks/developer-execution-loop.md`
+- [ ] `agent-team/playbooks/tester-validation-loop.md`
+- [ ] `agent-team/playbooks/reviewer-inspection-loop.md`
 - [ ] `agent-team/playbooks/pr-process.md`
 - [ ] `agent-team/playbooks/rework-loop.md`
 - [ ] `agent-team/playbooks/task-classification.md`
@@ -100,6 +105,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/playbooks/dependency-supply-chain.md`
 - [ ] `agent-team/playbooks/behavior-preserving-refactor.md`
 - [ ] `agent-team/playbooks/compatibility-rollout.md`
+- [ ] `agent-team/playbooks/architecture-decisions.md`
 - [ ] `agent-team/playbooks/token-safe-mode.md`
 - [ ] `agent-team/playbooks/skill-loading.md`
 - [ ] `agent-team/playbooks/skill-validation.md`
@@ -164,6 +170,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/checklists/llm-review.md`
 - [ ] `agent-team/checklists/research-quality.md`
 - [ ] `agent-team/checklists/cnn-review.md`
+- [ ] `agent-team/checklists/architecture-review.md`
 - [ ] `agent-team/checklists/cloud-operation.md`
 - [ ] `agent-team/checklists/project-constraints.md`
 
@@ -195,6 +202,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `docs/support-triage.md`
 - [ ] `docs/status-dashboard.md`
 - [ ] `docs/human-decision-queue.md`
+- [ ] `docs/software-architecture.md`
 
 ---
 
@@ -205,6 +213,8 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/skills/authoring-guide.md`
 - [ ] `agent-team/skills/professional/llm-pro.md`
 - [ ] `agent-team/skills/professional/researcher-pro.md`
+- [ ] `agent-team/skills/professional/software-architecture.md`
+- [ ] `agent-team/skills/professional/proportionate-design.md`
 - [ ] `agent-team/skills/ml/cnn.md`
 - [ ] `agent-team/templates/task-routing.md`
 - [ ] `agent-team/templates/current-task.md`
@@ -217,6 +227,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/templates/pr-description.md`
 - [ ] `agent-team/templates/test-report.md`
 - [ ] `agent-team/templates/review-report.md`
+- [ ] `agent-team/templates/architecture-report.md`
 - [ ] `agent-team/templates/security-review-report.md`
 - [ ] `agent-team/templates/ux-design-review-report.md`
 - [ ] `agent-team/templates/documentation-report.md`

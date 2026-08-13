@@ -36,6 +36,15 @@ def test_release_manager_gets_release_gate():
     assert len(loaded) == 1
 
 
+def test_software_architect_gets_architecture_gate():
+    root = find_agentcrew_root()
+    loaded = load_gates_for_role(
+        root, "Software Architect Agent", ["architecture decision gate"]
+    )
+    assert len(loaded) == 1
+    assert "quality" in loaded[0][1].lower() or "boundary" in loaded[0][1].lower()
+
+
 def test_unknown_gate_silently_ignored():
     root = find_agentcrew_root()
     loaded = load_gates_for_role(root, "Developer", ["some made-up gate name"])

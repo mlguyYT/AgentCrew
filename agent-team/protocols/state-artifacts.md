@@ -35,6 +35,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
 ```text
 .agent-state/
   sessions/
+  runs/
   project-constraints.md
   current-task.md
   project-preset.md
@@ -58,6 +59,7 @@ When AgentCrew is loaded from an external checkout, state still belongs in the t
   llm-report.md
   research-report.md
   cnn-report.md
+  architecture-report.md
   skill-validation-report.md
   role-fit-matrix.md
   mvp-scope.md
@@ -73,6 +75,13 @@ If `project-constraints.md` exists, agents should read it before action and summ
 `sessions/` stores timestamped local session checkpoints created by the optional AgentCrew save-session and checkpoint utilities.
 The save-session utility resolves the target git repository root automatically, so checkpoints from different projects do not conflict.
 Structured checkpoint blocks use `agent-team/protocols/checkpoint-blocks.md`.
+
+`runs/` stores engine-created routing, handoff, cost, and sanitized execution
+evidence for each run. Execution evidence contains bounded metadata such as
+relative changed paths, command categories, exit codes, and outcomes; it must
+not contain file contents, command arguments, tool output, or local machine
+paths. Tester validation evidence and Reviewer inspection evidence follow the
+same rule.
 
 ---
 
@@ -148,6 +157,9 @@ research-report.md:
 cnn-report.md:
   purpose: latest CNN Agent findings for computer vision architecture, datasets, training, evaluation, and inference
 
+architecture-report.md:
+  purpose: latest Software Architect Agent decision context, options, boundaries, quality attributes, consequences, fitness checks, and human decisions
+
 skill-validation-report.md:
   purpose: latest Skill Validator findings for new or changed Skills and registry updates
 
@@ -168,6 +180,9 @@ memory.md:
 
 sessions/:
   purpose: timestamped local checkpoints and optional [agentcrew-context] blocks for pause/resume across agent sessions
+
+runs/:
+  purpose: per-run routing, handoffs, estimates, summaries, and sanitized engine-observed execution evidence
 ```
 
 ---

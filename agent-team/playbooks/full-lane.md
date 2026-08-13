@@ -79,7 +79,7 @@ Reviews quality, architecture, and risk.
 
 ### Specialist Reviewers
 
-Security Reviewer, UX / Design Reviewer, Documentation Agent, LLM Agent, Researcher Agent, and CNN Agent review their areas when the task touches them.
+Security Reviewer, UX / Design Reviewer, Software Architect Agent, Documentation Agent, LLM Agent, Researcher Agent, and CNN Agent review their areas when the task touches them.
 
 ### Human
 
@@ -243,6 +243,8 @@ reviewer_checks:
 ```
 
 Reviewer may mark ready for human review, but cannot approve as human.
+
+For significant boundary, contract, data-ownership, runtime-dependency, or quality-attribute decisions, route through Software Architect Agent and `agent-team/playbooks/architecture-decisions.md`.
 
 ---
 

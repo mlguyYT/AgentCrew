@@ -39,7 +39,7 @@ The standalone project dashboard is also available inside AgentCrew:
 - whether `.agent-state/` exists
 - project guardrails: constraints, commit policy, next safe action, artifact map, cloud resources, and eval metrics
 - current task fields, including quality profile and recipe, when `.agent-state/current-task.md` exists
-- latest test, review, security, UX, documentation, support triage, release, LLM, research, CNN, and Skill validation report presence
+- latest architecture, test, review, security, UX, documentation, support triage, release, LLM, research, CNN, and Skill validation report presence
 - project preset, task brief, work plan, readiness report, PR packet, portfolio artifacts, decisions, handoff, memory, untracked-file count, and latest saved session
 - pending human decision queue, open questions, and the human-approval reminder
 

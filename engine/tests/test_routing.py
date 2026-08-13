@@ -2,7 +2,8 @@
 
 import pytest
 
-from agentcrew.routing import Routing, _parse_yaml
+from agentcrew.agentcrew_root import find_agentcrew_root
+from agentcrew.routing import Routing, _parse_yaml, classify
 
 
 SAMPLE = """\
@@ -139,6 +140,26 @@ def test_specialist_runs_once_when_in_workflow_and_specialists():
     assert roles == ["Developer", "Tester", "Security Reviewer"]
 
 
+def test_explicit_repeated_role_runs_twice():
+    """An explicit later role is a separate workflow phase, not duplication."""
+    r = Routing(
+        task="t", project="p", intent="architecture_design_or_decision",
+        risk="high", lane="Full Lane", quality_profile="strict",
+        recipe="review", starting_role="Software Architect Agent",
+        workflow=(
+            "Software Architect Agent -> Developer -> Reviewer -> "
+            "Software Architect Agent -> Human"
+        ),
+        specialists=["Software Architect Agent"],
+    )
+    assert r.acting_roles_in_order() == [
+        "Software Architect Agent",
+        "Developer",
+        "Reviewer",
+        "Software Architect Agent",
+    ]
+
+
 def test_unknown_condition_defaults_to_include():
     """Conservative: if we can't evaluate the condition, run the role anyway."""
     r = Routing(
@@ -176,6 +197,59 @@ def test_no_mid_workflow_human_gate_on_normal_route():
         workflow="Developer -> Tester -> Human",
     )
     assert r.has_mid_workflow_human_gate() is False
+
+
+def test_real_classifier_routes_architecture_decision():
+    root = find_agentcrew_root()
+    r = classify(
+        root,
+        "Design service boundaries and data ownership for the billing subsystem",
+        str(root.path),
+    )
+    assert r.intent == "architecture_design_or_decision"
+    assert r.risk == "high"
+    assert r.lane == "Full Lane"
+    assert r.starting_role == "Software Architect Agent"
+    assert r.acting_roles_in_order() == [
+        "Software Architect Agent",
+        "Product Manager",
+        "Security Reviewer",
+    ]
+    assert "Software Architect Agent" in r.specialists
+    assert "software-architecture" in r.skills
+    assert "architecture decision gate" in r.gates
+    assert "agent-team/playbooks/architecture-decisions.md" in r.files_to_load
+
+
+def test_architecture_delivery_pauses_before_implementation():
+    root = find_agentcrew_root()
+    r = classify(
+        root,
+        "Implement a new service boundary and data ownership model for billing",
+        str(root.path),
+    )
+    assert r.starting_role == "Software Architect Agent"
+    assert r.has_mid_workflow_human_gate() is True
+    assert r.role_after_mid_workflow_human_gate() == "Developer"
+    assert r.acting_roles_in_order() == [
+        "Software Architect Agent",
+        "Product Manager",
+        "Developer",
+        "Tester",
+        "Reviewer",
+        "Software Architect Agent",
+        "Security Reviewer",
+    ]
+
+
+def test_login_does_not_trigger_artifact_classification():
+    root = find_agentcrew_root()
+    r = classify(
+        root,
+        "Fix the login form so empty email shows a validation message",
+        str(root.path),
+    )
+    assert "artifact classification check" not in r.gates
 
 
 def test_quoted_apostrophes_unescape():

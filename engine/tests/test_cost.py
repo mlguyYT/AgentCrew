@@ -280,6 +280,13 @@ def test_orchestrator_writes_cost_estimate_and_actual(tmp_path):
     project = tmp_path / "proj"
     project.mkdir()
     (project / "broken.py").write_text("def add_numbers(a, b): return a - b\n")
+    (project / "test_broken.py").write_text(
+        "import unittest\n"
+        "from broken import add_numbers\n\n"
+        "class AddNumbersTest(unittest.TestCase):\n"
+        "    def test_adds(self):\n"
+        "        self.assertEqual(add_numbers(2, 3), 5)\n"
+    )
 
     root = find_agentcrew_root()
     result = run_team(

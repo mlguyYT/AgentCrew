@@ -76,6 +76,13 @@ def test_decisions_section_appears_in_provider_user_message(tmp_path):
     project = tmp_path / "proj"
     project.mkdir()
     (project / "broken.py").write_text("def add_numbers(a, b): return a - b\n")
+    (project / "test_broken.py").write_text(
+        "import unittest\n"
+        "from broken import add_numbers\n\n"
+        "class AddNumbersTest(unittest.TestCase):\n"
+        "    def test_adds(self):\n"
+        "        self.assertEqual(add_numbers(2, 3), 5)\n"
+    )
     (project / ".agent-state").mkdir()
     record_decision(
         project / ".agent-state" / "decisions.md",

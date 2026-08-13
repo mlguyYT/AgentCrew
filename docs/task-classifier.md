@@ -78,6 +78,8 @@ The classifier estimates:
 - human-only decision points
 - AgentCrew files to load next
 
+Architecture and system-design requests route through Software Architect Agent when they change consequential boundaries, contracts, data ownership, runtime dependencies, or quality attributes. The route includes the Software Architecture Skill and architecture decision gate.
+
 ---
 
 ## Good Uses

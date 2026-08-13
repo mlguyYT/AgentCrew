@@ -8,6 +8,16 @@ These changes can affect security, deployability, reproducibility, and productio
 
 ---
 
+## Runtime Contract
+
+- Identify every manifest, lockfile, runtime, container, CI, or build change.
+- Use the ecosystem audit or security check when available.
+- Inspect unresolved transitive paths and document overrides, pins, or ignores.
+- Avoid forced or breaking fixes without explicit human approval.
+- Rerun relevant tests after dependency changes and report remaining risk.
+
+---
+
 ## Triggers
 
 Run this gate when any change touches:

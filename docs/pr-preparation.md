@@ -35,7 +35,7 @@ Use `--dry-run` to preview and `--force` when intentionally replacing an existin
 ## What It Checks
 
 - current task, brief, work plan, and readiness status
-- test, review, security, UX, and documentation reports
+- test, review, architecture, security, UX, and documentation reports
 - pending human-only decisions
 - git branch, default branch, HEAD, and worktree status when available
 - risks and gaps that should be visible before approval

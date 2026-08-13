@@ -106,6 +106,19 @@ cnn_agent:
     - model training
     - inference optimization
 
+software_architect_agent:
+  role_file: agent-team/agents/software-architect-agent.md
+  template: agent-team/templates/architecture-report.md
+  triggers:
+    - architecture or system-design decision
+    - new service, subsystem, platform, or major module
+    - service, module, or bounded-context boundary
+    - public API, protocol, event, or schema boundary
+    - data ownership or consistency model
+    - large or cross-cutting refactor
+    - scalability, availability, resilience, performance, or operability requirement
+    - difficult-to-reverse technology or integration choice
+
 skill_validator:
   role_file: agent-team/agents/skill-validator.md
   template: agent-team/templates/skill-validation-report.md
@@ -159,6 +172,7 @@ Checkout redesign with payment copy:
   - Security Reviewer for payment/data risk
   - UX / Design Reviewer for checkout flow
   - Documentation Agent for release notes or usage docs
+  - Software Architect Agent for boundaries, contracts, data ownership, and quality attributes
   - LLM Agent for prompt, RAG, eval, or model behavior risk
 ```
 
@@ -179,6 +193,6 @@ Do not involve a specialist only because:
 
 ## Handoff Rule
 
-Specialist rework routes back to the original Developer unless the issue is docs-only and the Documentation Agent is explicitly assigned to update docs. Researcher Agent output may route to Product Manager when the next step is a product or strategy decision.
+Specialist rework routes back to the original Developer unless the issue is docs-only and the Documentation Agent is explicitly assigned to update docs. Researcher Agent output may route to Product Manager when the next step is a product or strategy decision. Software Architect Agent output routes to Product Manager for product scope, to the human for consequential decisions, and to Developer after approval.
 
 Human approval remains required.

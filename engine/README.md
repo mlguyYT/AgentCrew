@@ -30,10 +30,17 @@ When a user asks the engine to run a task, this is what happens:
    - The engine calls the LLM, the role acts, then **submits a Handoff**
      that the engine validates against
      `agent-team/protocols/handoff-format.md`.
+   - For Developer turns, the engine records sanitized tool outcomes and net
+     changed project paths. For Tester and Reviewer turns, it independently
+     records validation and inspection evidence.
+   - The engine requires an observed change plus post-change validation,
+     behavior-level Tester evidence for behavior work, and actual Reviewer
+     inspection when review is routed. Explicit limitations remain visible.
    - The engine persists the Handoff to `.agent-state/handoff.md` AND
      the per-role report file (e.g. `test-report.md`,
      `security-review-report.md`) per
-     `agent-team/protocols/state-artifacts.md`.
+     `agent-team/protocols/state-artifacts.md`. Per-run execution evidence is
+     written under `.agent-state/runs/`.
 5. The engine stops on the first human-gate decision or after the
    workflow completes. Critical-risk `Human decision` gates require an
    explicit human confirmation callback; they are not accepted by default.
@@ -46,7 +53,7 @@ those.
 
 | Concept | Where it lives |
 |---|---|
-| Roles (Developer, Tester, Reviewer, Security Reviewer, UX/Design Reviewer, Documentation Agent, Support Triage Agent, Release Manager, Researcher Agent, LLM Agent, CNN Agent, Skill Validator, Advisor, Idea Consultant, Product Manager) | `agent-team/agents/*.md` — read at runtime |
+| Roles (Developer, Tester, Reviewer, Software Architect Agent, Security Reviewer, UX/Design Reviewer, Documentation Agent, Support Triage Agent, Release Manager, Researcher Agent, LLM Agent, CNN Agent, Skill Validator, Advisor, Idea Consultant, Product Manager) | `agent-team/agents/*.md` — read at runtime |
 | Routing (intent, risk, lane, quality profile, recipe, workflow, gates, specialists) | `agent-team/tools/classify-task.sh` — shelled out by `routing.py` |
 | Handoff schema | `agent-team/protocols/handoff-format.md` + `templates/compact-handoff.md` — Pydantic mirror in `handoff.py` |
 | State artifact layout | `agent-team/protocols/state-artifacts.md` — implemented in `state.py` |
@@ -140,9 +147,11 @@ and spaces replaced by `-`.
        │       )                                            │
        │       Provider.run_agent(                          │
        │         system_prompt = role file,                 │
+       │         runtime       = bounded selected context,  │
        │         tools         = tools.build_tools(role),   │
        │         submit_tool   = submit_handoff schema      │
        │       )                                            │
+       │       verify Developer change + validation evidence│
        │       persist Handoff per                          │
        │       agent-team/protocols/state-artifacts.md      │
        │                                                    │
@@ -167,6 +176,12 @@ engine/
 │   ├── state.py               # Implements state-artifacts.md layout
 │   ├── agents.py              # Agent dataclass — system prompt from role file
 │   ├── tools.py               # Bounded tools, allowlist keyed on role names
+│   ├── context_compiler.py    # Bounded selected execution guidance
+│   ├── execution_commands.py  # Sanitized command and validation classification
+│   ├── execution_evidence.py  # Developer evidence ledger + completion gate
+│   ├── git_inspection.py      # Bounded target-scoped tracked/untracked diff
+│   ├── quality_evidence.py    # Tester validation + Reviewer inspection gates
+│   ├── role_runner.py         # One bounded role turn + evidence enforcement
 │   ├── orchestrator.py        # Classifier-driven; no parallel planning logic
 │   ├── provider.py            # Provider ABC + MockProvider
 │   ├── provider_local.py      # Ollama-first local backend

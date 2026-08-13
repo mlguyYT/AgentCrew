@@ -32,6 +32,9 @@ class AgentRun:
     `submission` is the raw dict the role passed to its submit-tool
     (`submit_handoff` for normal roles, `submit_plan` for the Planner).
     The orchestrator parses it into the right Pydantic type.
+
+    Context metadata records which methodology fragments the orchestrator
+    compiled for the run without storing another copy of their text.
     """
 
     submission: dict | None = None
@@ -39,6 +42,12 @@ class AgentRun:
     tool_call_count: int = 0
     stop_reason: str = ""
     usage: dict = field(default_factory=dict)
+    context_fragments: tuple[str, ...] = ()
+    context_estimated_tokens: int = 0
+    observed_changed_files: tuple[str, ...] = ()
+    execution_evidence: dict = field(default_factory=dict)
+    validation_evidence: dict = field(default_factory=dict)
+    review_evidence: dict = field(default_factory=dict)
 
 
 class Provider(ABC):

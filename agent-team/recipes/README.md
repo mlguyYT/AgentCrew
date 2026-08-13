@@ -34,3 +34,16 @@ recipes:
 Load only the selected recipe file after request routing.
 
 For tiny work, the recipe can be mentioned in the compact route summary without loading the full file.
+
+## Runtime Contract Convention
+
+Execution-capable recipes should include:
+
+```text
+## Runtime Contract
+```
+
+Keep this section to three to six observable actions. The engine compiles it
+into bounded role context and leaves explanatory, routing, and escalation
+sections out of the active prompt. When the section is absent, the engine may
+use the recipe's compact `Agent Focus` section as a compatibility fallback.

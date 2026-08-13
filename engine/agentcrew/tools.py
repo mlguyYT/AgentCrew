@@ -20,6 +20,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+from .git_inspection import GitInspectionError, read_git_diff
+
 
 @dataclass
 class ToolError(Exception):
@@ -77,6 +79,7 @@ _DEVELOPER_BASH_ALLOWLIST = {
 # worktree during the role turn.
 _TESTER_BASH_ALLOWLIST = {
     "ls", "cat", "head", "tail", "wc", "find", "grep", "rg",
+    "python", "python3",
     "pytest", "unittest",
     "node", "npm",
     "go", "cargo",
@@ -99,7 +102,11 @@ _BASH_DENY_PATTERNS = [
 ]
 
 
-def _bash_check(command: str, allowlist: set[str]) -> list[str]:
+def _bash_check(
+    command: str,
+    allowlist: set[str],
+    project_root: Path,
+) -> list[str]:
     if not command or not command.strip():
         raise ToolError("command must be non-empty")
     for pat in _BASH_DENY_PATTERNS:
@@ -113,12 +120,26 @@ def _bash_check(command: str, allowlist: set[str]) -> list[str]:
         raise ToolError(f"command failed to parse: {exc}") from exc
     if not argv:
         raise ToolError("command parsed to empty argv")
-    binary = Path(argv[0]).name  # strip any path prefix
+    executable = Path(argv[0])
+    binary = executable.name
     if binary not in allowlist:
         raise ToolError(
             f"command {binary!r} not in this role's allowlist; "
             f"allowed: {sorted(allowlist)}"
         )
+    if executable != Path(binary):
+        resolved = (
+            executable.resolve()
+            if executable.is_absolute()
+            else (project_root / executable).resolve()
+        )
+        try:
+            resolved.relative_to(project_root.resolve())
+        except ValueError as exc:
+            raise ToolError(
+                "path-prefixed executables must stay within the project root"
+            ) from exc
+        argv[0] = str(resolved)
     return argv
 
 
@@ -162,8 +183,25 @@ def _edit_file(project_root: Path, path: str, old_string: str, new_string: str) 
     return f"edited {path} (1 replacement)"
 
 
-def _bash(project_root: Path, allowlist: set[str], command: str, timeout: int = 30) -> str:
-    argv = _bash_check(command, allowlist)
+def _bash(
+    project_root: Path,
+    allowlist: set[str],
+    command: str,
+    timeout: int = 30,
+    allowed_python_modules: set[str] | None = None,
+) -> str:
+    argv = _bash_check(command, allowlist, project_root)
+    binary = Path(argv[0]).name
+    if binary in {"python", "python3"} and allowed_python_modules is not None:
+        if (
+            len(argv) < 3
+            or argv[1] != "-m"
+            or argv[2] not in allowed_python_modules
+        ):
+            raise ToolError(
+                "command blocked by Tester allowlist; Python is limited to "
+                f"-m {sorted(allowed_python_modules)}"
+            )
     try:
         result = subprocess.run(
             argv,
@@ -173,14 +211,27 @@ def _bash(project_root: Path, allowlist: set[str], command: str, timeout: int = 
             text=True,
             timeout=timeout,
             check=False,
-            env={"PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": str(project_root)},
+            env={
+                "PATH": "/usr/local/bin:/usr/bin:/bin",
+                "HOME": str(project_root),
+                "PYTHONDONTWRITEBYTECODE": "1",
+            },
         )
     except subprocess.TimeoutExpired:
         raise ToolError(f"command timed out after {timeout}s")
     out = (result.stdout or "")[:8000]
     err = (result.stderr or "")[:4000]
+    returncode = result.returncode
+    if (
+        binary in {"python", "python3"}
+        and len(argv) >= 3
+        and argv[1:3] == ["-m", "unittest"]
+        and re.search(r"\bRan 0 tests\b", f"{out}\n{err}")
+    ):
+        returncode = 5
+        err += "\n[AgentCrew: unittest discovered zero tests]"
     return (
-        f"exit={result.returncode}\n"
+        f"exit={returncode}\n"
         f"--- stdout ---\n{out}\n"
         f"--- stderr ---\n{err}"
     )
@@ -220,10 +271,33 @@ def _glob(project_root: Path, pattern: str, max_results: int = 100) -> str:
     return "\n".join(matches) if matches else "(no matches)"
 
 
+def _git_diff(
+    project_root: Path,
+    paths: list[str] | None = None,
+    max_bytes: int = 32_000,
+) -> str:
+    relative_paths: list[str] = []
+    for path in paths or []:
+        resolved = _resolve(project_root, path)
+        relative_paths.append(str(resolved.relative_to(project_root.resolve())))
+    try:
+        return read_git_diff(
+            project_root,
+            relative_paths,
+            max_bytes=max_bytes,
+        )
+    except GitInspectionError as exc:
+        raise ToolError(str(exc)) from exc
+
+
 # --- Tool specs (per role allowlist) ------------------------------------------
 
 
-def build_tools(role: str, project_root: Path) -> list[ToolSpec]:
+def build_tools(
+    role: str,
+    project_root: Path,
+    review_paths: tuple[str, ...] = (),
+) -> list[ToolSpec]:
     """Return the bounded tool set this role is allowed to use."""
 
     read_spec = ToolSpec(
@@ -298,11 +372,48 @@ def build_tools(role: str, project_root: Path) -> list[ToolSpec]:
         handler=lambda pattern: _glob(project_root, pattern),
     )
 
+    def _review_git_diff(paths: list[str] | None = None) -> str:
+        selected = paths
+        if review_paths:
+            if paths:
+                outside_scope = set(paths) - set(review_paths)
+                if outside_scope:
+                    raise ToolError(
+                        "git_diff paths must stay within the engine-observed "
+                        f"change scope; outside scope: {sorted(outside_scope)}"
+                    )
+            else:
+                selected = list(review_paths)
+        return _git_diff(project_root, selected)
+
+    git_diff_spec = ToolSpec(
+        name="git_diff",
+        description=(
+            "Read the current Git status and HEAD-relative diff. Output is "
+            "bounded and includes untracked files. Omit paths to inspect the "
+            "complete engine-observed change scope."
+        ),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "paths": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "maxItems": 20,
+                    "description": (
+                        "Optional project-relative paths. Omit for the full diff."
+                    ),
+                },
+            },
+        },
+        handler=_review_git_diff,
+    )
+
     dev_bash = ToolSpec(
         name="bash",
         description=(
-            "Run a shell command in the project root. Network access denied. "
-            "Destructive operations denied. 30-second timeout."
+            "Run an allowlisted command in the project root. Network-fetching "
+            "and destructive commands are denied. 30-second timeout."
         ),
         input_schema={
             "type": "object",
@@ -323,7 +434,12 @@ def build_tools(role: str, project_root: Path) -> list[ToolSpec]:
             "properties": {"command": {"type": "string"}},
             "required": ["command"],
         },
-        handler=lambda command: _bash(project_root, _TESTER_BASH_ALLOWLIST, command),
+        handler=lambda command: _bash(
+            project_root,
+            _TESTER_BASH_ALLOWLIST,
+            command,
+            allowed_python_modules={"pytest", "unittest"},
+        ),
     )
 
     # Documentation can write to docs paths only. We enforce this by
@@ -356,6 +472,8 @@ def build_tools(role: str, project_root: Path) -> list[ToolSpec]:
     if role == "Tester":
         return [read_spec, test_bash]
     if role == "Reviewer":
+        return [read_spec, grep_spec, glob_spec, git_diff_spec]
+    if role == "Software Architect Agent":
         return [read_spec, grep_spec, glob_spec]
     if role == "Researcher Agent":
         return [read_spec, grep_spec, glob_spec]

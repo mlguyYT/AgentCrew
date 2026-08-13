@@ -40,6 +40,9 @@ Role -> Role -> Human
 ## Risks
 - risk and mitigation or None
 
+## Architecture Decisions
+- architecture report, fitness check, or human decision required; otherwise None
+
 ## Next Action
 Exactly what should happen first.
 

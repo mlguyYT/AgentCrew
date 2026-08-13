@@ -73,15 +73,17 @@ matches() {
 # both the intent classifier and the specialist trigger below to prevent drift
 # when terms are added in one place but missed in the other.
 RX_SUPPORT='(support ticket|customer report|customer-reported|user report|user complaint|operator report|bug report|repro steps|reproduction steps|severity|impact assessment|triage this|ticket)'
-RX_RELEASE='(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)'
+RX_RELEASE='(^|[^a-z0-9])(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)([^a-z0-9]|$)'
 RX_DOCS='(docs|documentation|readme|changelog|release note|example|guide|migration note|public api)'
 RX_RESEARCH='(research|compare|investigate options|source-backed|sources|citation|latest|current|market|standard|regulation|source)'
-RX_LLM='(llm|prompt|rag|embedding|vector search|tool calling|function calling|structured output|model|eval|hallucination|prompt injection)'
+RX_LLM='(llm|language model|foundation model|model selection|model provider|model endpoint|prompt|rag|embedding|vector search|tool calling|function calling|structured output|llm eval|model eval|prompt eval|hallucination|prompt injection)'
 RX_CNN='(cnn|computer vision|image classification|object detection|segmentation|image dataset|augmentation|model training|training|inference optimization|inference)'
+RX_ARCHITECTURE='(software architecture|system design|architecture decision|architectural decision|architecture review|service boundary|module boundary|bounded context|dependency direction|data ownership|quality attribute|scalability|availability|resilience|performance budget|operability|(^|[^a-z0-9])adr([^a-z0-9]|$))'
+RX_UX='(^|[^a-z0-9])(ui|ux|user-facing|onboarding|form|navigation|accessibility|responsive|layout|copy)([^a-z0-9]|$)|interface design|interaction design|user experience'
 RX_SKILL='(skill|skills registry|skill changed|new skill|authoring guide)'
 RX_PORTFOLIO='(portfolio|resume project|resume-project|cv project|interview project|case study project|case-study project|job description|job posting|target role|hiring signal|recruiter|interview talking point|demo project)'
 RX_CLOUD='(cloud|deploy|deployment|endpoint|hosted|paid resource|cost-bearing|cost bearing|teardown|delete resource|resource id|vector search|managed service|bucket|queue|cloud database)'
-RX_ARTIFACT='(artifact|generated|chunk|chunks|spec|specs|log|logs|output|outputs|temporary file|runtime file|untracked file)'
+RX_ARTIFACT='(^|[^a-z0-9])(artifact|generated|chunk|chunks|spec|specs|log|logs|output|outputs|temporary file|runtime file|untracked file)([^a-z0-9]|$)'
 RX_PRIVATE_BOUNDARY='(public repo|public repository|private repo|private repository|private product|private feature|customer-specific|customer sensitive|commercial|proposal|sensitive wording|public/private|public private)'
 RX_COMMIT_BOUNDARY='(^|[^a-z0-9])(commit|push|merge|pr)([^a-z0-9]|$)|default branch|pull request'
 
@@ -142,6 +144,10 @@ GATES=()
 HUMAN_DECISIONS=("final approval before merge")
 REASONS=()
 FILES_TO_LOAD=("agent-team/context/route-index.md" "agent-team/playbooks/request-routing.md" "agent-team/playbooks/task-classification.md")
+ARCHITECTURE_DELIVERY_REQUEST="false"
+if matches '(^| )(implement|build|create|add|change|refactor|migrate|replace)( |$)'; then
+  ARCHITECTURE_DELIVERY_REQUEST="true"
+fi
 
 # Intent mapping. Later rules may escalate risk without changing explicit intent.
 if matches '(^| )(how|what|why|when|where|can|could|should|is|are|does|do|did|would|explain|describe|advice|recommend|suggest|question|thoughts)( |$|[?])' && ! matches '(^| )(fix|change|add|update|create|build|implement|refactor|remove|replace|install|commit|push|run|test|validate|review|inspect|save)( |$)'; then
@@ -203,6 +209,21 @@ elif matches "$RX_PRIVATE_BOUNDARY"; then
   add_unique REVIEWERS "Product Manager"
   add_unique HUMAN_DECISIONS "approve public/private artifact or feature placement"
   add_unique REASONS "public/private product or sensitive wording boundary trigger present"
+elif matches "$RX_ARCHITECTURE"; then
+  INTENT="architecture_design_or_decision"
+  STARTING_ROLE="Software Architect Agent"
+  if [ "$ARCHITECTURE_DELIVERY_REQUEST" = "true" ]; then
+    WORKFLOW="Software Architect Agent -> Product Manager -> Human decision -> Developer -> Tester -> Reviewer -> Software Architect Agent -> Human"
+    NEXT_ROLES=("Product Manager" "Human decision" "Developer" "Tester" "Reviewer" "Software Architect Agent" "Human")
+  else
+    WORKFLOW="Software Architect Agent -> Product Manager -> Human"
+    NEXT_ROLES=("Product Manager" "Human")
+  fi
+  add_unique SPECIALISTS "Software Architect Agent"
+  add_unique SKILLS "software-architecture"
+  add_unique GATES "architecture decision gate"
+  add_unique HUMAN_DECISIONS "approve consequential architecture direction before implementation"
+  add_unique REASONS "request needs architecture or system-design analysis"
 elif matches '(^| )(fix|change|add|update|create|build|implement|improve|refactor|remove|replace)( |$)'; then
   INTENT="implementation_or_bug_fix"
   STARTING_ROLE="Developer"
@@ -299,6 +320,9 @@ case "$INTENT" in
   source_backed_research_or_current_info)
     add_unique GATES "source quality check"
     ;;
+  architecture_design_or_decision)
+    add_unique GATES "architecture decision gate"
+    ;;
 	  portfolio_project_positioning)
 	    add_unique GATES "portfolio scope check"
 	    add_unique GATES "target-role evidence check"
@@ -324,7 +348,7 @@ if matches '(auth|authentication|authorization|permission|permissions|secret|tok
   add_unique SPECIALISTS "Security Reviewer"
   add_unique REASONS "security or supply-chain trigger present"
 fi
-if matches '(^|[^a-z0-9])(ui|ux)([^a-z0-9]|$)|design|user-facing|onboarding|form|navigation|accessibility|responsive|layout|copy|visual'; then
+if matches "$RX_UX"; then
   add_unique SPECIALISTS "UX / Design Reviewer"
   add_unique REASONS "user-facing or design trigger present"
 fi
@@ -348,6 +372,10 @@ fi
 if matches "$RX_CNN"; then
   add_unique SPECIALISTS "CNN Agent"
   add_unique SKILLS "cnn"
+fi
+if matches "$RX_ARCHITECTURE"; then
+  add_unique SPECIALISTS "Software Architect Agent"
+  add_unique SKILLS "software-architecture"
 fi
 if matches "$RX_SKILL"; then
   add_unique SPECIALISTS "Skill Validator"
@@ -401,9 +429,11 @@ fi
 # Workflow recipe selection. Recipes are lightweight handling presets; risk and specialist gates still apply.
 if [ "$INTENT" = "direct_answer_or_advisory" ]; then
   RECIPE="advisory"
+elif [ "$INTENT" = "architecture_design_or_decision" ]; then
+  RECIPE="review"
 elif matches '(incident|outage|production down|hotfix|rollback broken|rollback production|sev[ -]?[0-9]|urgent regression|data incident|security incident)'; then
   RECIPE="incident"
-elif matches '(release|ship|deploy|version bump|changelog|release note|default branch merge|merge readiness)'; then
+elif matches "$RX_RELEASE"; then
   RECIPE="release"
 elif [ "$INTENT" = "code_or_pr_review" ]; then
   RECIPE="review"
@@ -546,6 +576,19 @@ case "$RISK" in
         add_unique HUMAN_DECISIONS "accept critical risk before implementation"
         add_unique REASONS "critical portfolio/project-positioning risk keeps Product Manager entry but requires explicit human risk acceptance"
         ;;
+      architecture_design_or_decision)
+        STARTING_ROLE="Software Architect Agent"
+        LANE="Full Lane plus explicit human decision"
+        if [ "$ARCHITECTURE_DELIVERY_REQUEST" = "true" ]; then
+          WORKFLOW="Software Architect Agent -> Product Manager -> Advisor for risk acceptance -> Human decision -> Developer -> Tester -> Reviewer -> Software Architect Agent -> Human"
+          NEXT_ROLES=("Product Manager" "Advisor for risk acceptance" "Human decision" "Developer" "Tester" "Reviewer" "Software Architect Agent" "Human")
+        else
+          WORKFLOW="Software Architect Agent -> Advisor for risk acceptance -> Human decision -> Product Manager -> Human"
+          NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Product Manager" "Human")
+        fi
+        add_unique HUMAN_DECISIONS "accept critical architecture risk before implementation"
+        add_unique REASONS "critical architecture work keeps Software Architect Agent entry and requires explicit human risk acceptance"
+        ;;
       *)
         STARTING_ROLE="Advisor"
         LANE="Full Lane plus explicit human decision"
@@ -584,6 +627,18 @@ case "$RISK" in
         WORKFLOW="Product Manager -> Advisor for risk review if needed -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Reviewer -> Documentation Agent -> Human"
         NEXT_ROLES=("Advisor for risk review if needed" "Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Reviewer" "Documentation Agent" "Human")
         add_unique REASONS "high risk portfolio/project-positioning work keeps Product Manager entry and uses Full Lane"
+        ;;
+      architecture_design_or_decision)
+        STARTING_ROLE="Software Architect Agent"
+        LANE="Full Lane"
+        if [ "$ARCHITECTURE_DELIVERY_REQUEST" = "true" ]; then
+          WORKFLOW="Software Architect Agent -> Product Manager -> Human decision -> Developer -> Tester -> Reviewer -> Software Architect Agent -> Human"
+          NEXT_ROLES=("Product Manager" "Human decision" "Developer" "Tester" "Reviewer" "Software Architect Agent" "Human")
+        else
+          WORKFLOW="Software Architect Agent -> Product Manager -> Human"
+          NEXT_ROLES=("Product Manager" "Human")
+        fi
+        add_unique REASONS "high-risk architecture work keeps Software Architect Agent entry"
         ;;
       docs_examples_or_changelog)
         LANE="Full Lane"
@@ -630,6 +685,9 @@ if matches '(dependency|lockfile|runtime|container|docker|ci|build system)'; the
 fi
 if matches '(refactor|modular|architecture|shared module)'; then
   add_unique GATES "behavior-preserving refactor check"
+fi
+if matches "$RX_ARCHITECTURE"; then
+  add_unique GATES "architecture decision gate"
 fi
 if matches '(api|protocol|auth|config|client/server|compatibility|rollout)'; then
   add_unique GATES "compatibility rollout check"
@@ -712,6 +770,12 @@ if [ "$INTENT" != "direct_answer_or_advisory" ]; then
   fi
 	  if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
 	    add_unique FILES_TO_LOAD "agent-team/playbooks/specialist-review-routing.md"
+	  fi
+	  if matches "$RX_ARCHITECTURE"; then
+	    add_unique FILES_TO_LOAD "agent-team/playbooks/architecture-decisions.md"
+	    add_unique FILES_TO_LOAD "agent-team/checklists/architecture-review.md"
+	    add_unique FILES_TO_LOAD "agent-team/skills/professional/software-architecture.md"
+	    add_unique FILES_TO_LOAD "agent-team/templates/architecture-report.md"
 	  fi
 	  if matches "$RX_CLOUD"; then
 	    add_unique FILES_TO_LOAD "agent-team/playbooks/cloud-operations.md"

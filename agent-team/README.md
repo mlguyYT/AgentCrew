@@ -27,6 +27,9 @@ agents:
   product_manager:
     purpose: turn ideas into scoped tasks
 
+  software_architect_agent:
+    purpose: define and review consequential boundaries, contracts, quality attributes, and architecture decisions
+
   developer:
     purpose: implement changes and prepare PRs
 
@@ -94,7 +97,7 @@ Idea
   -> Human approval
 ```
 
-Specialist reviewers and agents include Security Reviewer, UX / Design Reviewer, Documentation Agent, Support Triage Agent, Release Manager, LLM Agent, Researcher Agent, and CNN Agent. Use them only when the task touches their area.
+Specialist reviewers and agents include Software Architect Agent, Security Reviewer, UX / Design Reviewer, Documentation Agent, Support Triage Agent, Release Manager, LLM Agent, Researcher Agent, and CNN Agent. Use them only when the task touches their area.
 
 ---
 
@@ -117,11 +120,12 @@ Before acting, an agent should use staged loading:
 10. use `agent-team/playbooks/dependency-supply-chain.md` for dependency, runtime, container, CI, or build-system changes
 11. use `agent-team/playbooks/behavior-preserving-refactor.md` for refactors
 12. use `agent-team/playbooks/compatibility-rollout.md` for protocol, API, auth, config, or client/server compatibility changes
-13. use `agent-team/playbooks/lane-escalation.md` if risk changes
-14. read `agent-team/skills/registry.md` and load matching Skills
-15. use `agent-team/protocols/communication.md` for handoffs
-16. use compact templates by default in Fast Lane
-17. use the relevant full output template in `agent-team/templates/` only when risk requires it
+13. use `agent-team/playbooks/architecture-decisions.md` for significant boundaries, contracts, data ownership, runtime dependencies, or quality attributes
+14. use `agent-team/playbooks/lane-escalation.md` if risk changes
+15. read `agent-team/skills/registry.md` and load matching Skills
+16. use `agent-team/protocols/communication.md` for handoffs
+17. use compact templates by default in Fast Lane
+18. use the relevant full output template in `agent-team/templates/` only when risk requires it
 
 When saving handoff context, use:
 

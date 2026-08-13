@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 # Decisions where the role thinks it's done and ready for human review.
@@ -84,12 +84,35 @@ class Handoff(BaseModel):
         max_length=20,
         description="Each entry should follow the 'command: pass|fail' shape.",
     )
+    validation_status: Literal[
+        "passed", "failed", "unavailable", "not_applicable"
+    ] | None = None
+    validation_limitation: str = Field(
+        default="",
+        max_length=500,
+        description=(
+            "Why validation is unavailable or not applicable. Actual tool "
+            "results override self-reported validation status."
+        ),
+    )
 
     # Bookkeeping (not part of the user-visible schema, but useful for traces)
     model: str | None = None
     created_at: str = Field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat(timespec="seconds")
     )
+
+    @model_validator(mode="after")
+    def require_declared_validation_limitation(self) -> Handoff:
+        if (
+            self.validation_status in {"unavailable", "not_applicable"}
+            and not self.validation_limitation.strip()
+        ):
+            raise ValueError(
+                "validation_limitation is required when validation is "
+                "unavailable or not_applicable"
+            )
+        return self
 
     def render_markdown(self) -> str:
         """Serialize to the exact Markdown shape the methodology expects in .agent-state/handoff.md."""
@@ -118,6 +141,11 @@ class Handoff(BaseModel):
         if self.commands:
             lines += ["", "### Commands"]
             lines += [f"- {c}" for c in self.commands]
+        if self.validation_status:
+            lines += ["", "### Validation"]
+            lines += [f"- status: {self.validation_status}"]
+            if self.validation_limitation:
+                lines += [f"- limitation: {self.validation_limitation}"]
         return "\n".join(lines) + "\n"
 
 

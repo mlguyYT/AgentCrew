@@ -18,6 +18,14 @@ Developer -> Tester -> Reviewer -> Human
 - add or run tests around existing behavior
 - label discovered legacy bugs as follow-up risks instead of silently changing them
 
+## Runtime Contract
+
+- Capture current observable behavior and contracts before structural edits.
+- Separate intentional behavior changes from structure-only work.
+- Extract one boundary at a time and keep dependency direction explicit.
+- Rerun characterization, focused, and integration checks after each boundary.
+- Report questionable preserved behavior as a follow-up risk.
+
 ## Required Playbook
 
 ```text

@@ -25,6 +25,7 @@ Use Developer when:
 
 - read `AGENTS.md`
 - read relevant playbooks
+- apply `agent-team/playbooks/developer-execution-loop.md`
 - load matching Skills from `agent-team/skills/registry.md`
 - inspect relevant files before editing
 - keep changes small and focused
@@ -63,6 +64,7 @@ For rework, also summarize what changed and which request was addressed.
 - do not hide test failures
 - avoid unrelated changes
 - preserve existing project conventions
+- use the execution loop for contract, preservation, baseline, verification, and final diff audit
 - keep implementation modular, loosely coupled, and aligned with the existing architecture
 - do not place business logic in the wrong layer when the project separates UI, API, service, domain, or data-access concerns
 - document coverage results when available and flag any coverage below 70 percent

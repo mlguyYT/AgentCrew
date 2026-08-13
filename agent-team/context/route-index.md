@@ -30,6 +30,7 @@ validation_request: Tester
 research_question: Researcher Agent
 llm_or_rag_work: LLM Agent when triggered
 computer_vision_or_cnn_work: CNN Agent when triggered
+architecture_or_system_design: Software Architect Agent when triggered
 docs_change: Documentation Agent when useful
 support_or_customer_report: Support Triage Agent
 release_request: Release Manager
@@ -50,6 +51,7 @@ Load only:
 - `agent-team/playbooks/artifact-classification.md` for generated, ignored, cloud, or temporary artifacts
 - `agent-team/playbooks/public-private-boundary.md` for private product, customer, commercial, or strategy boundaries
 - `agent-team/playbooks/portfolio-project-scope.md` for portfolio, resume, interview, case-study, or target-role projects
+- `agent-team/playbooks/architecture-decisions.md` for significant boundaries, contracts, data ownership, runtime dependencies, or quality attributes
 - `agent-team/playbooks/task-intake.md` for `.agent-state/current-task.md`
 - `agent-team/playbooks/acceptance-criteria.md` for `.agent-state/task-brief.md`
 - `agent-team/playbooks/work-planning.md` for `.agent-state/work-plan.md`

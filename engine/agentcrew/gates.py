@@ -2,9 +2,8 @@
 
 When the classifier emits a gate like `dependency and supply-chain gate`,
 the engine looks up the matching playbook in `agent-team/playbooks/` (or
-`agent-team/checklists/`) and injects its full text into the relevant
-role's context. The role agent gets to see the methodology's actual guidance,
-verbatim, instead of just the gate name.
+`agent-team/checklists/`). Callers may render the complete text or compile its
+actionable runtime section into bounded role context.
 
 Mappings come from reading the classifier script: each gate string the
 classifier can emit maps to a specific .md file in agent-team/.
@@ -42,6 +41,7 @@ _GATE_FILES: dict[str, str] = {
     "behavior-preserving refactor check": "agent-team/playbooks/behavior-preserving-refactor.md",
     "compatibility rollout check": "agent-team/playbooks/compatibility-rollout.md",
     "integration-test need check": "agent-team/checklists/integration-test-escalation.md",
+    "architecture decision gate": "agent-team/checklists/architecture-review.md",
     "cloud operation gate": "agent-team/playbooks/cloud-operations.md",
     "artifact classification check": "agent-team/playbooks/artifact-classification.md",
     "public/private boundary check": "agent-team/playbooks/public-private-boundary.md",
@@ -73,6 +73,7 @@ _GATE_ROLES: dict[str, set[str]] = {
     "behavior-preserving refactor check": {"Developer", "Reviewer"},
     "compatibility rollout check": {"Developer", "Reviewer", "Security Reviewer"},
     "integration-test need check": {"Tester"},
+    "architecture decision gate": {"Software Architect Agent", "Developer", "Reviewer"},
     "product behavior review": {"Product Manager", "Reviewer"},
     "portfolio scope check": {"Product Manager", "Reviewer", "Documentation Agent"},
     "target-role evidence check": {"Product Manager", "Researcher Agent", "Documentation Agent"},

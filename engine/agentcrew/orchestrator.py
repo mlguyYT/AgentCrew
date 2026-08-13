@@ -21,7 +21,6 @@ The orchestrator is the only thing that mutates .agent-state/.
 from __future__ import annotations
 
 import json
-import subprocess
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -33,7 +32,9 @@ import time as _time
 
 from .agents import Agent, build_agent
 from .config import ProjectConfig
+from .context_compiler import compile_execution_context
 from .decisions import load_recent as load_recent_decisions, render_section as render_decisions_section
+from .execution_evidence import FileFingerprint
 from .telemetry import emit_run_event
 from .cost import (
     CostGate,
@@ -45,15 +46,19 @@ from .cost import (
     record_run_cost,
 )
 from .gates import load_gates_for_role, render_gate_section
+from .git_inspection import (
+    capture_git_worktree_snapshot,
+    list_git_changed_paths,
+)
 from .handoff import (
     APPROVAL_DECISIONS,
     BLOCKING_DECISIONS,
     HUMAN_GATE_DECISIONS,
     REWORK_DECISIONS,
     Handoff,
-    submit_handoff_input_schema,
 )
 from .provider import AgentRun, Provider
+from .role_runner import git_status_short, run_role
 from .routing import Routing, classify
 from .state import (
     StateLayout,
@@ -129,91 +134,6 @@ class TeamRun:
 
 def _make_run_id() -> str:
     return datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S-") + uuid.uuid4().hex[:6]
-
-
-def _build_user_message(routing: Routing, prior: list[Handoff], my_role: str, gate_section: str = "", decisions_section: str = "") -> str:
-    """Compact, vendor-neutral prompt body containing routing + prior handoffs + gates."""
-    parts = [
-        "## Task brief",
-        "",
-        routing.task,
-        "",
-        "## Routing (decided by AgentCrew's classifier)",
-        "",
-        f"- lane: {routing.lane}",
-        f"- intent: {routing.intent}",
-        f"- risk: {routing.risk}",
-        f"- recipe: {routing.recipe}",
-        f"- quality profile: {routing.quality_profile}",
-        f"- workflow: {routing.workflow}",
-    ]
-    if routing.gates:
-        parts.append("- gates: " + ", ".join(routing.gates))
-    if routing.specialists:
-        parts.append("- specialists: " + ", ".join(routing.specialists))
-    parts += ["", "## Your role", f"You are the **{my_role}** in this run.", ""]
-    if decisions_section:
-        parts += [decisions_section, ""]
-    if gate_section:
-        parts += [gate_section, ""]
-    if prior:
-        parts += ["## Prior handoffs (read-only)", ""]
-        for h in prior:
-            parts.append(h.render_markdown())
-    else:
-        parts += ["## Prior handoffs", "(none — you are the first acting role)", ""]
-    parts += [
-        "",
-        "Begin your work now. Call `submit_handoff` exactly once when you finish.",
-    ]
-    return "\n".join(parts)
-
-
-def _run_role(
-    *,
-    agent: Agent,
-    routing: Routing,
-    prior: list[Handoff],
-    valid_receivers: list[str],
-    project_dir: Path,
-    provider: Provider,
-    root: AgentCrewRoot,
-    decisions_section: str = "",
-) -> tuple[AgentRun, Handoff | None]:
-    tools = build_tools(role=agent.role, project_root=project_dir)
-    schema = submit_handoff_input_schema(agent.role, valid_receivers)
-    gate_texts = load_gates_for_role(root, agent.role, routing.gates)
-    run = provider.run_agent(
-        role=agent.role,
-        system_prompt=agent.system_prompt(),
-        user_message=_build_user_message(routing, prior, agent.role, render_gate_section(gate_texts), decisions_section),
-        tools=tools,
-        model=agent.model,
-        max_tokens=agent.max_tokens,
-        max_iterations=agent.max_iterations,
-        submit_tool_name="submit_handoff",
-        submit_tool_description=(
-            "Submit the final handoff artifact for this turn, per the methodology's "
-            "protocols/handoff-format.md. Call exactly once when done."
-        ),
-        submit_tool_schema=schema,
-    )
-    if run.submission is None:
-        return run, None
-    return run, Handoff(**{**run.submission, "model": agent.model})
-
-
-def _git_status_short(project_dir: Path) -> str | None:
-    """Return git status output, or None when project_dir is not a git worktree."""
-    result = subprocess.run(
-        ["git", "-C", str(project_dir), "status", "--short"],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if result.returncode != 0:
-        return None
-    return result.stdout
 
 
 def run(
@@ -331,7 +251,17 @@ def run(
         except FileNotFoundError:
             role_file_chars[role] = 2000  # estimate when missing
         gate_texts = load_gates_for_role(root, role, routing.gates)
-        gate_section_chars[role] = len(render_gate_section(gate_texts))
+        if role in {"Developer", "Tester", "Reviewer"}:
+            gate_section_chars[role] = len(
+                compile_execution_context(
+                    root=root,
+                    routing=routing,
+                    role=role,
+                    gate_texts=gate_texts,
+                ).text
+            )
+        else:
+            gate_section_chars[role] = len(render_gate_section(gate_texts))
         max_tokens_per_role[role] = 8192  # see Agent.max_tokens default
     estimate = estimate_run(
         routing=routing,
@@ -378,8 +308,11 @@ def run(
     # routes that pick multiple specialists.
     primary_acting, trailing_specialists = _split_trailing_specialists(acting, routing.specialists)
 
-    rework_counts: dict[str, int] = {}
+    rework_counts: dict[tuple[str, str], int] = {}
     REWORK_LIMIT = 1
+    developer_status_baseline = git_status_short(project_dir)
+    developer_file_baselines: dict[str, FileFingerprint | None] = {}
+    observed_developer_files: tuple[str, ...] = ()
 
     # Resolve where the mid-workflow human-decision gate sits (if any). On
     # critical-risk routes, we pause before this role until the human accepts.
@@ -421,11 +354,20 @@ def run(
             (run_dir / "error.md").write_text(str(exc))
             break
 
-        tester_status_before = _git_status_short(project_dir) if role == "Tester" else None
+        tester_snapshot_before = (
+            capture_git_worktree_snapshot(project_dir)
+            if role == "Tester"
+            else None
+        )
+        expected_changed_files = observed_developer_files
+        if role == "Reviewer" and not expected_changed_files:
+            expected_changed_files = (
+                list_git_changed_paths(project_dir) or ()
+            )
 
         # Receivers this role may name in its handoff: any acting role plus Human.
         valid_receivers = list({*acting, *trailing_specialists, "Human"})
-        agent_run, handoff = _run_role(
+        agent_run, handoff = run_role(
             agent=agent,
             routing=routing,
             prior=state.handoffs,
@@ -434,19 +376,35 @@ def run(
             provider=provider,
             root=root,
             decisions_section=decisions_section,
+            developer_status_baseline=developer_status_baseline,
+            developer_file_baselines=developer_file_baselines,
+            expected_changed_files=expected_changed_files,
+            git_available=developer_status_baseline is not None,
         )
         state.agent_runs.append(agent_run)
+        if agent_run.execution_evidence:
+            observed_developer_files = agent_run.observed_changed_files
 
-        if role == "Tester" and tester_status_before is not None:
-            tester_status_after = _git_status_short(project_dir)
-            if tester_status_after != tester_status_before:
-                state.final_decision = "tester_modified_worktree"
-                state.next_owner = "human"
-                (run_dir / "error.md").write_text(
-                    "Tester role modified the git worktree during validation. "
-                    "Route this back to Developer or approve the generated artifacts explicitly.\n"
-                )
-                break
+        tester_modified_worktree = False
+        if role == "Tester" and tester_snapshot_before is not None:
+            tester_snapshot_after = capture_git_worktree_snapshot(project_dir)
+            tester_modified_worktree = (
+                tester_snapshot_after != tester_snapshot_before
+            )
+        _persist_agent_evidence(
+            run_dir,
+            state.agent_runs,
+            role,
+            agent_run,
+        )
+        if tester_modified_worktree:
+            state.final_decision = "tester_modified_worktree"
+            state.next_owner = "human"
+            (run_dir / "error.md").write_text(
+                "Tester role modified the git worktree during validation. "
+                "Route this back to Developer or approve the generated artifacts explicitly.\n"
+            )
+            break
 
         if handoff is None:
             state.final_decision = "protocol_failure"
@@ -472,16 +430,33 @@ def run(
         # the final decision will be set after specialists complete.
 
         if handoff.decision in REWORK_DECISIONS:
-            if idx == 0:
-                state.final_decision = "rework_at_start"
+            rework_key = (role, handoff.receiver)
+            if handoff.receiver == "Human":
+                state.final_decision = handoff.decision
                 state.next_owner = "human"
                 break
-            rework_counts[role] = rework_counts.get(role, 0) + 1
-            if rework_counts[role] > REWORK_LIMIT:
+            rework_counts[rework_key] = (
+                rework_counts.get(rework_key, 0) + 1
+            )
+            if rework_counts[rework_key] > REWORK_LIMIT:
                 state.final_decision = f"rework_limit_exceeded:{role}"
                 state.next_owner = "human"
                 break
-            idx -= 1
+            try:
+                target_idx = primary_acting.index(handoff.receiver)
+            except ValueError:
+                state.final_decision = (
+                    f"invalid_rework_receiver:{role}->{handoff.receiver}"
+                )
+                state.next_owner = "human"
+                break
+            if target_idx > idx:
+                state.final_decision = (
+                    f"invalid_rework_receiver:{role}->{handoff.receiver}"
+                )
+                state.next_owner = "human"
+                break
+            idx = target_idx
             continue
 
         idx += 1
@@ -578,6 +553,27 @@ def run(
     return state
 
 
+def _persist_agent_evidence(
+    run_dir: Path,
+    agent_runs: list[AgentRun],
+    role: str,
+    agent_run: AgentRun,
+) -> None:
+    evidence_kinds = (
+        ("execution_evidence", "execution-evidence"),
+        ("validation_evidence", "validation-evidence"),
+        ("review_evidence", "review-evidence"),
+    )
+    role_slug = role.lower().replace(" / ", "-").replace(" ", "-")
+    for field, suffix in evidence_kinds:
+        payload = getattr(agent_run, field)
+        if not payload:
+            continue
+        index = sum(bool(getattr(candidate, field)) for candidate in agent_runs)
+        path = run_dir / f"{index:02d}-{role_slug}-{suffix}.json"
+        path.write_text(json.dumps(payload, indent=2))
+
+
 def _split_trailing_specialists(
     acting: list[str], specialists: list[str]
 ) -> tuple[list[str], list[str]]:
@@ -634,7 +630,7 @@ def _run_specialists_parallel(
             empty_run = AgentRun()
             empty_run.stop_reason = f"role_file_missing:{role}"
             return role, empty_run, None
-        agent_run, handoff = _run_role(
+        agent_run, handoff = run_role(
             agent=agent,
             routing=routing,
             prior=prior,

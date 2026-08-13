@@ -91,6 +91,7 @@ def _role_slug(role: str) -> str:
       'UX / Design Reviewer'   -> 'ux-design-reviewer'
       'Documentation Agent'    -> 'documentation-agent'
       'Support Triage Agent'   -> 'support-triage-agent'
+      'Software Architect Agent' -> 'software-architect-agent'
     """
     return role.lower().replace(" / ", "-").replace(" ", "-")
 
@@ -137,6 +138,7 @@ AVAILABLE_ROLES: tuple[str, ...] = (
     "Advisor",
     "Idea Consultant",
     "Product Manager",
+    "Software Architect Agent",
     "Developer",
     "Tester",
     "Reviewer",

@@ -59,7 +59,16 @@ def test_split_all_specialists_at_end():
 def project(tmp_path: Path) -> Path:
     p = tmp_path / "proj"
     p.mkdir()
-    (p / "broken.py").write_text("x = 1\n")
+    (p / "broken.py").write_text(
+        "def add_numbers(a, b):\n    return a - b\n"
+    )
+    (p / "test_broken.py").write_text(
+        "import unittest\n"
+        "from broken import add_numbers\n\n"
+        "class AddNumbersTest(unittest.TestCase):\n"
+        "    def test_adds(self):\n"
+        "        self.assertEqual(add_numbers(2, 3), 5)\n"
+    )
     return p
 
 
@@ -127,6 +136,48 @@ def _final(sender: str, receiver: str = "Human") -> dict:
     }
 
 
+def _developer_turn() -> ScriptedTurn:
+    return ScriptedTurn(
+        tool_calls=[
+            {"name": "read_file", "input": {"path": "broken.py"}},
+            {
+                "name": "edit_file",
+                "input": {
+                    "path": "broken.py",
+                    "old_string": "return a - b",
+                    "new_string": "return a + b",
+                },
+            },
+            {
+                "name": "bash",
+                "input": {"command": "python3 -m py_compile broken.py"},
+            },
+        ],
+        submission=_continue("Developer"),
+    )
+
+
+def _tester_turn() -> ScriptedTurn:
+    return ScriptedTurn(
+        tool_calls=[
+            {
+                "name": "bash",
+                "input": {"command": "python3 -m unittest -q"},
+            }
+        ],
+        submission=_continue("Tester"),
+    )
+
+
+def _reviewer_turn() -> ScriptedTurn:
+    return ScriptedTurn(
+        tool_calls=[
+            {"name": "read_file", "input": {"path": "broken.py"}}
+        ],
+        submission=_continue("Reviewer"),
+    )
+
+
 def test_trailing_specialists_run_concurrently(project):
     """Two trailing specialists should run in overlapping time windows."""
     root = find_agentcrew_root()
@@ -137,6 +188,9 @@ def test_trailing_specialists_run_concurrently(project):
     primary = ("Advisor", "Idea Consultant", "Product Manager", "Developer", "Tester", "Reviewer")
     trailing = ("Security Reviewer", "Release Manager")
     scripts = {role: [ScriptedTurn(submission=_continue(role))] for role in primary}
+    scripts["Developer"] = [_developer_turn()]
+    scripts["Tester"] = [_tester_turn()]
+    scripts["Reviewer"] = [_reviewer_turn()]
     scripts.update({role: [ScriptedTurn(submission=_final(role))] for role in trailing})
     provider = _BlockingMock(scripts=scripts, sleep_seconds=SLEEP)
 
@@ -178,6 +232,9 @@ def test_specialists_persisted_in_deterministic_order(project):
     primary = ("Advisor", "Idea Consultant", "Product Manager", "Developer", "Tester", "Reviewer")
     trailing = ("Security Reviewer", "Release Manager")
     scripts = {role: [ScriptedTurn(submission=_continue(role))] for role in primary}
+    scripts["Developer"] = [_developer_turn()]
+    scripts["Tester"] = [_tester_turn()]
+    scripts["Reviewer"] = [_reviewer_turn()]
     scripts.update({role: [ScriptedTurn(submission=_final(role))] for role in trailing})
     provider = _BlockingMock(scripts=scripts, sleep_seconds=0.05)
 

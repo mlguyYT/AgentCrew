@@ -16,6 +16,7 @@ A task is done when:
 - [ ] acceptance criteria are addressed
 - [ ] changes are focused and scoped
 - [ ] implementation remains modular and aligned with clean architecture
+- [ ] triggered architecture decision is documented and implementation matches the approved boundaries and fitness checks
 - [ ] refactors preserve legacy behavior unless behavior change is explicit
 - [ ] relevant tests are added or updated
 - [ ] tests were run or limitations are documented

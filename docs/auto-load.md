@@ -186,7 +186,13 @@ The default `agentcrew install` command also registers Hermes Agent when Hermes 
 
 ### Cursor and GitHub Copilot
 
-Use the adapter text under:
+Generate the canonical vendor-neutral loader:
+
+```bash
+~/AgentCrew/bin/agentcrew loader
+```
+
+Place that output in the host's persistent custom-instruction surface. The host-specific notes remain under:
 
 ```text
 agent-team/adapters/cursor.md

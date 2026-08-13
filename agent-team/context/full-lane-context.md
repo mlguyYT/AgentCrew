@@ -2,7 +2,7 @@
 
 ## Use When
 
-Task is high risk, ambiguous, product-heavy, security-sensitive, migration-heavy, infrastructure-heavy, or difficult to roll back.
+Use for high-risk, ambiguous, product, security, migration, infrastructure, or hard-to-rollback work.
 
 ## Load By Phase
 
@@ -15,7 +15,8 @@ agent-team/agents/product-manager.md
 agent-team/skills/registry.md
 ```
 
-Load Advisor and Idea Consultant only when the work starts from a rough idea or product direction question.
+Load Advisor and Idea Consultant only for rough ideas or product-direction questions.
+Load Software Architect Agent and `architecture-decisions.md` only for significant boundaries, contracts, data ownership, dependencies, or quality attributes.
 
 ### Implementation
 

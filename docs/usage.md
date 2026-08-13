@@ -652,6 +652,7 @@ Recommended shared artifacts:
 .agent-state/handoff.md
 .agent-state/test-report.md
 .agent-state/review-report.md
+.agent-state/architecture-report.md
 .agent-state/security-review-report.md
 .agent-state/ux-design-review-report.md
 .agent-state/documentation-report.md

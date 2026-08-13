@@ -25,6 +25,10 @@ def test_role_slug_three_words():
     assert _role_slug("Support Triage Agent") == "support-triage-agent"
 
 
+def test_role_slug_software_architect():
+    assert _role_slug("Software Architect Agent") == "software-architect-agent"
+
+
 def test_find_agentcrew_root_finds_sibling():
     # engine/ sits one level under the AgentCrew root, so the parent of this
     # checkout should be a valid AgentCrew installation.
@@ -44,6 +48,13 @@ def test_role_file_resolves_for_real_role():
     p = root.role_file("Developer")
     assert p.exists()
     assert p.name == "developer.md"
+
+
+def test_role_file_resolves_for_software_architect():
+    root = find_agentcrew_root()
+    p = root.role_file("Software Architect Agent")
+    assert p.exists()
+    assert p.name == "software-architect-agent.md"
 
 
 def test_role_file_raises_for_unknown_role():

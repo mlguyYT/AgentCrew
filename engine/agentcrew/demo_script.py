@@ -69,12 +69,7 @@ def demo_provider() -> MockProvider:
                         {
                             "name": "bash",
                             "input": {
-                                "command": (
-                                    "python3 -c \"import sys; sys.path.insert(0,'.'); "
-                                    "from broken import add_numbers; "
-                                    "assert add_numbers(2,3)==5; assert add_numbers(-1,1)==0; "
-                                    "print('2 assertions passed')\""
-                                )
+                                "command": "python3 -m unittest -q"
                             },
                         },
                     ],
@@ -82,12 +77,12 @@ def demo_provider() -> MockProvider:
                         "sender": "Tester",
                         "receiver": "Human",
                         "decision": "ready_for_human_approval",
-                        "context": ["Ran inline assertions against patched broken.py."],
+                        "context": ["Ran the project regression tests against patched broken.py."],
                         "evidence": [
-                            "exit 0; printed '2 assertions passed'.",
-                            "add_numbers(2,3)==5 and add_numbers(-1,1)==0.",
+                            "`python3 -m unittest -q` exited 0.",
+                            "The project regression tests passed.",
                         ],
-                        "commands": ["python3 -c '...assertions...': pass"],
+                        "commands": ["python3 -m unittest -q: pass"],
                         "next_action": "Human approves and merges.",
                         "open_questions": [],
                     },

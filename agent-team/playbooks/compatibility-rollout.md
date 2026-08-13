@@ -8,6 +8,16 @@ The goal is to improve safety without silently breaking existing users or operat
 
 ---
 
+## Runtime Contract
+
+- Identify existing public, protocol, configuration, auth, and client contracts.
+- Prefer a secure default with an explicit, temporary compatibility mode when needed.
+- Test both the intended path and any retained compatibility path.
+- Document rollout, affected consumers, rollback, and legacy-mode removal.
+- Stop for human approval before accepting breakage, data risk, or insecure compatibility.
+
+---
+
 ## Use This For
 
 Use this playbook when a change touches:

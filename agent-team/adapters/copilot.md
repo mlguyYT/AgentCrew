@@ -8,7 +8,13 @@ Copilot environments can differ between local editor chat, repository instructio
 
 ## Recommended instruction text
 
-Add this instruction where your Copilot environment supports custom coding-agent instructions:
+Generate the current vendor-neutral loader:
+
+```bash
+~/AgentCrew/bin/agentcrew loader
+```
+
+Add that output where your Copilot environment supports custom coding-agent instructions. The essential instruction shape is:
 
 ```text
 AgentCrew is installed at ~/AgentCrew.

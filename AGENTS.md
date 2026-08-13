@@ -124,7 +124,7 @@ Role files live in:
 agent-team/agents/
 ```
 
-Core roles include Advisor, Idea Consultant, Product Manager, Developer, Tester, Reviewer, Security Reviewer, UX / Design Reviewer, Documentation Agent, Support Triage Agent, Release Manager, LLM Agent, Researcher Agent, CNN Agent, and Skill Validator.
+Core roles include Advisor, Idea Consultant, Product Manager, Software Architect Agent, Developer, Tester, Reviewer, Security Reviewer, UX / Design Reviewer, Documentation Agent, Support Triage Agent, Release Manager, LLM Agent, Researcher Agent, CNN Agent, and Skill Validator.
 
 Use compact `agent-team/skills/registry.md` to identify matching Skills, then load matching Skill files only. Load `agent-team/skills/registry-guidance.md` only when Skill matching is ambiguous.
 
@@ -165,6 +165,7 @@ Use these project-state artifacts when present:
 .agent-state/artifact-map.md
 .agent-state/cloud-resources.md
 .agent-state/eval-metrics.md
+.agent-state/architecture-report.md
 ```
 
 Before committing shared state, use:
@@ -207,6 +208,8 @@ Agents do not pass full reasoning. Agents pass compact evidence, decisions, risk
 PRs should be small, focused, linked to a task, tested or explicitly marked as not tested, modular, aligned with clean architecture, reviewed before human approval, and limited to related changes.
 
 When coverage tooling exists, target at least 70 percent coverage or document the gap for human decision.
+
+Significant boundary, contract, data-ownership, runtime-dependency, or quality-attribute decisions should use Software Architect Agent and the architecture decision gate. Small changes that preserve existing boundaries do not need architecture ceremony.
 
 Run dependency/supply-chain gates when package, lock, runtime, container, CI, or build files change. Use default-branch merge readiness rules before merge preparation. Final merge remains human-only.
 

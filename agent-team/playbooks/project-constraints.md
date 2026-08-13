@@ -18,6 +18,16 @@ agent-team/templates/project-constraints.md
 
 ---
 
+## Runtime Contract
+
+- Read `.agent-state/project-constraints.md` before implementation when it exists.
+- Enforce recorded no-commit, no-push, public/private, cloud, and artifact rules.
+- Do not expose private material or ask the human to repeat standing constraints.
+- Treat a general instruction to continue as distinct from commit or push approval.
+- Stop and surface a conflict when the requested action violates an active constraint.
+
+---
+
 ## Load Rule
 
 If `.agent-state/project-constraints.md` exists, read it before:
@@ -73,4 +83,3 @@ When saving progress, include only compact constraint-relevant state:
 - next safe action
 
 Do not save secrets, raw customer data, private paths, local auth commands, long logs, or hidden reasoning.
-

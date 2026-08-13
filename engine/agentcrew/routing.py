@@ -77,21 +77,20 @@ class Routing:
 
         The 'Specialist Reviewer' placeholder in workflow strings is
         expanded into the actual specialists listed by the classifier.
+        Explicitly repeated roles remain separate workflow phases.
         Specialists named in `self.specialists` that don't appear in the
         workflow at all are appended after the primary roles, per
         agent-team/playbooks/specialist-review-routing.md.
         """
         out: list[str] = []
-        seen: set[str] = set()
 
-        def _add(role: str) -> None:
+        def _add(role: str, *, deduplicate: bool = False) -> None:
             # 'Human' and 'Human decision' are events in workflow strings,
             # not actors. The orchestrator handles human gates separately.
             if role in {"Human", "Human decision"}:
                 return
-            if role and role not in seen:
+            if role and (not deduplicate or role not in out):
                 out.append(role)
-                seen.add(role)
 
         for step in self.workflow_roles():
             if step in {"Human", "Human decision"}:
@@ -107,7 +106,7 @@ class Routing:
                 if condition and not _evaluate_condition(condition, self):
                     continue
                 for specialist in self.specialists:
-                    _add(specialist)
+                    _add(specialist, deduplicate=True)
                 continue
 
             if condition and not _evaluate_condition(condition, self):
@@ -118,7 +117,7 @@ class Routing:
         # still need to run (per specialist-review-routing.md). Append after
         # the primary roles so they see prior handoffs.
         for specialist in self.specialists:
-            _add(specialist)
+            _add(specialist, deduplicate=True)
 
         return out
 

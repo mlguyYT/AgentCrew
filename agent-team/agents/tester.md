@@ -22,6 +22,7 @@ Use Tester when:
 
 ## Responsibilities
 
+- apply `agent-team/playbooks/tester-validation-loop.md`
 - read the task and acceptance criteria
 - load relevant Skills for test guidance
 - discover project test commands

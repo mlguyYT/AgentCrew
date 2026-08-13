@@ -8,6 +8,7 @@ The schema (from state-artifacts.md):
 
     .agent-state/
       sessions/
+      runs/
       current-task.md
       project-preset.md
       task-brief.md
@@ -19,6 +20,7 @@ The schema (from state-artifacts.md):
       handoff.md
       test-report.md
       review-report.md
+      architecture-report.md
       security-review-report.md
       ux-design-review-report.md
       documentation-report.md
@@ -49,6 +51,7 @@ _REPORT_FILE_BY_ROLE: dict[str, str] = {
     "LLM Agent": "llm-report.md",
     "Researcher Agent": "research-report.md",
     "CNN Agent": "cnn-report.md",
+    "Software Architect Agent": "architecture-report.md",
     "Skill Validator": "skill-validation-report.md",
 }
 

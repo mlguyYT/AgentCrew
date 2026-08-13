@@ -44,6 +44,14 @@ The installer currently writes global loaders for Claude Code, Codex, OpenClaw, 
 The default `install` command registers OpenClaw and Hermes Agent when they are detected; `--agent openclaw` or `--agent hermes` forces registration explicitly.
 Cursor and GitHub Copilot adapters provide loader text for their custom-instruction surfaces.
 
+For any other host agent, generate the canonical vendor-neutral loader text:
+
+```bash
+~/AgentCrew/bin/agentcrew loader
+```
+
+Place that output in the host's global or user-level instruction surface. If the host has no persistent instruction mechanism, use the adapter text at session start.
+
 ## Rule
 
 If instructions conflict, the root `AGENTS.md` and `agent-team/` folder win.

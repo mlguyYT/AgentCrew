@@ -42,6 +42,8 @@ I want to add team billing to this app. Help me shape it and implement the first
 
 You do not need to say "use AgentCrew", name a role, choose a lane, or run workflow commands during normal use. AgentCrew is loaded by the host agent and should classify the request automatically.
 
+For any host with persistent custom instructions but no automatic installer target, run `~/AgentCrew/bin/agentcrew loader` and place the output in that host's instruction surface.
+
 ## Why AgentCrew
 
 Most coding-agent sessions put too many jobs into one chat: product thinking, planning, implementation, testing, review, documentation, and approval. That creates predictable failures: unclear scope, giant diffs, skipped tests, weak review, lost context, unrelated edits, and agents acting like they can approve their own work.
@@ -88,7 +90,7 @@ AgentCrew can also estimate execution cost before spending meaningful model toke
 
 ```text
 AGENTS.md              entry point for host agents
-bin/agentcrew          install, doctor, classify, context, engine commands
+bin/agentcrew          install, generic loader, doctor, routing, engine commands
 agent-team/            roles, playbooks, skills, templates, policies, gates
 engine/                optional executable layer for orchestration
 docs/                  installation, usage, examples, customization
@@ -143,6 +145,7 @@ AgentCrew can route work through focused roles:
 - **Advisor** for early reasoning, feasibility, and tradeoffs.
 - **Idea Consultant** for turning rough ideas into clearer briefs.
 - **Product Manager** for scope, acceptance criteria, and product decisions.
+- **Software Architect Agent** for boundaries, contracts, data ownership, quality attributes, and consequential design decisions.
 - **Developer** for focused implementation.
 - **Tester** for validation and test reporting.
 - **Reviewer** for correctness, maintainability, and risk.
@@ -160,9 +163,9 @@ Skills provide stack-specific and practice-specific guidance. AgentCrew loads th
 
 - Python, TypeScript, JavaScript, Go, Rust, SQL, Shell;
 - React, FastAPI, Kubernetes;
-- reviewer, product, research, LLM, CNN, documentation, and release practices.
+- software architecture, reviewer, product, research, LLM, CNN, documentation, and release practices.
 
-Quality gates are triggered by risk. Examples include security review, dependency and supply-chain checks, integration-test escalation, default-branch merge readiness, shared-memory refresh, and human-only decision logging.
+Quality gates are triggered by risk. Examples include architecture decisions, security review, dependency and supply-chain checks, integration-test escalation, default-branch merge readiness, shared-memory refresh, and human-only decision logging.
 
 ## Safety Model
 
@@ -195,6 +198,7 @@ The optional engine adds executable orchestration, but the core methodology stay
 - [Project Presets](docs/project-presets.md)
 - [Quality Profiles](docs/quality-profiles.md)
 - [Workflow Recipes](docs/workflow-recipes.md)
+- [Software Architecture](docs/software-architecture.md)
 - [Session Checkpoints](docs/session-checkpoints.md)
 - [Security](docs/security.md)
 - [Customization](docs/customization.md)

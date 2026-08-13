@@ -13,6 +13,13 @@ def project(tmp_path: Path) -> Path:
     p = tmp_path / "proj"
     p.mkdir()
     (p / "broken.py").write_text("def add_numbers(a, b):\n    return a - b\n")
+    (p / "test_broken.py").write_text(
+        "import unittest\n"
+        "from broken import add_numbers\n\n"
+        "class AddNumbersTest(unittest.TestCase):\n"
+        "    def test_adds(self):\n"
+        "        self.assertEqual(add_numbers(2, 3), 5)\n"
+    )
     return p
 
 

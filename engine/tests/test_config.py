@@ -12,6 +12,16 @@ def _write(project: Path, body: str) -> None:
     (project / ".agentcrew" / "config.yaml").write_text(body)
 
 
+def _write_bug_test(project: Path) -> None:
+    (project / "test_broken.py").write_text(
+        "import unittest\n"
+        "from broken import add_numbers\n\n"
+        "class AddNumbersTest(unittest.TestCase):\n"
+        "    def test_adds(self):\n"
+        "        self.assertEqual(add_numbers(2, 3), 5)\n"
+    )
+
+
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
     return tmp_path / "proj"
@@ -174,6 +184,7 @@ def test_orchestrator_applies_recipe_profile_override(tmp_path):
     project = tmp_path / "proj"
     project.mkdir()
     (project / "broken.py").write_text("def add_numbers(a, b): return a - b\n")
+    _write_bug_test(project)
     _write(
         project,
         "recipe_profiles:\n"
@@ -212,6 +223,7 @@ def test_orchestrator_adds_path_required_specialist(tmp_path):
     (project / "src").mkdir()
     (project / "src" / "auth.py").write_text("# auth\n")
     (project / "broken.py").write_text("def add_numbers(a, b): return a - b\n")
+    _write_bug_test(project)
     _write(
         project,
         "required_specialists:\n"

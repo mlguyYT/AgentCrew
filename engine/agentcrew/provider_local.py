@@ -63,6 +63,11 @@ def recommended_models_for_code() -> dict[str, list[str]]:
             "llama3.3:70b",
             "qwen2.5:32b",
         ],
+        "Software Architect Agent": [
+            "qwen2.5-coder:32b",
+            "llama3.3:70b",
+            "qwen2.5:32b",
+        ],
         "Researcher Agent": [
             "qwen2.5:14b",
             "llama3.1:8b",

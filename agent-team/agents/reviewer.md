@@ -24,6 +24,7 @@ Use Reviewer when:
 
 ## Responsibilities
 
+- apply `agent-team/playbooks/reviewer-inspection-loop.md`
 - inspect the diff or changed files
 - verify scope matches the task
 - check correctness and edge cases

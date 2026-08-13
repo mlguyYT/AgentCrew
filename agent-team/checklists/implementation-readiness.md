@@ -14,6 +14,7 @@ Use this checklist before Developer starts implementation.
 - [ ] acceptance criteria are clear enough for validation
 - [ ] task brief exists when request is vague, user-visible, medium-risk, or high-risk
 - [ ] work plan exists when work is Full Lane, high-risk, broad, multi-phase, incident, release, migration, or compatibility-sensitive
+- [ ] significant architecture decisions have an architecture report, fitness checks, and required human decision
 - [ ] pending human-only decisions are resolved or explicitly blocking
 - [ ] open questions are blockers only
 - [ ] no agent is treating human approval as granted

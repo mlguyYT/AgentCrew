@@ -58,7 +58,7 @@ docs/bootstrap-existing-project.md
 
 ## Loading model
 
-AgentCrew uses staged loading to reduce token usage. Supported agents should read `AGENTS.md`, answer advisory questions directly, and load `agent-team/context/route-index.md` plus only the context profile, role, Skills, gates, and templates triggered by action requests.
+AgentCrew uses staged loading to limit unnecessary context growth. Supported agents should read `AGENTS.md`, answer advisory questions directly, and load `agent-team/context/route-index.md` plus only the context profile, role, Skills, gates, and templates triggered by action requests.
 
 ---
 
@@ -315,6 +315,14 @@ The preferred setup is:
 This writes small global loaders for supported tools and keeps AgentCrew outside target repositories.
 
 Supported automatic registrations currently include Claude Code, Codex, OpenClaw, and Hermes Agent. The default installer registers OpenClaw and Hermes Agent when they are detected; use `--agent openclaw` or `--agent hermes` to force registration explicitly.
+
+For Cursor, GitHub Copilot, IDE assistants, or future host agents with persistent custom instructions, generate the canonical vendor-neutral loader:
+
+```bash
+~/AgentCrew/bin/agentcrew loader
+```
+
+Add that output to the host's global or user-level instruction surface.
 
 The loader is intentionally stronger than a path hint. It tells the host agent to route project, product, coding, debugging, design, review, planning, testing, documentation, research, and architecture requests through AgentCrew first. Other workflow systems or skill packs should be used only after AgentCrew routing, or when the user explicitly asks for them.
 

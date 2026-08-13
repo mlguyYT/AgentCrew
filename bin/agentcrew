@@ -19,6 +19,7 @@ usage() {
   printf '%s\n' "  audit               Show an engine run audit report"
   printf '%s\n' "  decisions           View or append engine decision records"
   printf '%s\n' "  install             Register AgentCrew with supported coding agents"
+  printf '%s\n' "  loader              Print vendor-neutral loader text for any coding agent"
   printf '%s\n' "  uninstall           Remove AgentCrew global loader blocks"
   printf '%s\n' "  status              Show registrations and project dashboard"
   printf '%s\n' "  doctor              Check AgentCrew setup health"
@@ -313,7 +314,7 @@ Keep human approval final and do not merge pull requests.
 EOF
 }
 
-codex_loader() {
+canonical_loader() {
   local root="$1"
   cat <<EOF
 # AgentCrew
@@ -343,6 +344,14 @@ If another local skill, workflow framework, planning system, or agent methodolog
 
 Keep human approval final and do not merge pull requests.
 EOF
+}
+
+codex_loader() {
+  canonical_loader "$1"
+}
+
+generic_loader() {
+  canonical_loader "$1"
 }
 
 openclaw_loader() {
@@ -660,6 +669,9 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/context/route-index.md" "route index exists"
   check_file_exists "$root/agent-team/playbooks/fast-lane.md" "Fast Lane playbook exists"
   check_file_exists "$root/agent-team/playbooks/full-lane.md" "Full Lane playbook exists"
+  check_file_exists "$root/agent-team/playbooks/developer-execution-loop.md" "Developer execution loop exists"
+  check_file_exists "$root/agent-team/playbooks/tester-validation-loop.md" "Tester validation loop exists"
+  check_file_exists "$root/agent-team/playbooks/reviewer-inspection-loop.md" "Reviewer inspection loop exists"
   check_file_exists "$root/agent-team/playbooks/task-classification.md" "task classification playbook exists"
   check_file_exists "$root/agent-team/playbooks/request-routing.md" "request routing playbook exists"
   check_file_exists "$root/agent-team/playbooks/task-intake.md" "task intake playbook exists"
@@ -675,17 +687,20 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/playbooks/artifact-classification.md" "artifact classification playbook exists"
   check_file_exists "$root/agent-team/playbooks/public-private-boundary.md" "public/private boundary playbook exists"
   check_file_exists "$root/agent-team/playbooks/portfolio-project-scope.md" "portfolio project scope playbook exists"
+  check_file_exists "$root/agent-team/playbooks/architecture-decisions.md" "architecture decisions playbook exists"
   check_file_exists "$root/agent-team/playbooks/quality-profile-selection.md" "quality profile selection playbook exists"
   check_file_exists "$root/agent-team/playbooks/human-decision-queue.md" "human decision queue playbook exists"
   check_file_exists "$root/agent-team/playbooks/token-safe-mode.md" "Token-Safe Mode playbook exists"
   check_file_exists "$root/agent-team/skills/registry-guidance.md" "Skills registry guidance exists"
   check_file_exists "$root/agent-team/skills/registry.md" "Skills registry exists"
+  check_file_exists "$root/agent-team/skills/professional/software-architecture.md" "software architecture Skill exists"
   check_file_exists "$root/agent-team/protocols/communication.md" "communication protocol exists"
   check_file_exists "$root/agent-team/protocols/state-artifacts.md" "state artifacts protocol exists"
   check_file_exists "$root/agent-team/protocols/checkpoint-blocks.md" "checkpoint blocks protocol exists"
   check_file_exists "$root/agent-team/checklists/agentcrew-health-check.md" "AgentCrew health checklist exists"
   check_file_exists "$root/agent-team/checklists/cloud-operation.md" "cloud operation checklist exists"
   check_file_exists "$root/agent-team/checklists/project-constraints.md" "project constraints checklist exists"
+  check_file_exists "$root/agent-team/checklists/architecture-review.md" "architecture review checklist exists"
   check_file_exists "$root/agent-team/adapters/README.md" "tool adapters README exists"
   check_file_exists "$root/agent-team/adapters/claude-code.md" "tool adapter exists: claude-code"
   check_file_exists "$root/agent-team/adapters/codex.md" "tool adapter exists: codex"
@@ -738,6 +753,7 @@ doctor_required_files() {
   check_file_exists "$root/docs/human-decision-queue.md" "human decision queue documentation exists"
   check_file_exists "$root/docs/quality-profiles.md" "quality profiles documentation exists"
   check_file_exists "$root/docs/workflow-recipes.md" "workflow recipes documentation exists"
+  check_file_exists "$root/docs/software-architecture.md" "software architecture documentation exists"
   check_file_exists "$root/docs/installation.md" "installation documentation exists"
 }
 
@@ -746,7 +762,7 @@ doctor_agent_roles() {
   local role
 
   for role in \
-    advisor idea-consultant product-manager developer tester reviewer \
+    advisor idea-consultant product-manager software-architect-agent developer tester reviewer \
     security-reviewer ux-design-reviewer documentation-agent support-triage-agent release-manager skill-validator \
     llm-agent researcher-agent cnn-agent
   do
@@ -760,7 +776,7 @@ doctor_templates() {
 
   for template in \
 	    pr-description test-report review-report security-review-report \
-	    ux-design-review-report documentation-report support-triage-report release-report skill-validation-report \
+	    ux-design-review-report architecture-report documentation-report support-triage-report release-report skill-validation-report \
 	    memory-summary task-routing current-task project-preset task-brief work-plan readiness-report pr-pack human-decision-queue compact-handoff compact-test-report compact-review-report compact-research-report \
 	    project-constraints artifact-map cloud-resources eval-metrics role-fit-matrix mvp-scope resume-bullets demo-script
   do
@@ -776,6 +792,9 @@ doctor_token_budgets() {
   check_word_budget "$root/agent-team/protocols/token-discipline.md" 400 "token discipline protocol"
   check_word_budget "$root/agent-team/context/fast-lane-context.md" 250 "Fast Lane context"
   check_word_budget "$root/agent-team/context/full-lane-context.md" 250 "Full Lane context"
+  check_word_budget "$root/agent-team/playbooks/developer-execution-loop.md" 300 "Developer execution loop"
+  check_word_budget "$root/agent-team/playbooks/tester-validation-loop.md" 300 "Tester validation loop"
+  check_word_budget "$root/agent-team/playbooks/reviewer-inspection-loop.md" 300 "Reviewer inspection loop"
   check_word_budget "$root/agent-team/skills/registry.md" 500 "Skills registry"
 }
 
@@ -1189,6 +1208,13 @@ run_status() {
   "$status_tool" --project "$project"
 }
 
+run_loader() {
+  local root="$1"
+  root="$(absolute_path "$root")"
+  require_agentcrew_root "$root"
+  generic_loader "$root"
+}
+
 PRE_ROOT="$DEFAULT_ROOT"
 if [ "${1:-}" = "--root" ]; then
   [ "$#" -ge 2 ] || die "Missing value for --root" 2
@@ -1349,6 +1375,9 @@ case "$COMMAND" in
     printf '%s\n' ""
     printf '%s\n' "AgentCrew registration complete."
     printf '%s\n' "Open any project and enjoy development with your AgentCrew."
+    ;;
+  loader)
+    run_loader "$ROOT"
     ;;
   uninstall)
     uninstall_agent "$AGENT" "$DRY_RUN"

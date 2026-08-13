@@ -31,6 +31,14 @@ Install one loader:
 ~/AgentCrew/bin/agentcrew install --agent hermes
 ```
 
+For Cursor, GitHub Copilot, IDE assistants, or future host agents with a custom-instruction surface, print the vendor-neutral loader:
+
+```bash
+~/AgentCrew/bin/agentcrew loader
+```
+
+Place that output in the host's global or user-level instructions. This command does not modify files.
+
 ---
 
 ## Inspect Loaders

@@ -132,6 +132,7 @@ Use specialist reviewers only when their area is touched:
 - Security Reviewer for security-sensitive or data-risk changes
 - UX / Design Reviewer for user-facing UI/UX changes
 - Documentation Agent for docs, examples, changelogs, or release notes
+- Software Architect Agent only when a supposedly small change affects significant boundaries, contracts, data ownership, runtime dependencies, or quality attributes
 
 ### Human
 
@@ -244,6 +245,7 @@ specialist_reviewers:
   security_reviewer: security, privacy, data, auth, secrets, infrastructure risk
   ux_design_reviewer: usability, accessibility, visual quality, responsive behavior
   documentation_agent: docs accuracy, examples, changelog, release notes
+  software_architect_agent: boundaries, dependency direction, contracts, data ownership, quality attributes
 ```
 
 ---
