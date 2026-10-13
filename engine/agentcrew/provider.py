@@ -116,7 +116,28 @@ class MockProvider(Provider):
         if not script:
             raise RuntimeError(f"MockProvider has no script for role {role!r}")
 
-        turn = script.pop(0)
+        exact_match = next(
+            (
+                index
+                for index, turn in enumerate(script)
+                if turn.submission_tool == submit_tool_name
+            ),
+            None,
+        )
+        if exact_match is None:
+            exact_match = next(
+                (
+                    index
+                    for index, turn in enumerate(script)
+                    if turn.submission_tool is None
+                ),
+                None,
+            )
+        if exact_match is None:
+            raise RuntimeError(
+                f"MockProvider has no {submit_tool_name!r} script for role {role!r}"
+            )
+        turn = script.pop(exact_match)
         for call in turn.tool_calls:
             run.tool_call_count += 1
             name = call["name"]

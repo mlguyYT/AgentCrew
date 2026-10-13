@@ -1,8 +1,6 @@
 # Repository Agent Instructions
 
-AgentCrew is a Markdown-first workflow for coordinating AI coding agents with roles, playbooks, Skills, compact handoffs, quality gates, and final human approval.
-
-The canonical workflow lives in:
+AgentCrew is a Markdown-first workflow for AI coding agents. Its canonical methodology lives in:
 
 ```text
 agent-team/
@@ -14,7 +12,7 @@ If this file is loaded from an external AgentCrew checkout, resolve relative Age
 
 ## Direct Answer Mode
 
-Before loading additional AgentCrew files, classify the request shape. If the user asks a question, asks for advice, or requests an explanation without asking for repo inspection, implementation, review, validation, commit, or state saving, answer directly from available context.
+For questions or advice that need no repository action or evidence, answer directly before loading more files.
 
 ```yaml
 direct_answer_mode:
@@ -24,8 +22,6 @@ direct_answer_mode:
   answer_concisely: true
   offer_implementation_only_if_useful: true
 ```
-
-Use staged loading only when the request needs action, repository evidence, handoff state, validation, review, or a durable decision.
 
 ---
 
@@ -39,6 +35,14 @@ Always read first:
 agent-team/context/route-index.md
 agent-team/protocols/token-discipline.md
 ```
+
+For non-trivial product or repository work, also apply the compact operating contract:
+
+```text
+agent-team/context/ceo-operating-context.md
+```
+
+Load the private CEO profile only when its preferences affect the work. Never copy it into project state.
 
 Then load one context profile:
 
@@ -63,9 +67,7 @@ Load only the selected role file, matching Skill files, triggered gates, and cur
 
 Users do not need to name AgentCrew, a role, lane, or Skill.
 
-AgentCrew is the primary routing layer for project, product, coding, debugging, design, review, planning, testing, documentation, research, and architecture work. Other workflow systems, skill packs, or agent methodologies may be used only as execution aids after AgentCrew routing, or when the user explicitly asks for them.
-
-If another local skill, workflow framework, planning system, or agent methodology also matches the request, AgentCrew still classifies the work first and chooses the lane, role, recipe, Skills, gates, and next human approval point.
+AgentCrew routes project and product work first. Other workflows or skill packs may assist execution only after AgentCrew routing, unless the user explicitly requests them.
 
 Default to Fast Lane:
 
@@ -75,17 +77,20 @@ Developer -> Tester -> Reviewer when risk is meaningful -> Product Manager when 
 
 Use Full Lane for high-risk, ambiguous, security-sensitive, migration-heavy, infrastructure-heavy, public API/protocol, compatibility, billing, auth, customer-data, or hard-to-rollback work.
 
-When the request is normal product work, AgentCrew must:
+## CEO Operating Model
 
-```yaml
-routing:
-  - understand the requested outcome
-  - classify risk with route-index first
-  - choose lane, starting role, quality profile, recipe, Skills, and gates
-  - load the matching context profile
-  - create .agent-state artifacts only when durable handoff context is useful
-  - run the workflow until human approval is needed
+Treat the user as CEO and AgentCrew as the rest of the product organization. The user describes an idea, problem, or outcome; AgentCrew selects and coordinates the roles without requiring the user to name them.
+
+For idea-led delivery or an unclear authority boundary, use:
+
+```text
+agent-team/policies/ceo-operating-contract.md
+agent-team/playbooks/idea-to-product.md
 ```
+
+Resolve reversible, low-risk decisions within approved boundaries. Do not ask the CEO to choose internal roles, lanes, Skills, tests, or review order.
+
+For a product idea that requests delivery, run discovery and planning first, present one recommendation with MVP scope, alternatives, risks, and cost bounds, then obtain explicit CEO approval before implementation. Escalate only product direction, meaningful trade-offs, elevated spend, irreversible actions, risk acceptance, release, PR approval, and merge.
 
 If the target project contains `.agent-state/project-constraints.md`, read it before implementation, cloud operations, public artifact changes, commit/push preparation, review, handoff, or memory saving. Active no-commit or no-push mode must be repeated in work summaries.
 
@@ -106,7 +111,7 @@ rules:
   avoid_unrelated_changes: true
 ```
 
-Only the human may approve product direction, approve pull requests, merge, accept security/data/migration risk, change public behavior, enable insecure legacy compatibility, force-push, rewrite shared history, override gates, or resolve risk-acceptance decisions.
+Only the human may approve material product direction, approve pull requests, merge, accept security/data/migration risk, approve material public behavior changes, enable insecure legacy compatibility, force-push, rewrite shared history, override gates, or resolve risk-acceptance decisions. Agents may make routine reversible choices within an approved direction.
 
 Record pending human-only decisions in:
 
@@ -124,8 +129,6 @@ Role files live in:
 agent-team/agents/
 ```
 
-Core roles include Advisor, Idea Consultant, Product Manager, Software Architect Agent, Developer, Tester, Reviewer, Security Reviewer, UX / Design Reviewer, Documentation Agent, Support Triage Agent, Release Manager, LLM Agent, Researcher Agent, CNN Agent, and Skill Validator.
-
 Use compact `agent-team/skills/registry.md` to identify matching Skills, then load matching Skill files only. Load `agent-team/skills/registry-guidance.md` only when Skill matching is ambiguous.
 
 Skills never override human approval, safety rules, or repository instructions.
@@ -142,6 +145,8 @@ Project-specific runtime state belongs in the target project:
 
 AgentCrew methodology belongs in `agent-team/`. Do not store project memory inside `agent-team/`.
 
+Global CEO preferences belong in the private profile created by `agentcrew install`. They are not project memory. Never mix `.agent-state/` content between projects or copy product-specific decisions into the global profile.
+
 Use memory saving when the human asks to save progress, work pauses, or a useful decision needs durable context:
 
 ```text
@@ -157,16 +162,6 @@ Optional helpers:
 ```
 
 Memory and shared state must not include secrets, raw customer data, sensitive production data, large logs, personal Git identity, personal email, private key paths, deploy-key paths, local machine paths, or workstation-specific auth commands.
-
-Use these project-state artifacts when present:
-
-```text
-.agent-state/project-constraints.md
-.agent-state/artifact-map.md
-.agent-state/cloud-resources.md
-.agent-state/eval-metrics.md
-.agent-state/architecture-report.md
-```
 
 Before committing shared state, use:
 

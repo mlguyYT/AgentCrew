@@ -31,7 +31,7 @@ Register AgentCrew with supported agents:
 ~/AgentCrew/bin/agentcrew install
 ```
 
-This registers Claude Code and Codex, and registers OpenClaw and Hermes Agent when they are detected on the machine.
+This registers Claude Code and Codex, registers OpenClaw and Hermes Agent when detected, and creates a private global CEO preference profile without overwriting an existing one.
 
 To remove AgentCrew-managed loader blocks later, run `~/AgentCrew/bin/agentcrew uninstall --dry-run` first, then `~/AgentCrew/bin/agentcrew uninstall` if the preview is correct.
 
@@ -81,10 +81,15 @@ It tells the agent to:
 - classify action requests
 - choose Fast Lane or Full Lane
 - choose the starting role
+- treat the user as CEO and coordinate the internal team automatically
+- load the private global CEO profile only when its preferences are relevant
+- use host-native subagents or the engine for multi-role execution when available
 - load relevant Skills
 - keep handoffs compact
 - keep human approval final
 - avoid autonomous merge
+
+The loader points to the private CEO profile at `${XDG_CONFIG_HOME:-~/.config}/agentcrew/ceo-profile.md`, or the path in `AGENTCREW_CEO_PROFILE`. Its content must never be copied into project state. Each project's decisions and progress remain isolated under that project's `.agent-state/`.
 
 ---
 

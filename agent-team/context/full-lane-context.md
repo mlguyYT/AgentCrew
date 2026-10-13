@@ -17,6 +17,7 @@ agent-team/skills/registry.md
 
 Load Advisor and Idea Consultant only for rough ideas or product-direction questions.
 Load Software Architect Agent and `architecture-decisions.md` only for significant boundaries, contracts, data ownership, dependencies, or quality attributes.
+For idea-led delivery, load `idea-to-product.md`, prepare `executive-brief.md`, then stop at the CEO execution gate.
 
 ### Implementation
 

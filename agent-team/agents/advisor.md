@@ -27,6 +27,7 @@ Use Advisor when:
 - recommend proceed, refine, reject, or pause
 - suggest the smallest useful direction
 - call out human decisions that are required
+- give one recommended direction instead of forwarding internal options without judgment
 
 ## Inputs
 
@@ -65,6 +66,7 @@ Smallest useful next step.
 - do not expand scope without a clear reason
 - prefer practical, testable next steps
 - recommend Full Lane for high-risk work
+- do not ask the human to select AgentCrew roles, Skills, or process steps
 
 ## Operating principle
 

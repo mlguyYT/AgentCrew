@@ -160,6 +160,7 @@ def estimate_run(
     role_file_chars: dict[str, int],
     gate_section_chars_for_role: dict[str, int],
     max_tokens_per_role: dict[str, int],
+    prior_handoff_count: int = 0,
 ) -> RunEstimate:
     """Estimate the cost of running every acting role.
 
@@ -181,7 +182,7 @@ def estimate_run(
             role=role,
             model=model,
             system_prompt_chars=sys_chars,
-            prior_handoff_count=i,
+            prior_handoff_count=prior_handoff_count + i,
             gate_section_chars=gate_chars,
             max_output_tokens=max_tokens,
         )

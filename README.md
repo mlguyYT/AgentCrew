@@ -1,6 +1,6 @@
 # AgentCrew
 
-**Turn your coding agent into a disciplined software team.**
+**You set the product direction. AgentCrew runs the software team.**
 
 [![CI](https://github.com/mlguyYT/AgentCrew/actions/workflows/ci.yml/badge.svg)](https://github.com/mlguyYT/AgentCrew/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -10,11 +10,13 @@
 [![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-111827.svg)](agent-team/adapters/claude-code.md)
 [![Works with Cursor](https://img.shields.io/badge/works%20with-Cursor-111827.svg)](agent-team/adapters/cursor.md)
 
-AgentCrew is a conversation-first, Markdown-first methodology for AI coding agents. Install it once, open any project, and ask normally. AgentCrew routes the request to the right role, applies the right workflow, loads only the needed context, and stops where human approval is required.
+AgentCrew is a conversation-first product organization for AI coding agents. Install it once, open any project, and describe an idea, problem, or outcome normally. AgentCrew chooses and coordinates the product, research, architecture, development, testing, review, and specialist roles, then stops only where your judgment or approval is required.
 
 It works with host agents such as Codex, Claude Code, Cursor, OpenClaw, Hermes Agent, and similar coding assistants.
 
-AgentCrew is not a daemon, CI/CD system, autonomous engineer, or replacement for human product judgment. It is a lightweight workflow layer that helps coding agents act with clearer roles, safer gates, and better handoffs.
+You act as CEO. AgentCrew handles internal team coordination and routine reversible decisions; you retain product direction, meaningful trade-offs, risk acceptance, release, PR, and merge approval.
+
+AgentCrew is not a background daemon, CI/CD system, or autonomous replacement for product judgment.
 
 <p align="center">
   <img src="docs/assets/agentcrew-workflow.svg" alt="AgentCrew request routing workflow" width="100%">
@@ -41,6 +43,8 @@ I want to add team billing to this app. Help me shape it and implement the first
 ```
 
 You do not need to say "use AgentCrew", name a role, choose a lane, or run workflow commands during normal use. AgentCrew is loaded by the host agent and should classify the request automatically.
+
+For an idea, AgentCrew evaluates feasibility, refines the direction, prepares the MVP and execution boundary, and asks for your approval before implementation. You do not need to invoke Product Manager, Developer, Tester, or Reviewer yourself.
 
 For any host with persistent custom instructions but no automatic installer target, run `~/AgentCrew/bin/agentcrew loader` and place the output in that host's instruction surface.
 
@@ -81,7 +85,7 @@ Developer -> Tester -> Reviewer -> Product Manager if needed -> Human
 For ambiguous, high-impact, security-sensitive, migration-heavy, public API, billing, auth, customer-data, or hard-to-rollback work, it uses a fuller process:
 
 ```text
-Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist if needed -> Human
+Advisor -> Idea Consultant -> Product Manager -> CEO execution approval -> Developer -> Tester -> Reviewer -> Specialist if needed -> CEO
 ```
 
 AgentCrew can also estimate execution cost before spending meaningful model tokens, then ask for confirmation before the implementation phase.
@@ -92,7 +96,7 @@ AgentCrew can also estimate execution cost before spending meaningful model toke
 AGENTS.md              entry point for host agents
 bin/agentcrew          install, generic loader, doctor, routing, engine commands
 agent-team/            roles, playbooks, skills, templates, policies, gates
-engine/                optional executable layer for orchestration
+engine/                executable routing and team-coordination layer
 docs/                  installation, usage, examples, customization
 examples/              scenario examples and workflow examples
 .github/               optional issue and PR templates
@@ -108,11 +112,13 @@ Project-specific runtime state, when needed, belongs in the target project:
 
 Each project gets separate state so memory does not mix across projects.
 
-## Optional Engine
+Stable preferences shared across your products live in a private global CEO profile created during installation. Product decisions and progress stay in that product's `.agent-state/`.
 
-AgentCrew works without the engine. The Markdown methodology is the default contract and remains readable, portable, and vendor-neutral.
+## Execution Engine
 
-The included `engine/` is the optional executable layer for teams that want more automation:
+The Markdown methodology remains AgentCrew's readable, portable, vendor-neutral source of truth. The included engine executes that contract when reliable routing, multi-role coordination, cost gates, and evidence-backed completion are needed.
+
+The engine provides:
 
 - classifier-driven routing;
 - structured role execution;
@@ -121,7 +127,7 @@ The included `engine/` is the optional executable layer for teams that want more
 - handoffs, decisions, audits, and summaries;
 - provider-neutral model backends.
 
-Install the engine only when you want executable runs:
+Install its dependencies to enable executable runs:
 
 ```bash
 cd ~/AgentCrew/engine
@@ -136,7 +142,7 @@ Then from any project:
 ~/AgentCrew/bin/agentcrew run --task "Fix login validation" --project . --backend mock-demo
 ```
 
-The engine supports local and OpenAI-compatible backends, plus optional provider-specific adapters. No provider is required by the core methodology, and human approval remains final.
+The engine supports local and OpenAI-compatible backends, plus optional provider-specific adapters. Without engine dependencies, supported host agents can still apply the Markdown methodology and use their native subagent capabilities. No provider is required by the methodology, and human approval remains final.
 
 ## Roles
 
@@ -186,7 +192,7 @@ Only the human may approve product direction, accept security or migration risk,
 
 AgentCrew is intentionally transparent. Roles, playbooks, policies, templates, skills, and gates are plain files that humans and agents can inspect, edit, review, and version.
 
-The optional engine adds executable orchestration, but the core methodology stays readable and portable.
+The engine adds executable orchestration while the underlying methodology stays readable and portable.
 
 ## Documentation
 
@@ -207,7 +213,7 @@ The optional engine adds executable orchestration, but the core methodology stay
 
 ## Status
 
-AgentCrew v0.1.0 is usable today as an external methodology package for coding agents. The optional `engine/` is the next evolution of AgentCrew and remains vendor-neutral.
+AgentCrew v0.1.0 is usable today as an external, vendor-neutral product-team methodology with an executable orchestration engine.
 
 ## License
 

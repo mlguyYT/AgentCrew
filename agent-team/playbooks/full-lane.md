@@ -15,8 +15,10 @@ Use Full Lane when the cost of mistakes is high.
 ```text
 Idea
   -> Advisor
+  -> Researcher Agent if evidence is needed
   -> Idea Consultant
   -> Product Manager
+  -> Human direction and execution approval for idea-led delivery
   -> Developer
   -> Tester
   -> Reviewer
@@ -57,6 +59,10 @@ use_full_lane_for:
 
 Evaluates whether the idea is worth pursuing and identifies major risks.
 
+### Researcher Agent
+
+Collects source-backed evidence only when feasibility or direction depends on external facts.
+
 ### Idea Consultant
 
 Turns the idea into a structured idea brief.
@@ -81,9 +87,9 @@ Reviews quality, architecture, and risk.
 
 Security Reviewer, UX / Design Reviewer, Software Architect Agent, Documentation Agent, LLM Agent, Researcher Agent, and CNN Agent review their areas when the task touches them.
 
-### Human
+### Human / CEO
 
-Approves concept, backlog, PR, and merge.
+Approves material product direction, execution boundaries, consequential risk, release, PR, and merge. AgentCrew handles internal team coordination and routine reversible decisions.
 
 ---
 
@@ -93,13 +99,13 @@ Full Lane has human approval gates.
 
 ```yaml
 human_gates:
-  concept_approval:
-    before: product planning
-  backlog_approval:
+  direction_and_execution_approval:
     before: implementation
   pr_approval:
     before: merge
 ```
+
+Combine direction, MVP scope, backlog, and execution approval when one decision is safe and clear. Split gates only for consequential architecture, elevated spend, unresolved product direction, or risk acceptance.
 
 Agents may recommend approval, but cannot approve for the human.
 
@@ -129,6 +135,8 @@ recommendations:
   - reject
 ```
 
+When external evidence is needed, Researcher Agent supplies a compact evidence handoff before the idea brief is finalized.
+
 ---
 
 ### Step 2 — Idea Consultant brief
@@ -150,23 +158,7 @@ idea_brief:
 
 ---
 
-### Step 3 — Human concept approval
-
-Human decides whether the concept proceeds.
-
-Possible decisions:
-
-```yaml
-concept_decisions:
-  - approve
-  - request refinement
-  - reject
-  - pause
-```
-
----
-
-### Step 4 — PM planning
+### Step 3 — PM planning
 
 Product Manager creates:
 
@@ -187,15 +179,15 @@ Tasks must be small enough for focused PRs.
 
 ---
 
-### Step 5 — Human backlog approval
+### Step 4 — Human direction and execution approval
 
-Human approves the backlog before implementation.
+AgentCrew presents a compact executive brief containing its recommendation, MVP scope, alternatives, risks, delivery slices, and cost boundary. The human approves, refines, pauses, or rejects it before implementation.
 
 This prevents agents from building the wrong thing.
 
 ---
 
-### Step 6 — Developer implementation
+### Step 5 — Developer implementation
 
 Developer implements one task at a time.
 
@@ -212,7 +204,7 @@ developer_rules:
 
 ---
 
-### Step 7 — Tester validation
+### Step 6 — Tester validation
 
 Tester validates:
 
@@ -228,7 +220,7 @@ Failures route back to Developer.
 
 ---
 
-### Step 8 — Reviewer review
+### Step 7 — Reviewer review
 
 Reviewer checks:
 
@@ -248,7 +240,7 @@ For significant boundary, contract, data-ownership, runtime-dependency, or quali
 
 ---
 
-### Step 8b — Specialist review if needed
+### Step 8 — Specialist review if needed
 
 Use specialist reviewers when the task touches their area:
 

@@ -30,7 +30,20 @@ def _emit(event: dict) -> None:
     sys.stdout.flush()
 
 
-def _run_from_agent(*, task, project, root, provider, models, routing_approver) -> int:
+def _run_from_agent(
+    *,
+    task,
+    project,
+    root,
+    provider,
+    models,
+    routing_approver,
+    approve_cost=False,
+    routing_override=None,
+    prior_handoffs=None,
+    continuation_source_run_id=None,
+    approved_human_decision=None,
+) -> int:
     """Execute a run and emit a stream of JSON-lines events the host agent
     can parse and render in its chat surface.
 
@@ -49,7 +62,11 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
     # Pre-flight classification — emit before we hit the orchestrator so the
     # host agent can show the routing immediately.
     try:
-        r = classify(root, task=task, project=str(project.resolve()))
+        r = routing_override or classify(
+            root,
+            task=task,
+            project=str(project.resolve()),
+        )
     except Exception as exc:  # noqa: BLE001
         _emit({"event": "error", "ts": time.time(), "message": str(exc)})
         return 2
@@ -93,31 +110,18 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
     # Emit a cost preview event so the host agent can surface it before any
     # tokens are spent. The orchestrator will recompute internally; this is
     # purely informational — the cost gate still runs there.
-    from .cost import (
-        decide_cost_gate as _decide,
-        estimate_run as _estimate,
-        load_daily_so_far as _load_daily,
-    )
-    from .gates import load_gates_for_role, render_gate_section
+    from .ceo_context import context_for_routing
+    from .cost import decide_cost_gate as _decide
+    from .cost import load_daily_so_far as _load_daily
+    from .orchestrator import estimate_routing_run
 
-    role_chars = {}
-    gate_chars = {}
-    max_t = {}
-    acting_now = r.acting_roles_in_order()
-    for role in acting_now:
-        try:
-            role_chars[role] = len(root.role_file(role).read_text())
-        except FileNotFoundError:
-            role_chars[role] = 2000
-        gate_chars[role] = len(render_gate_section(load_gates_for_role(root, role, r.gates)))
-        max_t[role] = 8192
-    est = _estimate(
+    ceo_context = context_for_routing(root, r)
+    est = estimate_routing_run(
+        root=root,
         routing=r,
-        acting_roles=acting_now,
         model_for_role=models,
-        role_file_chars=role_chars,
-        gate_section_chars_for_role=gate_chars,
-        max_tokens_per_role=max_t,
+        ceo_context=ceo_context.text,
+        prior_handoff_count=len(prior_handoffs or []),
     )
     cap = project_config.budget.daily_max_usd if project_config else 0.0
     budget = _load_daily(project.resolve(), daily_cap_usd=cap)
@@ -138,7 +142,7 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
         "block": gate.block,
         "reason": gate.reason,
     })
-    if est.total_usd > 0 or gate.warn or gate.block:
+    if (est.total_usd > 0 or gate.warn or gate.block) and not approve_cost:
         _emit({
             "event": "cost_approval_required",
             "ts": time.time(),
@@ -190,15 +194,17 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
     provider.run_agent = _instrumented_run_agent  # type: ignore[assignment]
 
     def _from_agent_risk_acceptor(routing, role):
-        _emit({
-            "event": "human_decision_required",
-            "ts": time.time(),
-            "decision": "accept critical risk before implementation",
-            "role_about_to_run": role,
-            "risk": routing.risk,
-            "lane": routing.lane,
-            "human_decisions": routing.human_decisions,
-        })
+        _emit(
+            {
+                "event": "human_decision_required",
+                "ts": time.time(),
+                "decision": routing.next_human_decision(),
+                "role_about_to_run": role,
+                "risk": routing.risk,
+                "lane": routing.lane,
+                "human_decisions": routing.human_decisions,
+            }
+        )
         return False
 
     from .orchestrator import auto_approve, run as run_team
@@ -211,8 +217,52 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
         model_for_role=models,
         routing_approver=auto_approve,  # already approved above
         risk_acceptor=_from_agent_risk_acceptor,
+        cost_approver=lambda gate: approve_cost or not (gate.warn or gate.block),
         cwd_for_classifier=str(project.resolve()),
+        routing_override=routing_override,
+        prior_handoffs=prior_handoffs,
+        approved_human_decision=approved_human_decision,
     )
+
+    if continuation_source_run_id:
+        from .continuation import ContinuationError, mark_continuation_resumed
+
+        try:
+            mark_continuation_resumed(
+                project.resolve(),
+                continuation_source_run_id,
+                result.run_id,
+            )
+        except ContinuationError as exc:
+            _emit(
+                {
+                    "event": "error",
+                    "ts": time.time(),
+                    "message": str(exc),
+                    "run_id": result.run_id,
+                }
+            )
+            return 2
+
+    continuation_run_id = None
+    if _continuation_is_ready(result):
+        from .continuation import write_continuation
+
+        write_continuation(
+            result.run_dir,
+            routing=result.routing,
+            handoffs=result.handoffs,
+        )
+        continuation_run_id = result.run_id
+        _emit(
+            {
+                "event": "continuation_ready",
+                "ts": time.time(),
+                "run_id": result.run_id,
+                "decision": result.routing.next_human_decision(),
+                "next_role": result.routing.role_after_mid_workflow_human_gate(),
+            }
+        )
 
     _emit(
         {
@@ -223,6 +273,7 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
             "run_dir": str(result.run_dir),
             "estimated_cost_usd": round(result.cost_estimate.total_usd, 4) if result.cost_estimate else 0,
             "actual_cost_usd": round(result.actual_cost_usd, 4),
+            "continuation_run_id": continuation_run_id,
             "handoffs": [
                 {"sender": h.sender, "receiver": h.receiver, "decision": h.decision}
                 for h in result.handoffs
@@ -230,6 +281,28 @@ def _run_from_agent(*, task, project, root, provider, models, routing_approver) 
         }
     )
     return 0 if result.next_owner == "human" and not result.final_decision.startswith("protocol_") else 1
+
+
+def _continuation_is_ready(result) -> bool:
+    if not result.routing.has_mid_workflow_human_gate():
+        return False
+    if result.final_decision == "mid_workflow_human_decision_required":
+        return True
+    if result.final_decision != "needs_human_decision" or not result.handoffs:
+        return False
+    steps = result.routing.workflow_roles()
+    gate_index = next(
+        (
+            index
+            for index, step in enumerate(steps[:-1])
+            if step.casefold().startswith("human ")
+        ),
+        None,
+    )
+    if gate_index is None or gate_index == 0:
+        return False
+    role_before_gate = steps[gate_index - 1].split(" if ", 1)[0].strip()
+    return result.handoffs[-1].sender == role_before_gate
 
 
 def _interactive_cost_approver(gate) -> bool:
@@ -280,7 +353,7 @@ def _interactive_routing_approver(routing: Routing) -> bool:
 
 def _interactive_risk_acceptor(routing: Routing, role: str) -> bool:
     print("\n" + "!" * 60)
-    print("Human-only risk decision required before execution continues.")
+    print("CEO decision required before execution continues.")
     print(f"Risk: {routing.risk}")
     print(f"Lane: {routing.lane}")
     print(f"Next role if accepted: {role}")
@@ -291,7 +364,7 @@ def _interactive_risk_acceptor(routing: Routing, role: str) -> bool:
     print("!" * 60)
     while True:
         try:
-            answer = input("\nDo you accept this critical risk and continue? [y/N] ").strip().lower()
+            answer = input("\nApprove this decision and continue? [y/N] ").strip().lower()
         except (EOFError, KeyboardInterrupt):
             print("\n(no input — declining)")
             return False
@@ -364,11 +437,32 @@ def main(argv: list[str] | None = None) -> int:
     route.add_argument("--project", type=Path, default=Path("."))
 
     run = sub.add_parser("run", parents=[common], help="Classify and execute the workflow")
-    run.add_argument("--task", required=True)
+    run.add_argument("--task")
     run.add_argument("--project", type=Path, required=True)
     run.add_argument("--backend", choices=["local", "openai", "anthropic", "mock-demo"], default="mock-demo")
     run.add_argument("--base-url", default=None)
     run.add_argument("--auto-approve-routing", action="store_true")
+    run.add_argument(
+        "--approve-cost",
+        action="store_true",
+        help=(
+            "For --from-agent resumes only: confirm the host already received "
+            "explicit human approval for the emitted cost preview."
+        ),
+    )
+    run.add_argument(
+        "--approve-decision",
+        action="store_true",
+        help=(
+            "With --continue-run: confirm the host received explicit human "
+            "approval for the saved CEO decision."
+        ),
+    )
+    run.add_argument(
+        "--continue-run",
+        metavar="RUN_ID",
+        help="Resume after the CEO gate without repeating completed planning roles.",
+    )
     run.add_argument(
         "--from-agent",
         action="store_true",
@@ -515,6 +609,34 @@ def main(argv: list[str] | None = None) -> int:
         # user doesn't have to pass --backend, --developer-model, ... every time.
         from .config import ProjectConfig
 
+        routing_override = None
+        prior_handoffs = None
+        continuation_source_run_id = None
+        approved_human_decision = None
+        if args.continue_run:
+            if not args.from_agent:
+                parser.error("--continue-run currently requires --from-agent")
+            if not args.approve_decision:
+                parser.error("--continue-run requires --approve-decision")
+            from .continuation import ContinuationError, load_continuation
+
+            try:
+                continuation = load_continuation(
+                    args.project.resolve(),
+                    args.continue_run,
+                )
+            except ContinuationError as exc:
+                parser.error(str(exc))
+            args.task = continuation.task
+            routing_override = continuation.routing
+            prior_handoffs = list(continuation.prior_handoffs)
+            continuation_source_run_id = continuation.source_run_id
+            approved_human_decision = continuation.pending_decision
+            # The earlier cost approval covered the complete planned workflow.
+            args.approve_cost = True
+        elif not args.task:
+            parser.error("run requires --task or --continue-run")
+
         project_config = ProjectConfig.load(args.project.resolve())
         if project_config:
             # CLI's default is "mock-demo"; if user didn't explicitly pass --backend
@@ -545,6 +667,11 @@ def main(argv: list[str] | None = None) -> int:
                 provider=provider,
                 models=models,
                 routing_approver=approver,
+                approve_cost=args.approve_cost,
+                routing_override=routing_override,
+                prior_handoffs=prior_handoffs,
+                continuation_source_run_id=continuation_source_run_id,
+                approved_human_decision=approved_human_decision,
             )
 
         result = run_team(

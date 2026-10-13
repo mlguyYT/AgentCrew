@@ -206,6 +206,44 @@ codex_file() {
   printf '%s\n' "${CODEX_HOME:-$HOME/.codex}/AGENTS.md"
 }
 
+ceo_profile_file() {
+  if [ -n "${AGENTCREW_CEO_PROFILE:-}" ]; then
+    printf '%s\n' "$AGENTCREW_CEO_PROFILE"
+  elif [ -n "${XDG_CONFIG_HOME:-}" ]; then
+    printf '%s\n' "$XDG_CONFIG_HOME/agentcrew/ceo-profile.md"
+  else
+    printf '%s\n' "$HOME/.config/agentcrew/ceo-profile.md"
+  fi
+}
+
+ensure_ceo_profile() {
+  local root="$1"
+  local dry_run="$2"
+  local profile template parent_existed
+  profile="$(ceo_profile_file)"
+  template="$root/agent-team/templates/ceo-profile.md"
+  [ -f "$template" ] || die "Missing CEO profile template: $template" 1
+
+  if [ -f "$profile" ]; then
+    printf '%s\n' "Preserved: $profile"
+    return 0
+  fi
+  if [ "$dry_run" = "true" ]; then
+    printf '%s\n' "Would create private CEO profile: $profile"
+    return 0
+  fi
+
+  parent_existed="true"
+  [ -d "$(dirname "$profile")" ] || parent_existed="false"
+  mkdir -p "$(dirname "$profile")" || exit 1
+  cp "$template" "$profile" || exit 1
+  chmod 600 "$profile" 2>/dev/null || true
+  if [ "$parent_existed" = "false" ]; then
+    chmod 700 "$(dirname "$profile")" 2>/dev/null || true
+  fi
+  printf '%s\n' "Created private CEO profile: $profile"
+}
+
 is_safe_profile_name() {
   # Only allow alphanumerics, underscore, and dash. Anything else (slashes,
   # dots, traversal sequences, shell metachars) is rejected so a malicious
@@ -282,6 +320,8 @@ hermes_detected() {
 
 claude_loader() {
   local root="$1"
+  local profile
+  profile="$(ceo_profile_file)"
   cat <<EOF
 # AgentCrew
 
@@ -298,6 +338,12 @@ $root
 For any project, product, coding, debugging, design, review, planning, testing, documentation, research, or architecture request, apply AgentCrew automatically.
 
 The user should not need to say "use AgentCrew" or name a role, lane, Skill, playbook, or command.
+
+Treat the user as CEO. AgentCrew owns internal role selection, task assignment, safe coordination, validation, review, and routine reversible decisions. Ask the CEO only for product direction, meaningful trade-offs, elevated cost, irreversible actions, risk acceptance, release, or merge approval.
+
+For product strategy, planning, architecture, or delivery work, read \`$profile\` when it exists. It contains private global preferences; never copy it into project state. Use host-native subagents or the AgentCrew engine for multi-role work without asking the user to invoke individual roles.
+
+When the engine requests cost or CEO approval, surface the compact decision. After explicit approval, continue through the engine approval or continuation mechanism automatically; do not ask the user to run the command.
 
 Before using another workflow, skill pack, planning system, or agent methodology, first route the request through AgentCrew:
 
@@ -316,6 +362,8 @@ EOF
 
 canonical_loader() {
   local root="$1"
+  local profile
+  profile="$(ceo_profile_file)"
   cat <<EOF
 # AgentCrew
 
@@ -330,6 +378,12 @@ $root
 For any project, product, coding, debugging, design, review, planning, testing, documentation, research, or architecture request, apply AgentCrew automatically.
 
 The user should not need to say "use AgentCrew" or name a role, lane, Skill, playbook, or command.
+
+Treat the user as CEO. AgentCrew owns internal role selection, task assignment, safe coordination, validation, review, and routine reversible decisions. Ask the CEO only for product direction, meaningful trade-offs, elevated cost, irreversible actions, risk acceptance, release, or merge approval.
+
+For product strategy, planning, architecture, or delivery work, read \`$profile\` when it exists. It contains private global preferences; never copy it into project state. Use host-native subagents or the AgentCrew engine for multi-role work without asking the user to invoke individual roles.
+
+When the engine requests cost or CEO approval, surface the compact decision. After explicit approval, continue through the engine approval or continuation mechanism automatically; do not ask the user to run the command.
 
 Before using another workflow, skill pack, planning system, or agent methodology, first route the request through AgentCrew:
 
@@ -356,6 +410,8 @@ generic_loader() {
 
 openclaw_loader() {
   local root="$1"
+  local profile
+  profile="$(ceo_profile_file)"
   cat <<EOF
 # AgentCrew
 
@@ -370,6 +426,12 @@ $root
 For any project, product, coding, debugging, design, review, planning, testing, documentation, research, or architecture request, apply AgentCrew automatically.
 
 The user should not need to say "use AgentCrew" or name a role, lane, Skill, playbook, or command.
+
+Treat the user as CEO. AgentCrew owns internal role selection, task assignment, safe coordination, validation, review, and routine reversible decisions. Ask the CEO only for product direction, meaningful trade-offs, elevated cost, irreversible actions, risk acceptance, release, or merge approval.
+
+For product strategy, planning, architecture, or delivery work, read \`$profile\` when it exists. It contains private global preferences; never copy it into project state. Use host-native subagents or the AgentCrew engine for multi-role work without asking the user to invoke individual roles.
+
+When the engine requests cost or CEO approval, surface the compact decision. After explicit approval, continue through the engine approval or continuation mechanism automatically; do not ask the user to run the command.
 
 Before using another workflow, skill pack, planning system, or agent methodology, first route the request through AgentCrew:
 
@@ -390,6 +452,8 @@ EOF
 
 hermes_loader() {
   local root="$1"
+  local profile
+  profile="$(ceo_profile_file)"
   cat <<EOF
 # AgentCrew
 
@@ -404,6 +468,12 @@ $root
 For any project, product, coding, debugging, design, review, planning, testing, documentation, research, or architecture request, apply AgentCrew automatically.
 
 The user should not need to say "use AgentCrew" or name a role, lane, Skill, playbook, or command.
+
+Treat the user as CEO. AgentCrew owns internal role selection, task assignment, safe coordination, validation, review, and routine reversible decisions. Ask the CEO only for product direction, meaningful trade-offs, elevated cost, irreversible actions, risk acceptance, release, or merge approval.
+
+For product strategy, planning, architecture, or delivery work, read \`$profile\` when it exists. It contains private global preferences; never copy it into project state. Use host-native subagents or the AgentCrew engine for multi-role work without asking the user to invoke individual roles.
+
+When the engine requests cost or CEO approval, surface the compact decision. After explicit approval, continue through the engine approval or continuation mechanism automatically; do not ask the user to run the command.
 
 Before using another workflow, skill pack, planning system, or agent methodology, first route the request through AgentCrew:
 
@@ -667,8 +737,10 @@ doctor_required_files() {
   check_dir_exists "$root/agent-team" "agent-team/ exists"
   check_file_exists "$root/agent-team/README.md" "agent-team README exists"
   check_file_exists "$root/agent-team/context/route-index.md" "route index exists"
+  check_file_exists "$root/agent-team/context/ceo-operating-context.md" "CEO operating context exists"
   check_file_exists "$root/agent-team/playbooks/fast-lane.md" "Fast Lane playbook exists"
   check_file_exists "$root/agent-team/playbooks/full-lane.md" "Full Lane playbook exists"
+  check_file_exists "$root/agent-team/playbooks/idea-to-product.md" "idea-to-product playbook exists"
   check_file_exists "$root/agent-team/playbooks/developer-execution-loop.md" "Developer execution loop exists"
   check_file_exists "$root/agent-team/playbooks/tester-validation-loop.md" "Tester validation loop exists"
   check_file_exists "$root/agent-team/playbooks/reviewer-inspection-loop.md" "Reviewer inspection loop exists"
@@ -691,6 +763,7 @@ doctor_required_files() {
   check_file_exists "$root/agent-team/playbooks/quality-profile-selection.md" "quality profile selection playbook exists"
   check_file_exists "$root/agent-team/playbooks/human-decision-queue.md" "human decision queue playbook exists"
   check_file_exists "$root/agent-team/playbooks/token-safe-mode.md" "Token-Safe Mode playbook exists"
+  check_file_exists "$root/agent-team/policies/ceo-operating-contract.md" "CEO operating policy exists"
   check_file_exists "$root/agent-team/skills/registry-guidance.md" "Skills registry guidance exists"
   check_file_exists "$root/agent-team/skills/registry.md" "Skills registry exists"
   check_file_exists "$root/agent-team/skills/professional/software-architecture.md" "software architecture Skill exists"
@@ -775,10 +848,10 @@ doctor_templates() {
   local template
 
   for template in \
-	    pr-description test-report review-report security-review-report \
-	    ux-design-review-report architecture-report documentation-report support-triage-report release-report skill-validation-report \
-	    memory-summary task-routing current-task project-preset task-brief work-plan readiness-report pr-pack human-decision-queue compact-handoff compact-test-report compact-review-report compact-research-report \
-	    project-constraints artifact-map cloud-resources eval-metrics role-fit-matrix mvp-scope resume-bullets demo-script
+    pr-description test-report review-report security-review-report \
+    ux-design-review-report architecture-report documentation-report support-triage-report release-report skill-validation-report \
+    memory-summary task-routing current-task project-preset task-brief work-plan readiness-report pr-pack human-decision-queue compact-handoff compact-test-report compact-review-report compact-research-report \
+    project-constraints artifact-map cloud-resources eval-metrics role-fit-matrix mvp-scope resume-bullets demo-script ceo-profile executive-brief
   do
     check_file_exists "$root/agent-team/templates/$template.md" "template exists: $template"
   done
@@ -789,6 +862,7 @@ doctor_token_budgets() {
 
   check_word_budget "$root/AGENTS.md" 1200 "AGENTS.md"
   check_word_budget "$root/agent-team/context/route-index.md" 450 "route index"
+  check_word_budget "$root/agent-team/context/ceo-operating-context.md" 180 "CEO operating context"
   check_word_budget "$root/agent-team/protocols/token-discipline.md" 400 "token discipline protocol"
   check_word_budget "$root/agent-team/context/fast-lane-context.md" 250 "Fast Lane context"
   check_word_budget "$root/agent-team/context/full-lane-context.md" 250 "Full Lane context"
@@ -1372,6 +1446,7 @@ case "$COMMAND" in
     ROOT="$(absolute_path "$ROOT")"
     require_agentcrew_root "$ROOT"
     install_agent "$AGENT" "$ROOT" "$DRY_RUN"
+    ensure_ceo_profile "$ROOT" "$DRY_RUN"
     printf '%s\n' ""
     printf '%s\n' "AgentCrew registration complete."
     printf '%s\n' "Open any project and enjoy development with your AgentCrew."

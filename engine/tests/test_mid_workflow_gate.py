@@ -200,7 +200,7 @@ def test_risk_acceptor_rejection_stops_run(project):
         routing_approver=auto_approve,
         risk_acceptor=reject,
     )
-    assert result.final_decision == "mid_workflow_human_decision_rejected"
+    assert result.final_decision == "mid_workflow_human_decision_required"
     assert result.next_owner == "human"
     # No further roles ran after the gate (only Advisor + Idea Consultant
     # which precede the Human decision marker).
@@ -219,7 +219,7 @@ def test_default_risk_acceptor_rejects_critical_run(project):
         model_for_role=_models(),
         routing_approver=auto_approve,
     )
-    assert result.final_decision == "mid_workflow_human_decision_rejected"
+    assert result.final_decision == "mid_workflow_human_decision_required"
     senders_after_gate = {h.sender for h in result.handoffs}
     assert "Product Manager" not in senders_after_gate
     assert "Developer" not in senders_after_gate

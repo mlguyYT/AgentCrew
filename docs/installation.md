@@ -4,8 +4,7 @@
 
 This guide explains how to install AgentCrew once and make it available to coding agents across projects.
 
-AgentCrew is Markdown-first and tool-agnostic.
-It is not a runtime, server, bot, or CI/CD platform by default.
+AgentCrew is Markdown-first and tool-agnostic. Its methodology can run through host-native agent capabilities, and its included engine provides executable orchestration when configured.
 
 ---
 
@@ -30,6 +29,8 @@ git clone https://github.com/mlguyYT/AgentCrew.git ~/AgentCrew
 Do not copy `AGENTS.md` or `agent-team/` into each project by default.
 
 From the target project, ask normally and enjoy development with your AgentCrew.
+
+Installation also creates a private global CEO profile at `${XDG_CONFIG_HOME:-~/.config}/agentcrew/ceo-profile.md`. Edit it with stable preferences that should guide every product. Keep product-specific decisions in each product's `.agent-state/`, not in the global profile. Its selected content becomes model context during applicable runs, so never store secrets or sensitive data there.
 
 Optional: inspect a target project profile and classify a request without changing the project:
 

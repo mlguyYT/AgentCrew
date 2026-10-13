@@ -180,6 +180,9 @@ fi
 
 add_unique LOAD_NOW 'agent-team/context/route-index.md'
 add_unique LOAD_NOW 'agent-team/protocols/token-discipline.md'
+if [ "$RISK" != "low" ] || [ "$INTENT" = "rough_idea_or_strategy" ] || [ "$INTENT" = "idea_to_product_delivery" ] || [ "$INTENT" = "product_scope_or_acceptance_criteria" ] || [ "$INTENT" = "architecture_design_or_decision" ] || [ "$INTENT" = "portfolio_project_positioning" ] || [ "$INTENT" = "public_private_boundary_decision" ] || [ "$INTENT" = "release_readiness_or_deployment_preparation" ]; then
+  add_unique LOAD_NOW 'agent-team/context/ceo-operating-context.md'
+fi
 
 case "$INTENT" in
   code_or_pr_review)
@@ -207,6 +210,14 @@ for skill in "${SKILLS[@]}"; do
 done
 
 [ -n "$RECIPE" ] && [ "$RECIPE" != "bug-fix" ] && add_unique LOAD_NOW "agent-team/recipes/$RECIPE.md"
+if [ "$INTENT" = "rough_idea_or_strategy" ] || [ "$INTENT" = "idea_to_product_delivery" ]; then
+  add_unique LOAD_NOW 'agent-team/policies/ceo-operating-contract.md'
+  add_unique LOAD_NOW 'agent-team/playbooks/idea-to-product.md'
+  add_unique LOAD_LATER 'agent-team/agents/idea-consultant.md'
+  add_unique LOAD_LATER 'agent-team/templates/idea-brief.md'
+  add_unique LOAD_LATER 'agent-team/templates/product-plan.md'
+  add_unique LOAD_LATER 'agent-team/templates/executive-brief.md'
+fi
 if [ "$RECIPE" = "portfolio-project" ]; then
   add_unique LOAD_NOW 'agent-team/playbooks/portfolio-project-scope.md'
   add_unique LOAD_NOW 'agent-team/templates/role-fit-matrix.md'

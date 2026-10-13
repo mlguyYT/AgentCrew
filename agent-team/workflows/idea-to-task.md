@@ -1,17 +1,17 @@
 # Workflow: Idea → Task
 
 ## Purpose
-Convert a raw idea into actionable tasks.
+Convert a raw idea into a decision-ready direction and actionable tasks without asking the user to manage the team.
 
 ## Flow
 
 ```text
 Idea
-  -> Advisor (optional)
+  -> Advisor
+  -> Researcher Agent if evidence is needed
   -> Idea Consultant
-  -> Human concept approval
   -> Product Manager
-  -> Human backlog approval
+  -> Human direction and execution approval
 ```
 
 ---
@@ -25,16 +25,16 @@ Input can be:
 
 ---
 
-## Step 2 — Advisor (optional)
+## Step 2 — Advisor
 
-Used when:
-- idea is unclear
-- risk is high
+Used for idea direction, feasibility, value, and risk. AgentCrew invokes it automatically.
 
 Output:
 - recommendation
 - risks
 - scope suggestions
+
+Researcher Agent supplies source-backed evidence here only when the decision depends on external facts.
 
 ---
 
@@ -45,16 +45,7 @@ agent-team/templates/idea-brief.md
 
 ---
 
-## Step 4 — Human concept approval
-
-Human decides:
-- proceed
-- refine
-- reject
-
----
-
-## Step 5 — Product Manager
+## Step 4 — Product Manager
 
 Creates:
 - product plan
@@ -67,9 +58,11 @@ agent-team/templates/task.md
 
 ---
 
-## Step 6 — Human backlog approval
+## Step 5 — Human direction and execution approval
 
-Human approves task breakdown before execution.
+AgentCrew presents one executive brief after discovery and planning. The human approves, refines, pauses, or rejects the direction and execution boundary before implementation.
+
+Use separate concept, architecture, cost, or backlog gates only when the decisions cannot safely be combined.
 
 ---
 
@@ -80,4 +73,7 @@ output:
   - approved idea brief
   - product plan
   - task list
+  - executive brief
 ```
+
+Continue with `agent-team/playbooks/idea-to-product.md` when implementation is requested.

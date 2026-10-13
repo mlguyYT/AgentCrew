@@ -31,6 +31,8 @@ Fix the login form so empty email shows a validation message.
 
 After one-time registration, AgentCrew should be loaded automatically. It should read its own instructions, classify the task, choose the lane, role, and Skills, and stop where human approval is required.
 
+Treat normal use as a CEO interface: describe the idea or outcome, not the internal team. AgentCrew should assign roles, coordinate work, make routine reversible decisions, and surface only consequential product, cost, risk, release, and merge decisions.
+
 AgentCrew should be the first routing layer for project work. Other workflow systems, skill packs, or agent methodologies should be used only as execution aids after AgentCrew routing, or when you explicitly ask for them.
 
 Add extra rules to your prompt only when you want to constrain or override the default workflow.
@@ -231,6 +233,9 @@ AgentCrew should infer them from the request:
 "Plan a project creation feature"
   -> Product Manager -> Developer -> Tester -> Reviewer -> Human
 
+"I want to build a scheduling product for clinics"
+  -> Advisor -> Idea Consultant -> Product Manager -> CEO execution approval -> delivery team -> CEO
+
 "Change how API tokens are validated"
   -> Advisor -> Product Manager -> Developer -> Tester -> Reviewer -> Security Reviewer -> Human
 
@@ -411,16 +416,15 @@ Task
   -> Human approval
 ```
 
-If risk is high:
+For idea-led delivery or high-risk work:
 
 ```text
 Idea
   -> Advisor
+  -> Researcher Agent if evidence is needed
   -> Idea Consultant
   -> Product Manager
-  -> Human concept approval
-  -> Product Manager backlog planning
-  -> Human backlog approval
+  -> Human direction and execution approval
   -> Developer
   -> Tester
   -> Reviewer

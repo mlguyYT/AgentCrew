@@ -85,15 +85,15 @@ class Routing:
         out: list[str] = []
 
         def _add(role: str, *, deduplicate: bool = False) -> None:
-            # 'Human' and 'Human decision' are events in workflow strings,
-            # not actors. The orchestrator handles human gates separately.
-            if role in {"Human", "Human decision"}:
+            # Human-labeled steps are events in workflow strings, not actors.
+            # The orchestrator handles non-terminal human gates separately.
+            if _is_human_step(role):
                 return
             if role and (not deduplicate or role not in out):
                 out.append(role)
 
         for step in self.workflow_roles():
-            if step in {"Human", "Human decision"}:
+            if _is_human_step(step):
                 continue
             m = re.match(r"^(.+?)(?:\s+if\s+(.+))?$", step.strip())
             if not m:
@@ -103,13 +103,15 @@ class Routing:
 
             if role == "Specialist Reviewer":
                 # Placeholder — expand to the concrete specialists the classifier picked.
-                if condition and not _evaluate_condition(condition, self):
+                if condition and not _evaluate_condition(
+                    condition, self, role=role
+                ):
                     continue
                 for specialist in self.specialists:
                     _add(specialist, deduplicate=True)
                 continue
 
-            if condition and not _evaluate_condition(condition, self):
+            if condition and not _evaluate_condition(condition, self, role=role):
                 continue
             _add(role)
 
@@ -122,32 +124,46 @@ class Routing:
         return out
 
     def has_mid_workflow_human_gate(self) -> bool:
-        """True when the classifier inserts a 'Human decision' mid-workflow.
+        """True when the classifier inserts a human gate before the final step.
 
-        Appears on critical-risk routes ('Full Lane plus explicit human
-        decision'). The orchestrator pauses execution before the role that
-        follows the gate; see role_after_mid_workflow_human_gate().
+        The label may be ``Human decision``, ``Human scope approval``, or
+        another explicit human step. The terminal ``Human`` step is excluded.
         """
-        return any(step.strip() == "Human decision" for step in self.workflow_roles())
+        steps = self.workflow_roles()
+        return any(_is_human_step(step) for step in steps[:-1])
+
+    def next_human_decision(self) -> str:
+        """Return the next consequential decision, excluding final approval."""
+
+        pending = [
+            decision
+            for decision in self.human_decisions
+            if decision != "none"
+            and "final approval" not in decision.casefold()
+        ]
+        if pending:
+            return "; ".join(pending)
+        return "approve the next consequential workflow phase"
 
     def role_after_mid_workflow_human_gate(self) -> str | None:
-        """Return the first acting role that follows 'Human decision' in the
-        workflow string, or None when there is no mid-workflow gate.
+        """Return the first acting role after a mid-workflow human gate.
 
-        The orchestrator pauses BEFORE invoking this role on critical-risk
-        runs, so the human gets to accept risk before any implementation
-        starts. The Advisor and Idea Consultant phases (which sit before
-        'Human decision') still run; this is the second pause point.
+        Conditional roles that evaluate false are skipped. Human approval is
+        enforced before the returned role, so pre-gate roles still run.
         """
         steps = self.workflow_roles()
         try:
-            idx = next(i for i, s in enumerate(steps) if s.strip() == "Human decision")
+            idx = next(
+                i
+                for i, step in enumerate(steps[:-1])
+                if _is_human_step(step)
+            )
         except StopIteration:
             return None
         # Walk forward to the first step that's an actual acting role.
         for step in steps[idx + 1:]:
             stripped = step.strip()
-            if stripped in {"Human", "Human decision"}:
+            if _is_human_step(stripped):
                 continue
             m = re.match(r"^(.+?)(?:\s+if\s+(.+))?$", stripped)
             if not m:
@@ -159,16 +175,38 @@ class Routing:
                     return self.specialists[0]
                 continue
             condition = m.group(2)
-            if condition and not _evaluate_condition(condition, self):
+            if condition and not _evaluate_condition(
+                condition, self, role=role
+            ):
                 continue
             return role
+        return None
+
+    def workflow_after_mid_workflow_human_gate(self) -> str | None:
+        """Return the post-approval workflow, including terminal Human."""
+
+        steps = self.workflow_roles()
+        for index, step in enumerate(steps[:-1]):
+            if _is_human_step(step):
+                remaining = steps[index + 1:]
+                return " -> ".join(remaining) if remaining else None
         return None
 
 
 _MEANINGFUL_RISK = {"medium", "high", "critical"}
 
 
-def _evaluate_condition(condition: str, routing: "Routing") -> bool:
+def _is_human_step(step: str) -> bool:
+    normalized = step.strip().casefold()
+    return normalized == "human" or normalized.startswith("human ")
+
+
+def _evaluate_condition(
+    condition: str,
+    routing: "Routing",
+    *,
+    role: str | None = None,
+) -> bool:
     """Best-effort evaluation of the classifier's common 'if ...' conditional clauses.
 
     Known patterns (lowercased):
@@ -191,6 +229,8 @@ def _evaluate_condition(condition: str, routing: "Routing") -> bool:
     if "risk is meaningful" in c or "release risk is meaningful" in c:
         return routing.risk in _MEANINGFUL_RISK
     if c.endswith("needed") or c == "needed" or "if needed" in c or "triggered" in c:
+        if role and role != "Specialist Reviewer":
+            return role in routing.specialists
         return len(routing.specialists) > 0
     if "implementation follows" in c:
         roles = [s.strip() for s in routing.workflow.split("->") if s.strip()]

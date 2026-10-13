@@ -32,6 +32,7 @@ import time as _time
 
 from .agents import Agent, build_agent
 from .config import ProjectConfig
+from .ceo_context import context_for_routing
 from .context_compiler import compile_execution_context
 from .decisions import load_recent as load_recent_decisions, render_section as render_decisions_section
 from .execution_evidence import FileFingerprint
@@ -73,7 +74,7 @@ from .agentcrew_root import AgentCrewRoot
 
 # Callback types.
 # RoutingApprover: shown the Routing once before any role runs.
-# RiskAcceptor: shown when the classifier inserts 'Human decision' mid-workflow.
+# RiskAcceptor: legacy callback name for any explicit mid-workflow CEO decision.
 # CostApprover: shown when the estimated run cost exceeds per_run_warn_usd
 #   (warn) or per_run_block_usd / daily cap (block). Block returns False if
 #   the user declines; warn returns True for approval. Auto-approver below
@@ -88,7 +89,7 @@ def auto_approve(_r: Routing) -> bool:
 
 
 def require_explicit_risk_acceptance(_r: Routing, _role: str) -> bool:
-    """Safe default for human-only risk gates.
+    """Safe default for human-only mid-workflow decisions.
 
     Callers that have a real human confirmation surface should pass their own
     callback. The engine must not accept critical risk by default.
@@ -99,6 +100,50 @@ def require_explicit_risk_acceptance(_r: Routing, _role: str) -> bool:
 def auto_approve_cost(gate: CostGate) -> bool:
     """Approve warnings; decline blocks. Safe default for scripted runs."""
     return not gate.block
+
+
+def estimate_routing_run(
+    *,
+    root: AgentCrewRoot,
+    routing: Routing,
+    model_for_role: dict[str, str],
+    ceo_context: str = "",
+    prior_handoff_count: int = 0,
+) -> RunEstimate:
+    """Estimate the same bounded context that role execution will receive."""
+
+    acting = routing.acting_roles_in_order()
+    role_file_chars: dict[str, int] = {}
+    context_chars: dict[str, int] = {}
+    max_tokens_per_role: dict[str, int] = {}
+    for role in acting:
+        try:
+            role_file_chars[role] = len(root.role_file(role).read_text())
+        except FileNotFoundError:
+            role_file_chars[role] = 2000
+        gate_texts = load_gates_for_role(root, role, routing.gates)
+        if role in {"Developer", "Tester", "Reviewer"}:
+            context_chars[role] = len(
+                compile_execution_context(
+                    root=root,
+                    routing=routing,
+                    role=role,
+                    gate_texts=gate_texts,
+                ).text
+            )
+        else:
+            context_chars[role] = len(render_gate_section(gate_texts))
+        context_chars[role] += len(ceo_context)
+        max_tokens_per_role[role] = 8192
+    return estimate_run(
+        routing=routing,
+        acting_roles=acting,
+        model_for_role=model_for_role,
+        role_file_chars=role_file_chars,
+        gate_section_chars_for_role=context_chars,
+        max_tokens_per_role=max_tokens_per_role,
+        prior_handoff_count=prior_handoff_count,
+    )
 
 
 @dataclass
@@ -148,19 +193,26 @@ def run(
     cost_approver: CostApprover = auto_approve_cost,
     state_root: Path | None = None,
     cwd_for_classifier: str | None = None,
+    ceo_profile_path: Path | None = None,
+    routing_override: Routing | None = None,
+    prior_handoffs: list[Handoff] | None = None,
+    approved_human_decision: str | None = None,
 ) -> TeamRun:
     """Classify → human gate → cost gate → execute the workflow → return TeamRun.
 
     Three human gates:
       - routing_approver: shown the Routing before any role runs.
       - cost_approver: shown the cost estimate when warn/block thresholds hit.
-      - risk_acceptor: shown on critical-risk routes before the role that
-        sits after the methodology's mid-workflow 'Human decision' marker.
+      - risk_acceptor: shown before the role after a mid-workflow human gate.
     """
 
     project_dir = project_dir.resolve()
     _run_start_t = _time.monotonic()
-    routing = classify(root, task=task, project=cwd_for_classifier or str(project_dir))
+    routing = routing_override or classify(
+        root,
+        task=task,
+        project=cwd_for_classifier or str(project_dir),
+    )
 
     # Apply .agentcrew/config.yaml overrides. The config can only TIGHTEN safety
     # (escalate profile, add specialists, set models). It cannot remove gates
@@ -176,6 +228,7 @@ def run(
         project_dir=project_dir,
         run_dir=project_dir / ".agent-state" / "runs" / run_id,
         routing=routing,
+        handoffs=list(prior_handoffs or []),
     )
 
     # Direct Answer Mode: the classifier flagged this as advisory. Invoke
@@ -215,6 +268,22 @@ def run(
 
     # Load decisions ONCE for this run. Every role sees the same text.
     decisions_section = render_decisions_section(load_recent_decisions(layout.decisions, limit=10))
+    ceo_context = context_for_routing(
+        root,
+        routing,
+        profile_path=ceo_profile_path,
+    )
+
+    if approved_human_decision:
+        from .state import append_human_decision
+
+        append_human_decision(
+            layout,
+            (
+                f"- {datetime.now(timezone.utc).isoformat(timespec='seconds')} "
+                f"- approved: {approved_human_decision}"
+            ),
+        )
 
     write_current_task(
         layout,
@@ -242,34 +311,12 @@ def run(
     # ---- Cost gate ---------------------------------------------------------
     # Estimate before any LLM call so the user can decline a surprise spend.
     # If config has thresholds set to 0, the gate is effectively skipped.
-    role_file_chars: dict[str, int] = {}
-    gate_section_chars: dict[str, int] = {}
-    max_tokens_per_role: dict[str, int] = {}
-    for role in acting:
-        try:
-            role_file_chars[role] = len(root.role_file(role).read_text())
-        except FileNotFoundError:
-            role_file_chars[role] = 2000  # estimate when missing
-        gate_texts = load_gates_for_role(root, role, routing.gates)
-        if role in {"Developer", "Tester", "Reviewer"}:
-            gate_section_chars[role] = len(
-                compile_execution_context(
-                    root=root,
-                    routing=routing,
-                    role=role,
-                    gate_texts=gate_texts,
-                ).text
-            )
-        else:
-            gate_section_chars[role] = len(render_gate_section(gate_texts))
-        max_tokens_per_role[role] = 8192  # see Agent.max_tokens default
-    estimate = estimate_run(
+    estimate = estimate_routing_run(
+        root=root,
         routing=routing,
-        acting_roles=acting,
         model_for_role=model_for_role,
-        role_file_chars=role_file_chars,
-        gate_section_chars_for_role=gate_section_chars,
-        max_tokens_per_role=max_tokens_per_role,
+        ceo_context=ceo_context.text,
+        prior_handoff_count=len(prior_handoffs or []),
     )
     state.cost_estimate = estimate
     budget_status = load_daily_so_far(
@@ -314,8 +361,8 @@ def run(
     developer_file_baselines: dict[str, FileFingerprint | None] = {}
     observed_developer_files: tuple[str, ...] = ()
 
-    # Resolve where the mid-workflow human-decision gate sits (if any). On
-    # critical-risk routes, we pause before this role until the human accepts.
+    # Resolve where the mid-workflow CEO gate sits (if any). The gate may be
+    # product direction, execution approval, or explicit risk acceptance.
     mid_gate_role = (
         routing.role_after_mid_workflow_human_gate()
         if routing.has_mid_workflow_human_gate()
@@ -327,10 +374,10 @@ def run(
     while idx < len(primary_acting):
         role = primary_acting[idx]
 
-        # Mid-workflow human-decision gate (per the methodology's critical-risk routes).
+        # Mid-workflow CEO decision gate.
         if mid_gate_role and role == mid_gate_role and not mid_gate_acknowledged:
             if not risk_acceptor(routing, role):
-                state.final_decision = "mid_workflow_human_decision_rejected"
+                state.final_decision = "mid_workflow_human_decision_required"
                 state.next_owner = "human"
                 break
             mid_gate_acknowledged = True
@@ -338,7 +385,10 @@ def run(
 
             append_human_decision(
                 layout,
-                f"- {datetime.now(timezone.utc).isoformat(timespec='seconds')} — accepted critical risk before {role}",
+                (
+                    f"- {datetime.now(timezone.utc).isoformat(timespec='seconds')} "
+                    f"- approved: {routing.next_human_decision()} before {role}"
+                ),
             )
 
         model = model_for_role.get(role)
@@ -375,6 +425,7 @@ def run(
             project_dir=project_dir,
             provider=provider,
             root=root,
+            ceo_context=ceo_context.text,
             decisions_section=decisions_section,
             developer_status_baseline=developer_status_baseline,
             developer_file_baselines=developer_file_baselines,
@@ -474,6 +525,7 @@ def run(
                 provider=provider,
                 root=root,
                 model_for_role=model_for_role,
+                ceo_context=ceo_context.text,
                 decisions_section=decisions_section,
             )
             for role, agent_run, handoff in spec_results:
@@ -511,7 +563,8 @@ def run(
     # Map each agent_run back to the role that produced it (same order
     # they appended to state.agent_runs and state.handoffs).
     actual_total = 0.0
-    for ar, hf in zip(state.agent_runs, state.handoffs):
+    new_handoffs = state.handoffs[len(prior_handoffs or []):]
+    for ar, hf in zip(state.agent_runs, new_handoffs):
         if hasattr(ar, "usage") and ar.usage:
             actual_total += actual_cost_from_usage(hf.model or "", ar.usage)
     state.actual_cost_usd = actual_total
@@ -606,6 +659,7 @@ def _run_specialists_parallel(
     provider: Provider,
     root: AgentCrewRoot,
     model_for_role: dict[str, str],
+    ceo_context: str = "",
     decisions_section: str = "",
 ) -> list[tuple[str, AgentRun, Handoff | None]]:
     """Run each trailing specialist in its own thread.
@@ -638,6 +692,7 @@ def _run_specialists_parallel(
             project_dir=project_dir,
             provider=provider,
             root=root,
+            ceo_context=ceo_context,
             decisions_section=decisions_section,
         )
         return role, agent_run, handoff

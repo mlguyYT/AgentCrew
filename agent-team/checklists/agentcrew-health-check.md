@@ -45,6 +45,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 ## Required Context Files
 
 - [ ] `agent-team/context/route-index.md`
+- [ ] `agent-team/context/ceo-operating-context.md`
 - [ ] `agent-team/context/fast-lane-context.md`
 - [ ] `agent-team/context/full-lane-context.md`
 - [ ] `agent-team/context/review-context.md`
@@ -77,6 +78,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 
 - [ ] `agent-team/playbooks/fast-lane.md`
 - [ ] `agent-team/playbooks/full-lane.md`
+- [ ] `agent-team/playbooks/idea-to-product.md`
 - [ ] `agent-team/playbooks/developer-execution-loop.md`
 - [ ] `agent-team/playbooks/tester-validation-loop.md`
 - [ ] `agent-team/playbooks/reviewer-inspection-loop.md`
@@ -217,6 +219,8 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 - [ ] `agent-team/skills/professional/proportionate-design.md`
 - [ ] `agent-team/skills/ml/cnn.md`
 - [ ] `agent-team/templates/task-routing.md`
+- [ ] `agent-team/templates/ceo-profile.md`
+- [ ] `agent-team/templates/executive-brief.md`
 - [ ] `agent-team/templates/current-task.md`
 - [ ] `agent-team/templates/project-preset.md`
 - [ ] `agent-team/templates/task-brief.md`
@@ -267,6 +271,7 @@ The goal is to verify that agents can find the workflow, apply the right lane, u
 
 ## Safety Rules
 
+- [ ] `agent-team/policies/ceo-operating-contract.md`
 - [ ] Human approval rule exists
 - [ ] No-autonomous-merge rule exists
 - [ ] Agents may not bypass branch protection

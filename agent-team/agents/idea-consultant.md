@@ -28,6 +28,7 @@ Use Idea Consultant when:
 - identify assumptions and risks
 - recommend an MVP direction
 - list open questions
+- resolve non-material questions using evidence and CEO preferences when safe
 
 ## Inputs
 
@@ -51,6 +52,7 @@ agent-team/templates/idea-brief.md
 - make open questions explicit
 - do not invent human approval
 - hand off planning to the Product Manager
+- ask the human only about product choices that materially change the direction
 
 ## Operating principle
 

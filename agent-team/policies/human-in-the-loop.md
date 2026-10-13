@@ -2,7 +2,7 @@
 
 ## Rule
 
-Human approval is required for important decisions.
+Human approval is required for consequential decisions. Agents should not escalate routine reversible decisions that remain inside approved scope and budget.
 
 ---
 
@@ -10,7 +10,7 @@ Human approval is required for important decisions.
 
 Only humans may:
 
-- approve product direction
+- approve material product direction
 - approve backlog for larger work
 - approve final PR
 - merge PR
@@ -18,7 +18,7 @@ Only humans may:
 - accept high security risk
 - accept destructive data risk
 - accept data-loss or migration risk
-- change public behavior
+- approve material public behavior changes
 - enable legacy insecure compatibility
 - force-push or rewrite shared history
 - override quality gates
@@ -36,6 +36,9 @@ Agents may:
 - test
 - review
 - request rework
+- select roles, lanes, Skills, gates, and task order
+- make reversible low-risk implementation decisions within approved scope
+- resolve internal coordination without asking the human to manage agents
 
 Agents may not:
 
@@ -49,9 +52,11 @@ Agents may not:
 ## Operating principle
 
 ```text
-Agents accelerate work.
-Humans own judgment.
+AgentCrew decides how approved work gets done.
+The human decides what should be built and which consequential risks are acceptable.
 ```
+
+Use `agent-team/policies/ceo-operating-contract.md` to decide whether a choice belongs to AgentCrew or the human.
 
 ---
 

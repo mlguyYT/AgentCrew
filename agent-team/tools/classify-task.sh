@@ -76,6 +76,8 @@ RX_SUPPORT='(support ticket|customer report|customer-reported|user report|user c
 RX_RELEASE='(^|[^a-z0-9])(release|ship|deploy|version bump|changelog|release note|rollout|rollback|default branch merge|merge readiness)([^a-z0-9]|$)'
 RX_DOCS='(docs|documentation|readme|changelog|release note|example|guide|migration note|public api)'
 RX_RESEARCH='(research|compare|investigate options|source-backed|sources|citation|latest|current|market|standard|regulation|source)'
+RX_PRODUCT_IDEA='(product idea|startup idea|business idea|rough idea|help me shape|validate (this|my) idea|should i (build|create|develop|make|launch)|i (want|would like) to (build|create|develop|make|launch) (a |an )?([a-z0-9-]+ ){0,4}(app|application|product|platform|service|tool|startup))'
+RX_IDEA_ADVICE='(should i|is it worth|what do you think|evaluate|assess|feasibility|brainstorm|discuss)'
 RX_LLM='(llm|language model|foundation model|model selection|model provider|model endpoint|prompt|rag|embedding|vector search|tool calling|function calling|structured output|llm eval|model eval|prompt eval|hallucination|prompt injection)'
 RX_CNN='(cnn|computer vision|image classification|object detection|segmentation|image dataset|augmentation|model training|training|inference optimization|inference)'
 RX_ARCHITECTURE='(software architecture|system design|architecture decision|architectural decision|architecture review|service boundary|module boundary|bounded context|dependency direction|data ownership|quality attribute|scalability|availability|resilience|performance budget|operability|(^|[^a-z0-9])adr([^a-z0-9]|$))'
@@ -149,8 +151,31 @@ if matches '(^| )(implement|build|create|add|change|refactor|migrate|replace)( |
   ARCHITECTURE_DELIVERY_REQUEST="true"
 fi
 
-# Intent mapping. Later rules may escalate risk without changing explicit intent.
-if matches '(^| )(how|what|why|when|where|can|could|should|is|are|does|do|did|would|explain|describe|advice|recommend|suggest|question|thoughts)( |$|[?])' && ! matches '(^| )(fix|change|add|update|create|build|implement|refactor|remove|replace|install|commit|push|run|test|validate|review|inspect|save)( |$)'; then
+# Intent mapping. Product ideas are handled before generic implementation so
+# wording such as "I want to build an app" receives discovery and planning
+# before any code is written. Later rules may escalate risk without changing
+# explicit intent.
+if matches "$RX_PRODUCT_IDEA"; then
+  STARTING_ROLE="Advisor"
+  LANE="Full Lane"
+  RECIPE="feature"
+  add_unique SKILLS "product-owner-pro"
+  add_unique GATES "CEO operating contract"
+  if matches "$RX_IDEA_ADVICE" && ! matches '(go ahead|start (building|implementation)|implement (it|this)|build (it|this)|first (safe )?(version|mvp))'; then
+    INTENT="rough_idea_or_strategy"
+    WORKFLOW="Advisor -> Researcher Agent if evidence is needed -> Idea Consultant -> Product Manager -> Human"
+    NEXT_ROLES=("Researcher Agent if evidence is needed" "Idea Consultant" "Product Manager" "Human")
+    HUMAN_DECISIONS=("choose whether to proceed, refine, pause, or reject")
+    add_unique REASONS "product idea needs decision support before execution is considered"
+  else
+    INTENT="idea_to_product_delivery"
+    WORKFLOW="Advisor -> Researcher Agent if evidence is needed -> Idea Consultant -> Product Manager -> Human decision -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human"
+    NEXT_ROLES=("Researcher Agent if evidence is needed" "Idea Consultant" "Product Manager" "Human decision" "Developer" "Tester" "Reviewer" "Specialist Reviewer if needed" "Human")
+    HUMAN_DECISIONS=("approve product direction, MVP scope, and execution boundary before implementation" "final approval before release or merge")
+    add_unique GATES "product direction and execution approval"
+    add_unique REASONS "product idea requests delivery, so AgentCrew plans first and pauses before implementation"
+  fi
+elif matches '(^| )(how|what|why|when|where|can|could|should|is|are|does|do|did|would|explain|describe|advice|recommend|suggest|question|thoughts)( |$|[?])' && ! matches '(^| )(fix|change|add|update|create|build|implement|refactor|remove|replace|install|commit|push|run|test|validate|review|inspect|save)( |$)'; then
   INTENT="direct_answer_or_advisory"
   STARTING_ROLE="None"
   RISK="low"
@@ -298,7 +323,7 @@ elif matches '(plan|scope|requirements|acceptance criteria|backlog|user story|pr
 fi
 
 case "$INTENT" in
-  implementation_or_bug_fix|product_scope_or_acceptance_criteria)
+  implementation_or_bug_fix|product_scope_or_acceptance_criteria|idea_to_product_delivery)
     add_unique GATES "tester validation"
     ;;
   validation_or_regression_check)
@@ -323,15 +348,15 @@ case "$INTENT" in
   architecture_design_or_decision)
     add_unique GATES "architecture decision gate"
     ;;
-	  portfolio_project_positioning)
-	    add_unique GATES "portfolio scope check"
-	    add_unique GATES "target-role evidence check"
-	    ;;
-	  public_private_boundary_decision)
-	    add_unique GATES "public/private boundary check"
-	    add_unique GATES "artifact classification check"
-	    add_unique GATES "project constraints check"
-	    ;;
+  portfolio_project_positioning)
+    add_unique GATES "portfolio scope check"
+    add_unique GATES "target-role evidence check"
+    ;;
+  public_private_boundary_decision)
+    add_unique GATES "public/private boundary check"
+    add_unique GATES "artifact classification check"
+    add_unique GATES "project constraints check"
+    ;;
   prompt_rag_tool_calling_or_model_behavior)
     add_unique GATES "LLM review"
     ;;
@@ -431,6 +456,8 @@ if [ "$INTENT" = "direct_answer_or_advisory" ]; then
   RECIPE="advisory"
 elif [ "$INTENT" = "architecture_design_or_decision" ]; then
   RECIPE="review"
+elif [ "$INTENT" = "rough_idea_or_strategy" ] || [ "$INTENT" = "idea_to_product_delivery" ]; then
+  RECIPE="feature"
 elif matches '(incident|outage|production down|hotfix|rollback broken|rollback production|sev[ -]?[0-9]|urgent regression|data incident|security incident)'; then
   RECIPE="incident"
 elif matches "$RX_RELEASE"; then
@@ -497,6 +524,18 @@ else
 fi
 
 case "$INTENT" in
+  rough_idea_or_strategy)
+    STARTING_ROLE="Advisor"
+    LANE="Full Lane"
+    WORKFLOW="Advisor -> Researcher Agent if evidence is needed -> Idea Consultant -> Product Manager -> Human"
+    NEXT_ROLES=("Researcher Agent if evidence is needed" "Idea Consultant" "Product Manager" "Human")
+    ;;
+  idea_to_product_delivery)
+    STARTING_ROLE="Advisor"
+    LANE="Full Lane"
+    WORKFLOW="Advisor -> Researcher Agent if evidence is needed -> Idea Consultant -> Product Manager -> Human decision -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human"
+    NEXT_ROLES=("Researcher Agent if evidence is needed" "Idea Consultant" "Product Manager" "Human decision" "Developer" "Tester" "Reviewer" "Specialist Reviewer if needed" "Human")
+    ;;
   source_backed_research_or_current_info)
     WORKFLOW="Researcher Agent -> Product Manager if decision needed -> Human"
     NEXT_ROLES=("Product Manager if decision needed" "Human")
@@ -568,6 +607,20 @@ case "$RISK" in
         add_unique HUMAN_DECISIONS "accept critical risk before merge"
         add_unique REASONS "critical risk holds Researcher entry but requires human risk acceptance"
         ;;
+      rough_idea_or_strategy)
+        STARTING_ROLE="Advisor"
+        LANE="Full Lane"
+        WORKFLOW="Advisor -> Researcher Agent if evidence is needed -> Idea Consultant -> Product Manager -> Human"
+        NEXT_ROLES=("Researcher Agent if evidence is needed" "Idea Consultant" "Product Manager" "Human")
+        add_unique REASONS "critical subject matter is analyzed without beginning implementation"
+        ;;
+      idea_to_product_delivery)
+        STARTING_ROLE="Advisor"
+        LANE="Full Lane plus explicit human decision"
+        WORKFLOW="Advisor -> Researcher Agent if evidence is needed -> Idea Consultant -> Product Manager -> Human decision -> Developer -> Tester -> Reviewer -> Specialist Reviewer -> Human"
+        NEXT_ROLES=("Researcher Agent if evidence is needed" "Idea Consultant" "Product Manager" "Human decision" "Developer" "Tester" "Reviewer" "Specialist Reviewer" "Human")
+        add_unique REASONS "critical product delivery requires CEO approval before implementation"
+        ;;
       portfolio_project_positioning)
         STARTING_ROLE="Product Manager"
         LANE="Full Lane plus explicit human decision"
@@ -620,6 +673,20 @@ case "$RISK" in
         WORKFLOW="Researcher Agent -> Product Manager -> Human"
         NEXT_ROLES=("Product Manager" "Human")
         add_unique REASONS "high risk holds Researcher entry and adds Product Manager review"
+        ;;
+      rough_idea_or_strategy)
+        STARTING_ROLE="Advisor"
+        LANE="Full Lane"
+        WORKFLOW="Advisor -> Researcher Agent if evidence is needed -> Idea Consultant -> Product Manager -> Human"
+        NEXT_ROLES=("Researcher Agent if evidence is needed" "Idea Consultant" "Product Manager" "Human")
+        add_unique REASONS "high-risk idea remains in discovery until the CEO chooses a direction"
+        ;;
+      idea_to_product_delivery)
+        STARTING_ROLE="Advisor"
+        LANE="Full Lane"
+        WORKFLOW="Advisor -> Researcher Agent if evidence is needed -> Idea Consultant -> Product Manager -> Human decision -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human"
+        NEXT_ROLES=("Researcher Agent if evidence is needed" "Idea Consultant" "Product Manager" "Human decision" "Developer" "Tester" "Reviewer" "Specialist Reviewer if needed" "Human")
+        add_unique REASONS "high-risk product delivery requires CEO approval before implementation"
         ;;
       portfolio_project_positioning)
         STARTING_ROLE="Product Manager"
@@ -752,46 +819,54 @@ else
   add_unique FILES_TO_LOAD "agent-team/playbooks/full-lane.md"
 fi
 if [ "$INTENT" != "direct_answer_or_advisory" ]; then
+  add_unique FILES_TO_LOAD "agent-team/context/ceo-operating-context.md"
   add_unique FILES_TO_LOAD "agent-team/agents/$(printf '%s' "$STARTING_ROLE" | tr '[:upper:]' '[:lower:]' | sed 's# / #-#g; s# #\-#g').md"
   add_unique FILES_TO_LOAD "agent-team/playbooks/quality-profile-selection.md"
   add_unique FILES_TO_LOAD "agent-team/quality-profiles/$QUALITY_PROFILE.md"
-	  add_unique FILES_TO_LOAD "agent-team/recipes/$RECIPE.md"
-	  add_unique FILES_TO_LOAD "agent-team/skills/registry.md"
-	  add_unique FILES_TO_LOAD "agent-team/templates/task-routing.md"
-	  if [ -f "$PROJECT_CONSTRAINTS_FILE" ] || matches "$RX_CLOUD" || matches "$RX_PRIVATE_BOUNDARY" || matches "$RX_COMMIT_BOUNDARY"; then
-	    add_unique FILES_TO_LOAD "agent-team/playbooks/project-constraints.md"
-	  fi
-	  if [ "$INTENT" = "portfolio_project_positioning" ]; then
-	    add_unique FILES_TO_LOAD "agent-team/playbooks/portfolio-project-scope.md"
+  add_unique FILES_TO_LOAD "agent-team/recipes/$RECIPE.md"
+  add_unique FILES_TO_LOAD "agent-team/skills/registry.md"
+  add_unique FILES_TO_LOAD "agent-team/templates/task-routing.md"
+  if [ -f "$PROJECT_CONSTRAINTS_FILE" ] || matches "$RX_CLOUD" || matches "$RX_PRIVATE_BOUNDARY" || matches "$RX_COMMIT_BOUNDARY"; then
+    add_unique FILES_TO_LOAD "agent-team/playbooks/project-constraints.md"
+  fi
+  if [ "$INTENT" = "portfolio_project_positioning" ]; then
+    add_unique FILES_TO_LOAD "agent-team/playbooks/portfolio-project-scope.md"
     add_unique FILES_TO_LOAD "agent-team/templates/role-fit-matrix.md"
     add_unique FILES_TO_LOAD "agent-team/templates/mvp-scope.md"
     add_unique FILES_TO_LOAD "agent-team/templates/resume-bullets.md"
     add_unique FILES_TO_LOAD "agent-team/templates/demo-script.md"
   fi
-	  if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
-	    add_unique FILES_TO_LOAD "agent-team/playbooks/specialist-review-routing.md"
-	  fi
-	  if matches "$RX_ARCHITECTURE"; then
-	    add_unique FILES_TO_LOAD "agent-team/playbooks/architecture-decisions.md"
-	    add_unique FILES_TO_LOAD "agent-team/checklists/architecture-review.md"
-	    add_unique FILES_TO_LOAD "agent-team/skills/professional/software-architecture.md"
-	    add_unique FILES_TO_LOAD "agent-team/templates/architecture-report.md"
-	  fi
-	  if matches "$RX_CLOUD"; then
-	    add_unique FILES_TO_LOAD "agent-team/playbooks/cloud-operations.md"
-	    add_unique FILES_TO_LOAD "agent-team/checklists/cloud-operation.md"
-	    add_unique FILES_TO_LOAD "agent-team/templates/cloud-resources.md"
-	  fi
-	  if matches "$RX_ARTIFACT"; then
-	    add_unique FILES_TO_LOAD "agent-team/playbooks/artifact-classification.md"
-	    add_unique FILES_TO_LOAD "agent-team/templates/artifact-map.md"
-	  fi
-	  if matches "$RX_PRIVATE_BOUNDARY"; then
-	    add_unique FILES_TO_LOAD "agent-team/playbooks/public-private-boundary.md"
-	    add_unique FILES_TO_LOAD "agent-team/playbooks/artifact-classification.md"
-	    add_unique FILES_TO_LOAD "agent-team/templates/artifact-map.md"
-	  fi
-	fi
+  if [ "$INTENT" = "rough_idea_or_strategy" ] || [ "$INTENT" = "idea_to_product_delivery" ]; then
+    add_unique FILES_TO_LOAD "agent-team/policies/ceo-operating-contract.md"
+    add_unique FILES_TO_LOAD "agent-team/playbooks/idea-to-product.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/idea-brief.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/product-plan.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/executive-brief.md"
+  fi
+  if [ "${#SPECIALISTS[@]}" -gt 0 ]; then
+    add_unique FILES_TO_LOAD "agent-team/playbooks/specialist-review-routing.md"
+  fi
+  if matches "$RX_ARCHITECTURE"; then
+    add_unique FILES_TO_LOAD "agent-team/playbooks/architecture-decisions.md"
+    add_unique FILES_TO_LOAD "agent-team/checklists/architecture-review.md"
+    add_unique FILES_TO_LOAD "agent-team/skills/professional/software-architecture.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/architecture-report.md"
+  fi
+  if matches "$RX_CLOUD"; then
+    add_unique FILES_TO_LOAD "agent-team/playbooks/cloud-operations.md"
+    add_unique FILES_TO_LOAD "agent-team/checklists/cloud-operation.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/cloud-resources.md"
+  fi
+  if matches "$RX_ARTIFACT"; then
+    add_unique FILES_TO_LOAD "agent-team/playbooks/artifact-classification.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/artifact-map.md"
+  fi
+  if matches "$RX_PRIVATE_BOUNDARY"; then
+    add_unique FILES_TO_LOAD "agent-team/playbooks/public-private-boundary.md"
+    add_unique FILES_TO_LOAD "agent-team/playbooks/artifact-classification.md"
+    add_unique FILES_TO_LOAD "agent-team/templates/artifact-map.md"
+  fi
+fi
 
 printf '%s\n' "task_classification:"
 printf '  task: %s\n' "$(yaml_quote "$TASK")"

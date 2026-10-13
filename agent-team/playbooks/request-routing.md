@@ -6,6 +6,8 @@ Route normal user requests without requiring the user to name AgentCrew, a lane,
 
 Users should be able to ask for the outcome directly. AgentCrew is responsible for choosing the starting role, lane, Skills, quality gates, and next human approval point.
 
+Treat the user as CEO. Do not ask them to choose or invoke the internal team. Use `agent-team/policies/ceo-operating-contract.md` to decide which choices AgentCrew resolves and which choices require CEO approval.
+
 ---
 
 ## Routing Order
@@ -21,9 +23,9 @@ Then apply this order:
 ```yaml
 routing_order:
   - understand the requested outcome
-	  - identify whether the user asked for planning, implementation, validation, review, research, or documentation
-	  - load project constraints when `.agent-state/project-constraints.md` exists
-	  - classify risk using route-index and task-classification
+  - identify whether the user asked for planning, implementation, validation, review, research, or documentation
+  - load project constraints when `.agent-state/project-constraints.md` exists
+  - classify risk using route-index and task-classification
   - choose Fast Lane or Full Lane
   - select the quality profile
   - select the workflow recipe
@@ -31,9 +33,9 @@ routing_order:
   - choose the starting role
   - run project detection when stack context is unclear and the detector is available
   - select candidate Skills from the registry
-	  - identify required gates and specialist triggers
-	  - identify cloud, artifact classification, public/private boundary, and no-commit gates
-	  - produce a compact route summary
+  - identify required gates and specialist triggers
+  - identify cloud, artifact classification, public/private boundary, and no-commit gates
+  - produce a compact route summary
   - create `.agent-state/current-task.md` when a durable current task artifact is useful
   - create `.agent-state/task-brief.md` when acceptance criteria are missing or vague
   - create `.agent-state/work-plan.md` when work needs sequencing or PR slicing
@@ -50,9 +52,10 @@ Do not ask the user to choose the lane, role, or Skill unless the request is gen
 
 ```yaml
 intent_to_starting_role:
-	  rough_idea_or_strategy: Advisor
-	  portfolio_project_positioning: Product Manager
-	  product_scope_or_acceptance_criteria: Product Manager
+  rough_idea_or_strategy: Advisor
+  idea_to_product_delivery: Advisor
+  portfolio_project_positioning: Product Manager
+  product_scope_or_acceptance_criteria: Product Manager
   architecture_design_or_decision: Software Architect Agent
   implementation_or_bug_fix: Developer
   validation_or_regression_check: Tester
@@ -72,6 +75,8 @@ Examples:
 
 ```text
 "Improve onboarding" -> Product Manager first, then Developer/Tester/UX if scope is clear
+"I want to build a scheduling product" -> Advisor, Idea Consultant, Product Manager, then CEO execution approval before Developer
+"Should I build a scheduling product?" -> Advisor, evidence roles if needed, Idea Consultant, Product Manager, then CEO direction decision
 "Fix onboarding button alignment" -> Developer first, then Tester/UX if user-facing risk remains
 "Review this auth PR" -> Reviewer plus Security Reviewer
 "Design service boundaries for this billing subsystem" -> Software Architect Agent, then Product Manager and human architecture decision
@@ -103,10 +108,10 @@ full_lane_when:
   - billing or payments
   - customer data or sensitive data
   - database migration or data loss risk
-	  - infrastructure, deployment, CI, runtime, or container change
-	  - cost-bearing cloud resource or public endpoint
-	  - public API, protocol, compatibility, or rollout change
-	  - public/private product boundary is unclear
+  - infrastructure, deployment, CI, runtime, or container change
+  - cost-bearing cloud resource or public endpoint
+  - public API, protocol, compatibility, or rollout change
+  - public/private product boundary is unclear
   - large refactor or architecture decision
   - unclear product direction
   - rollback is difficult
@@ -140,9 +145,9 @@ recipe_defaults:
   docs-update: documentation, examples, changelog, release notes
   review: code, PR, architecture, or quality review
   validation: testing, QA, regression, acceptance validation
-	  research: source-backed investigation or option comparison
-	  portfolio-project: portfolio, resume, interview, case-study, or target-role project scope
-	  release: release readiness, changelog, version, PR preparation
+  research: source-backed investigation or option comparison
+  portfolio-project: portfolio, resume, interview, case-study, or target-role project scope
+  release: release readiness, changelog, version, PR preparation
   release-management: release report, rollout, rollback, and human release decision preparation
   incident: production issue, urgent regression, rollback decision
   support-triage: support ticket, customer report, severity, impact, reproduction, and routing
@@ -269,9 +274,9 @@ ask_when:
   - product direction is unclear and multiple outcomes would be materially different
   - risk acceptance is required
   - data loss, security, migration, public behavior, or legacy compatibility decision is needed
-	  - required credentials or environment access is missing
-	  - the requested action conflicts with safety or repository rules
-	  - project constraints block commit, push, publication, cloud creation, or public/private placement
+  - required credentials or environment access is missing
+  - the requested action conflicts with safety or repository rules
+  - project constraints block commit, push, publication, cloud creation, or public/private placement
 ```
 
 Otherwise, classify, route, and proceed.

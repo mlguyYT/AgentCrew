@@ -12,6 +12,8 @@ AgentCrew should normally be installed once outside target projects and register
 
 After registration, users should be able to ask for an outcome without saying `Load AgentCrew`.
 
+The user acts as CEO: they set product direction and consequential boundaries. AgentCrew selects and coordinates the product, research, architecture, development, testing, review, and specialist roles without requiring the user to invoke them.
+
 ---
 
 ## Roles
@@ -88,8 +90,10 @@ For larger work:
 ```text
 Idea
   -> Advisor
+  -> Researcher Agent if evidence is needed
   -> Idea Consultant
   -> Product Manager
+  -> Human direction and execution approval
   -> Developer
   -> Tester
   -> Reviewer
@@ -105,6 +109,7 @@ Specialist reviewers and agents include Software Architect Agent, Security Revie
 
 If the user does not name a role, lane, or Skill, infer them from the request.
 Use `agent-team/context/route-index.md` first. Load `agent-team/playbooks/request-routing.md` when the route, starting role, or gates are not obvious, then use `agent-team/playbooks/skill-loading.md` to load matching Skills.
+Apply `agent-team/context/ceo-operating-context.md` for non-trivial work and `agent-team/playbooks/idea-to-product.md` when work begins with a product idea.
 
 Before acting, an agent should use staged loading:
 

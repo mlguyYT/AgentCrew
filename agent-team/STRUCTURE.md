@@ -18,6 +18,7 @@ agent-team/
 
   context/
     route-index.md
+    ceo-operating-context.md
     fast-lane-context.md
     full-lane-context.md
     review-context.md
@@ -44,6 +45,7 @@ agent-team/
   playbooks/
     fast-lane.md
     full-lane.md
+    idea-to-product.md
     developer-execution-loop.md
     tester-validation-loop.md
     reviewer-inspection-loop.md
@@ -142,6 +144,8 @@ agent-team/
     restore-session.sh
 
   templates/
+    ceo-profile.md
+    executive-brief.md
     idea-brief.md
     product-plan.md
     task.md
@@ -214,6 +218,7 @@ agent-team/
       cnn.md
 
   policies/
+    ceo-operating-contract.md
     human-in-the-loop.md
     no-autonomous-merge.md
     scope-control.md

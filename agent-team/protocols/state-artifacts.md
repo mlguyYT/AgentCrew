@@ -28,6 +28,10 @@ Each project owns its own `.agent-state/` folder.
 Agents must not share one `.agent-state/` folder across multiple target projects.
 When AgentCrew is loaded from an external checkout, state still belongs in the target project, not in the AgentCrew checkout.
 
+Global CEO preferences are separate from project state. `agentcrew install` creates a private profile under the user's configuration directory. The exact path is registered in host instructions and can be overridden with `AGENTCREW_CEO_PROFILE`.
+
+The global profile may contain stable preferences that apply across products. It must not contain product-specific decisions, credentials, secrets, customer data, or copies of `.agent-state/` artifacts. Selected content may be sent to the configured model backend as bounded runtime context, but the engine must never persist its content or path in project artifacts.
+
 ---
 
 ## Recommended Files
@@ -82,6 +86,12 @@ relative changed paths, command categories, exit codes, and outcomes; it must
 not contain file contents, command arguments, tool output, or local machine
 paths. Tester validation evidence and Reviewer inspection evidence follow the
 same rule.
+
+When a host-agent run pauses at a mid-workflow CEO gate, that run may contain
+`continuation.json`. It stores the remaining workflow and compact completed
+handoffs so execution can resume after explicit approval without repeating
+discovery and planning. It remains inside the current project's state and is
+single-use after a completed resume.
 
 ---
 

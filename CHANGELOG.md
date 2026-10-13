@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- CEO operating contract, idea-to-product workflow, executive brief, private global CEO preference profile, and engine runtime context for outcome-first product building without manual role coordination.
+- Host-agent approval resume flags for explicit cost and mid-workflow CEO decisions.
 - Software Architect Agent, Software Architecture Skill, architecture decision playbook, review checklist, report template, routing gate, engine support, and architecture documentation.
 - Bounded Developer execution capsules compiled from the selected recipe, Skills, and triggered gates.
 - Engine-observed Developer completion evidence with sanitized tool outcomes, net changed paths, validation enforcement, and one bounded self-correction turn.
@@ -14,6 +16,9 @@
 - Project guardrail artifacts, cloud-operation safety, artifact classification, public/private boundary guidance, and eval-metrics state for long-running project work.
 
 ### Fixed
+- Host-facing and engine-side cost estimates now use the same compiled execution context, and low-risk Fast Lane tasks skip unnecessary CEO context.
+- Generated host loaders preserve the private CEO profile path, and the offline demo backend now reaches and resumes the product-planning approval gate with valid role handoffs.
+- Product ideas that request implementation now complete Advisor, Idea Consultant, and Product Manager planning before an enforced CEO execution gate; labeled human approval steps are no longer treated as agent roles.
 - Architecture delivery preserves the explicit post-implementation Software Architect conformance pass instead of deduplicating it, and ordinary `login` requests no longer trigger artifact classification through a partial `log` match.
 - Reviewer evidence now requires targeted Git diffs after a truncated full diff, rework follows the named prior role, and Tester read-only enforcement detects content changes to already-dirty files.
 - Engine critical-risk `Human decision` gates now require explicit human confirmation instead of auto-accepting by default.

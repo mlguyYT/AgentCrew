@@ -189,6 +189,27 @@ def test_human_decision_is_an_event_not_a_role():
     assert r.has_mid_workflow_human_gate() is True
 
 
+def test_named_human_approval_is_an_enforced_gate_not_a_role():
+    r = Routing(
+        task="t",
+        project="p",
+        intent="portfolio_project_positioning",
+        risk="medium",
+        lane="Full Lane",
+        quality_profile="standard",
+        recipe="portfolio-project",
+        starting_role="Product Manager",
+        workflow=(
+            "Product Manager -> Human scope approval -> Developer -> "
+            "Tester -> Human"
+        ),
+    )
+
+    assert r.acting_roles_in_order() == ["Product Manager", "Developer", "Tester"]
+    assert r.has_mid_workflow_human_gate() is True
+    assert r.role_after_mid_workflow_human_gate() == "Developer"
+
+
 def test_no_mid_workflow_human_gate_on_normal_route():
     r = Routing(
         task="t", project="p", intent="i", risk="low", lane="Fast Lane",
@@ -219,6 +240,76 @@ def test_real_classifier_routes_architecture_decision():
     assert "software-architecture" in r.skills
     assert "architecture decision gate" in r.gates
     assert "agent-team/playbooks/architecture-decisions.md" in r.files_to_load
+
+
+def test_product_idea_with_delivery_plans_before_implementation():
+    root = find_agentcrew_root()
+    r = classify(
+        root,
+        "I want to build a product that helps freelancers manage proposals",
+        str(root.path),
+    )
+
+    assert r.intent == "idea_to_product_delivery"
+    assert r.starting_role == "Advisor"
+    assert r.lane == "Full Lane"
+    assert r.has_mid_workflow_human_gate() is True
+    assert r.role_after_mid_workflow_human_gate() == "Developer"
+    assert r.acting_roles_in_order() == [
+        "Advisor",
+        "Idea Consultant",
+        "Product Manager",
+        "Developer",
+        "Tester",
+        "Reviewer",
+    ]
+    assert any("execution boundary" in item for item in r.human_decisions)
+    assert "agent-team/playbooks/idea-to-product.md" in r.files_to_load
+    assert "agent-team/templates/executive-brief.md" in r.files_to_load
+
+
+def test_critical_product_gate_includes_scope_and_risk_decisions():
+    root = find_agentcrew_root()
+    r = classify(
+        root,
+        "I want to build a product to change the payment flow",
+        str(root.path),
+    )
+
+    decision = r.next_human_decision()
+    assert "product direction" in decision
+    assert "critical risk" in decision
+
+
+def test_product_idea_question_stays_in_discovery():
+    root = find_agentcrew_root()
+    r = classify(
+        root,
+        "Should I build a scheduling app for independent designers?",
+        str(root.path),
+    )
+
+    assert r.intent == "rough_idea_or_strategy"
+    assert r.starting_role == "Advisor"
+    assert r.lane == "Full Lane"
+    assert r.has_mid_workflow_human_gate() is False
+    assert r.acting_roles_in_order() == [
+        "Advisor",
+        "Idea Consultant",
+        "Product Manager",
+    ]
+
+
+def test_scoped_build_request_still_starts_with_developer():
+    root = find_agentcrew_root()
+    r = classify(
+        root,
+        "Build a parser for the existing import format",
+        str(root.path),
+    )
+
+    assert r.intent == "implementation_or_bug_fix"
+    assert r.starting_role == "Developer"
 
 
 def test_architecture_delivery_pauses_before_implementation():

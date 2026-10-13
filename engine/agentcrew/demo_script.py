@@ -17,6 +17,7 @@ def demo_provider() -> MockProvider:
             "Advisor": [
                 ScriptedTurn(
                     tool_calls=[],
+                    submission_tool="submit_answer",
                     submission={
                         "answer": (
                             "For a coding-team dashboard, default to **Server-Sent Events** "
@@ -27,6 +28,44 @@ def demo_provider() -> MockProvider:
                             "(framing, ping/pong, separate auth) you only need for chat or "
                             "collaborative editing."
                         ),
+                    },
+                ),
+                ScriptedTurn(
+                    tool_calls=[],
+                    submission_tool="submit_handoff",
+                    submission={
+                        "sender": "Advisor",
+                        "receiver": "Idea Consultant",
+                        "decision": "Proceed with a bounded discovery pass.",
+                        "context": ["The product idea needs a decision-ready MVP."],
+                        "evidence": ["No blocking feasibility issue is present in the brief."],
+                        "next_action": "Turn the direction into a structured idea brief.",
+                    },
+                ),
+            ],
+            "Idea Consultant": [
+                ScriptedTurn(
+                    submission_tool="submit_handoff",
+                    submission={
+                        "sender": "Idea Consultant",
+                        "receiver": "Product Manager",
+                        "decision": "The idea is ready for MVP scoping.",
+                        "context": ["The target outcome and primary user are bounded."],
+                        "evidence": ["Assumptions and exclusions are explicit."],
+                        "next_action": "Define the MVP, acceptance outcomes, and delivery slices.",
+                    },
+                ),
+            ],
+            "Product Manager": [
+                ScriptedTurn(
+                    submission_tool="submit_handoff",
+                    submission={
+                        "sender": "Product Manager",
+                        "receiver": "Human",
+                        "decision": "needs_human_decision",
+                        "context": ["A bounded MVP and execution boundary are ready."],
+                        "evidence": ["Acceptance outcomes and delivery slices are defined."],
+                        "next_action": "CEO approves, refines, pauses, or rejects execution.",
                     },
                 ),
             ],
@@ -85,6 +124,21 @@ def demo_provider() -> MockProvider:
                         "commands": ["python3 -m unittest -q: pass"],
                         "next_action": "Human approves and merges.",
                         "open_questions": [],
+                    },
+                ),
+            ],
+            "Reviewer": [
+                ScriptedTurn(
+                    tool_calls=[
+                        {"name": "read_file", "input": {"path": "broken.py"}},
+                    ],
+                    submission={
+                        "sender": "Reviewer",
+                        "receiver": "Human",
+                        "decision": "ready_for_human_approval",
+                        "context": ["Inspected the implemented change after validation."],
+                        "evidence": ["The changed implementation matches the tested behavior."],
+                        "next_action": "Human reviews the evidence and decides whether to merge.",
                     },
                 ),
             ],

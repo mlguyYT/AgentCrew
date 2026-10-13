@@ -43,6 +43,7 @@ def build_user_message(
     role: str,
     *,
     gate_section: str = "",
+    ceo_context: str = "",
     decisions_section: str = "",
     runtime_guidance: str = "",
     evidence_section: str = "",
@@ -68,6 +69,8 @@ def build_user_message(
     if routing.specialists:
         parts.append("- specialists: " + ", ".join(routing.specialists))
     parts += ["", "## Your role", f"You are the **{role}** in this run.", ""]
+    if ceo_context:
+        parts += [ceo_context, ""]
     if decisions_section:
         parts += [decisions_section, ""]
     if runtime_guidance:
@@ -102,6 +105,7 @@ def run_role(
     project_dir: Path,
     provider: Provider,
     root: AgentCrewRoot,
+    ceo_context: str = "",
     decisions_section: str = "",
     developer_status_baseline: str | None = None,
     developer_file_baselines: dict[
@@ -148,6 +152,7 @@ def run_role(
             prior,
             agent.role,
             gate_section=gate_section,
+            ceo_context=ceo_context,
             decisions_section=decisions_section,
             runtime_guidance=(
                 compiled_context.text if compiled_context else ""

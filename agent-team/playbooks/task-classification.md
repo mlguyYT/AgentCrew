@@ -130,7 +130,7 @@ critical_risk_examples:
 Recommended flow:
 
 ```text
-Advisor -> Idea Consultant -> Human decision -> Product Manager -> Human backlog approval -> Developer -> Tester -> Reviewer -> Specialist Reviewer -> Human
+Advisor -> Idea Consultant -> Product Manager -> Human direction, scope, and risk decision -> Developer -> Tester -> Reviewer -> Specialist Reviewer -> Human
 ```
 
 Specialist Reviewer means Security Reviewer, UX / Design Reviewer, or Documentation Agent when the task touches that area.
@@ -178,6 +178,7 @@ When a request does not name a role, classify it and route it:
 ```yaml
 route_request:
   planning_or_idea: Advisor or Product Manager
+  idea_plus_delivery: Advisor -> Idea Consultant -> Product Manager -> Human decision -> delivery team
   scoped_implementation: Developer
   validation_or_regression_check: Tester
   review_or_quality_check: Reviewer
@@ -195,8 +196,10 @@ Then run the selected lane:
 
 ```text
 Fast Lane: Developer -> Tester -> Reviewer when risk is meaningful -> Product Manager when scope or product behavior changes -> Human
-Full Lane: Advisor -> Idea Consultant -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human
+Full Lane: Advisor -> Idea Consultant -> Product Manager -> Human decision when consequential -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human
 ```
+
+When a product idea also requests implementation, do not treat words such as `build`, `create`, or `develop` as permission to skip discovery. Complete Advisor, evidence gathering when needed, Idea Consultant, and Product Manager work, then obtain CEO direction and execution approval before Developer starts.
 
 If the user explicitly asks for a role, use that role unless risk requires escalation.
 

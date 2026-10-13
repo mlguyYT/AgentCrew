@@ -7,6 +7,10 @@ from pathlib import Path
 
 import pytest
 
+from agentcrew.continuation import write_continuation
+from agentcrew.handoff import Handoff
+from agentcrew.routing import Routing
+
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
@@ -23,7 +27,14 @@ def project(tmp_path: Path) -> Path:
     return p
 
 
-def _run_cli(project: Path, *, extra_env: dict | None = None, expected_returncode: int = 0) -> list[dict]:
+def _run_cli(
+    project: Path,
+    *,
+    task: str = "Fix broken.py so add_numbers returns a + b",
+    extra_env: dict | None = None,
+    extra_args: list[str] | None = None,
+    expected_returncode: int = 0,
+) -> list[dict]:
     """Run the CLI in --from-agent mode and parse the JSONL stream."""
     repo_root = Path(__file__).resolve().parent.parent
     env = {
@@ -32,17 +43,22 @@ def _run_cli(project: Path, *, extra_env: dict | None = None, expected_returncod
     }
     if extra_env:
         env.update(extra_env)
+    command = [
+        sys.executable,
+        "-m",
+        "agentcrew.cli",
+        "run",
+        "--task",
+        task,
+        "--project",
+        str(project),
+        "--backend",
+        "mock-demo",
+        "--from-agent",
+    ]
+    command.extend(extra_args or [])
     result = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "agentcrew.cli",
-            "run",
-            "--task", "Fix broken.py so add_numbers returns a + b",
-            "--project", str(project),
-            "--backend", "mock-demo",
-            "--from-agent",
-        ],
+        command,
         capture_output=True,
         text=True,
         env=env,
@@ -106,3 +122,112 @@ def test_from_agent_stops_for_cost_approval_when_model_has_price(project):
     assert "cost_preview" in types
     assert types[-1] == "cost_approval_required"
     assert "role_started" not in types
+
+
+def test_from_agent_continues_after_explicit_cost_approval(project):
+    events = _run_cli(
+        project,
+        extra_env={"AGENTCREW_MODEL": "gpt-4o-mini"},
+        extra_args=["--approve-cost"],
+    )
+
+    types = [event["event"] for event in events]
+    assert "cost_approval_required" not in types
+    assert types.count("role_started") == 2
+    assert types[-1] == "done"
+    preview = next(event for event in events if event["event"] == "cost_preview")
+    assert preview["estimated_total_usd"] == events[-1]["estimated_cost_usd"]
+
+
+def test_from_agent_resumes_after_ceo_gate_without_repeating_planning(project):
+    run_id = "planning_run"
+    run_dir = project / ".agent-state" / "runs" / run_id
+    run_dir.mkdir(parents=True)
+    routing = Routing(
+        task="Fix broken.py so add_numbers returns a + b",
+        project=project.name,
+        intent="idea_to_product_delivery",
+        risk="low",
+        lane="Full Lane",
+        quality_profile="standard",
+        recipe="feature",
+        starting_role="Advisor",
+        workflow=(
+            "Advisor -> Idea Consultant -> Product Manager -> Human decision -> "
+            "Developer -> Tester -> Human"
+        ),
+        human_decisions=[
+            "approve product direction and execution boundary",
+            "final approval before merge",
+        ],
+    )
+    planning = Handoff(
+        sender="Product Manager",
+        receiver="Human",
+        decision="needs_human_decision",
+        context=["The plan is ready."],
+        next_action="CEO approves execution.",
+    )
+    write_continuation(run_dir, routing=routing, handoffs=[planning])
+
+    events = _run_cli(
+        project,
+        extra_args=["--continue-run", run_id, "--approve-decision"],
+    )
+
+    assert events[0]["acting_roles"] == ["Developer", "Tester"]
+    assert "Advisor" not in [
+        event.get("role")
+        for event in events
+        if event["event"] == "role_started"
+    ]
+    done = events[-1]
+    assert [handoff["sender"] for handoff in done["handoffs"]] == [
+        "Product Manager",
+        "Developer",
+        "Tester",
+    ]
+    assert "approved: approve product direction" in (
+        project / ".agent-state" / "human-decisions.md"
+    ).read_text()
+
+    replay_events = _run_cli(
+        project,
+        extra_args=["--continue-run", run_id, "--approve-decision"],
+        expected_returncode=2,
+    )
+    assert replay_events == []
+
+
+def test_product_idea_runs_planning_then_emits_continuation(project):
+    events = _run_cli(
+        project,
+        task="I want to build a scheduling app for clinics",
+    )
+
+    started = [
+        event["role"] for event in events if event["event"] == "role_started"
+    ]
+    assert started == ["Advisor", "Idea Consultant", "Product Manager"]
+    assert "Developer" not in started
+    continuation = next(
+        event for event in events if event["event"] == "continuation_ready"
+    )
+    assert continuation["next_role"] == "Developer"
+    assert (Path(events[-1]["run_dir"]) / "continuation.json").is_file()
+
+    resumed = _run_cli(
+        project,
+        extra_args=[
+            "--continue-run",
+            continuation["run_id"],
+            "--approve-decision",
+        ],
+    )
+    resumed_roles = [
+        event["role"]
+        for event in resumed
+        if event["event"] == "role_started"
+    ]
+    assert resumed_roles == ["Developer", "Tester", "Reviewer"]
+    assert resumed[-1]["final_decision"] == "ready_for_human_approval"

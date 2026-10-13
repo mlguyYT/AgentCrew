@@ -1,5 +1,7 @@
 # AgentCrew Engine
 
+The engine is AgentCrew's vendor-neutral execution layer. The human acts as CEO: they provide product direction and consequential approvals, while the engine selects roles, coordinates handoffs, enforces evidence gates, and handles routine reversible decisions.
+
 > **The methodology is the spec. The engine executes it with provider-neutral backends.**
 >
 > The engine reads role files from `agent-team/`, calls the classifier,
@@ -42,8 +44,9 @@ When a user asks the engine to run a task, this is what happens:
      `agent-team/protocols/state-artifacts.md`. Per-run execution evidence is
      written under `.agent-state/runs/`.
 5. The engine stops on the first human-gate decision or after the
-   workflow completes. Critical-risk `Human decision` gates require an
-   explicit human confirmation callback; they are not accepted by default.
+   workflow completes. Mid-workflow product, cost, architecture, and risk
+   decisions require explicit human confirmation; they are not accepted by
+   default.
 
 There is **no separate engine planner**, **no engine classification
 logic**, **no parallel role registry**. The methodology owns all of
@@ -211,8 +214,14 @@ agentcrew-engine --help
 When `run --from-agent` is used by a host agent, the engine emits JSONL
 events. If a non-zero estimated model cost is detected, it emits
 `cost_approval_required` and exits before role execution so the host agent
-can ask the human. If a critical-risk workflow reaches a `Human decision`
-gate, it emits `human_decision_required` and stops.
+can ask the human. After explicit approval, the host can repeat the request
+with `--approve-cost`; no roles ran before that stop. If a workflow reaches a
+mid-workflow CEO gate, the engine writes `continuation.json` and emits
+`continuation_ready`. After explicit approval, the host resumes with
+`--continue-run RUN_ID --approve-decision`; completed discovery and planning
+roles are not repeated, the approval is recorded, and the continuation cannot
+replay a completed resume. Hosts must never add approval flags without approval
+from the current human conversation.
 
 ## Pointing the engine at any AgentCrew install
 
