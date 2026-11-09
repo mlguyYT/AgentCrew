@@ -1,12 +1,11 @@
 """Bounded, read-only Git inspection for Reviewer turns."""
 
-from __future__ import annotations
-
 import hashlib
 import os
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+
+from .git_safety import git_command
 
 
 class GitInspectionError(Exception):
@@ -23,10 +22,8 @@ class GitWorktreeSnapshot:
 def list_git_changed_paths(project_root: Path) -> tuple[str, ...] | None:
     """Return project-scoped changed paths, or None outside a Git worktree."""
 
-    status = _git_status_z(project_root)
-    if status is None:
-        return None
-    return tuple(path for _, path in _parse_status_z(status))
+    entries = _project_status_entries(project_root)
+    return tuple(path for _, path in entries) if entries is not None else None
 
 
 def capture_git_worktree_snapshot(
@@ -34,31 +31,41 @@ def capture_git_worktree_snapshot(
 ) -> GitWorktreeSnapshot | None:
     """Fingerprint currently changed files without persisting their content."""
 
-    status = _git_status_z(project_root)
-    if status is None:
+    records = _project_status_entries(project_root)
+    if records is None:
         return None
     entries = tuple(
         (code, path, _path_fingerprint(project_root, path))
-        for code, path in _parse_status_z(status)
+        for code, path in records
     )
     return GitWorktreeSnapshot(entries)
 
 
+def _project_status_entries(project_root: Path) -> tuple[tuple[str, str], ...] | None:
+    status = _git_status_z(project_root)
+    if status is None:
+        return None
+    prefix = git_command(project_root, "rev-parse", "--show-prefix")
+    if prefix.returncode:
+        return None
+    relative_prefix = prefix.stdout.rstrip("\n")
+    return tuple(
+        (code, path[len(relative_prefix):])
+        for code, path in _parse_status_z(status)
+        if path.startswith(relative_prefix)
+    )
+
+
 def _git_status_z(project_root: Path) -> bytes | None:
-    result = subprocess.run(
-        [
-            "git",
-            "-C",
-            str(project_root),
-            "status",
-            "--porcelain=v1",
-            "-z",
-            "--untracked-files=all",
-            "--",
-            ".",
-        ],
-        capture_output=True,
-        check=False,
+    result = git_command(
+        project_root,
+        "status",
+        "--porcelain=v1",
+        "-z",
+        "--untracked-files=all",
+        "--",
+        ".",
+        text=False,
     )
     return result.stdout if result.returncode == 0 else None
 
@@ -115,69 +122,37 @@ def read_git_diff(
     """Return target-scoped status plus tracked and untracked diffs."""
 
     path_args = ["--", *(relative_paths or ["."])]
-    status = subprocess.run(
-        [
-            "git",
-            "-C",
-            str(project_root),
-            "status",
-            "--short",
-            "--untracked-files=all",
-            *path_args,
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
+    status = git_command(
+        project_root,
+        "status",
+        "--short",
+        "--untracked-files=all",
+        *path_args,
     )
     if status.returncode != 0:
         raise GitInspectionError("git status is unavailable for this project")
 
-    diff_args = [
-        "git",
-        "-C",
-        str(project_root),
+    diff = git_command(
+        project_root,
         "diff",
-        "--no-ext-diff",
         "--unified=3",
         "HEAD",
         *path_args,
-    ]
-    diff = subprocess.run(
-        diff_args,
-        capture_output=True,
-        text=True,
-        check=False,
     )
     tracked_diff = diff.stdout
     if diff.returncode != 0:
-        staged = subprocess.run(
-            [
-                "git",
-                "-C",
-                str(project_root),
-                "diff",
-                "--cached",
-                "--no-ext-diff",
-                "--unified=3",
-                *path_args,
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
+        staged = git_command(
+            project_root,
+            "diff",
+            "--cached",
+            "--unified=3",
+            *path_args,
         )
-        unstaged = subprocess.run(
-            [
-                "git",
-                "-C",
-                str(project_root),
-                "diff",
-                "--no-ext-diff",
-                "--unified=3",
-                *path_args,
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
+        unstaged = git_command(
+            project_root,
+            "diff",
+            "--unified=3",
+            *path_args,
         )
         if staged.returncode != 0 or unstaged.returncode != 0:
             raise GitInspectionError(
@@ -185,19 +160,14 @@ def read_git_diff(
             )
         tracked_diff = staged.stdout + unstaged.stdout
 
-    untracked = subprocess.run(
-        [
-            "git",
-            "-C",
-            str(project_root),
-            "ls-files",
-            "--others",
-            "--exclude-standard",
-            "-z",
-            *path_args,
-        ],
-        capture_output=True,
-        check=False,
+    untracked = git_command(
+        project_root,
+        "ls-files",
+        "--others",
+        "--exclude-standard",
+        "-z",
+        *path_args,
+        text=False,
     )
     if untracked.returncode != 0:
         raise GitInspectionError(
@@ -208,21 +178,14 @@ def read_git_diff(
         if not raw_path:
             continue
         relative_path = raw_path.decode(errors="replace")
-        new_file_diff = subprocess.run(
-            [
-                "git",
-                "diff",
-                "--no-index",
-                "--no-ext-diff",
-                "--unified=3",
-                "--",
-                os.devnull,
-                relative_path,
-            ],
-            cwd=project_root,
-            capture_output=True,
-            text=True,
-            check=False,
+        new_file_diff = git_command(
+            project_root,
+            "diff",
+            "--no-index",
+            "--unified=3",
+            "--",
+            os.devnull,
+            relative_path,
         )
         if new_file_diff.returncode not in {0, 1}:
             raise GitInspectionError(

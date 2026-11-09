@@ -14,10 +14,12 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from .state_paths import checked_state_path, project_state_path, validate_state_tree
 
 
 def find_latest_run(project_dir: Path) -> Path | None:
-    runs = project_dir / ".agent-state" / "runs"
+    runs = project_state_path(project_dir, "runs")
+    validate_state_tree(project_state_path(project_dir))
     if not runs.exists():
         return None
     candidates = sorted([p for p in runs.iterdir() if p.is_dir()], reverse=True)
@@ -39,7 +41,8 @@ def _read_json(path: Path) -> dict:
 
 def render_run(run_dir: Path) -> str:
     """Format one run dir as a tight one-screen summary."""
-    summary_md = _read_text(run_dir / "summary.md")
+    validate_state_tree(run_dir)
+    summary_md = _read_text(checked_state_path(run_dir, run_dir / "summary.md"))
     routing_json = _read_json(run_dir / "task-routing.json")
     cost_est = _read_json(run_dir / "cost-estimate.json")
     cost_act = _read_json(run_dir / "cost-actual.json")
@@ -89,14 +92,17 @@ def render_run(run_dir: Path) -> str:
         out.append("")
         out.append("Cost:")
         est_total = (cost_est.get("estimate") or {}).get("total_usd", 0)
-        actual_total = cost_act.get("actual_cost_usd", 0)
+        pricing_known = cost_act.get("pricing_known", True)
+        actual_total = cost_act.get("actual_cost_usd", 0) if pricing_known else cost_act.get("known_cost_usd", 0)
         daily_after = cost_act.get("daily_total_after", 0)
         out.append(f"  estimated: ${est_total:.4f}")
-        out.append(f"  actual:    ${actual_total:.4f}")
+        out.append(f"  actual:    ${actual_total:.4f}" if pricing_known else f"  known:     ${actual_total:.4f} + unresolved usage")
         if cost_est.get("daily_cap_usd"):
             out.append(
                 f"  daily:     ${daily_after:.4f} of ${cost_est['daily_cap_usd']:.2f} cap"
             )
+            if not cost_act.get("daily_pricing_known", True):
+                out.append("  daily cap cannot be verified while spending is unresolved")
 
     # Plan if present (Planner runs)
     if plan and plan.get("summary"):

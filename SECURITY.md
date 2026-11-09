@@ -1,6 +1,7 @@
 # Security Policy
 
-This project is a workflow and documentation system.
+AgentCrew includes a Markdown workflow and an executable coordination engine.
+Engine commands require OS isolation; see the [security guide](docs/security.md).
 
 For the detailed security guide, see:
 

@@ -1,14 +1,16 @@
 """Engine-derived execution evidence for Developer completion gates.
 
 The ledger records only bounded metadata: relative paths, command categories,
-exit codes, and outcomes. It never stores file contents, command arguments, or
-tool output.
+command identity hashes, exit codes, and outcomes. It never stores file
+contents, command arguments, or tool output.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
 import re
+import shlex
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal
@@ -38,6 +40,7 @@ class ToolEvidenceEvent:
     exit_code: int | None = None
     changed: bool | None = None
     truncated: bool | None = None
+    validation_id: str | None = None
 
     def to_dict(self) -> dict:
         data = {
@@ -161,6 +164,15 @@ class ExecutionRecorder:
             kind, path, command_name, validation_kind = classify_tool_call(
                 spec.name, inputs, self.project_root
             )
+            validation_id = (
+                hashlib.sha256(
+                    json.dumps(
+                        shlex.split(inputs["command"]), separators=(",", ":")
+                    ).encode("utf-8")
+                ).hexdigest()
+                if validation_kind
+                else None
+            )
             before_fingerprint = (
                 _file_fingerprint(self.project_root, path)
                 if kind == "mutation"
@@ -180,6 +192,7 @@ class ExecutionRecorder:
                         path=path,
                         command_name=command_name,
                         validation_kind=validation_kind,
+                        validation_id=validation_id,
                         changed=_changed_since(
                             before_fingerprint,
                             (
@@ -216,6 +229,7 @@ class ExecutionRecorder:
                     path=path,
                     command_name=command_name,
                     validation_kind=validation_kind,
+                    validation_id=validation_id,
                     exit_code=exit_code,
                     changed=changed,
                     truncated=truncated or None,
@@ -359,45 +373,36 @@ def summarize_validation(
         ),
         default=0,
     )
-    latest_validation: dict[str, ToolEvidenceEvent] = {}
-    failed_validation_kinds = {
-        event.validation_kind
-        for event in events
-        if (
-            event.kind == "validation"
-            and event.validation_kind
-            and not event.succeeded
-        )
-    }
-    for event in events:
-        if (
-            event.kind == "validation"
-            and event.validation_kind
-            and event.sequence > last_mutation
-        ):
-            latest_validation[event.validation_kind] = event
+    latest_validation: dict[tuple[str, str | int], ToolEvidenceEvent] = {}
+    failed_checks: set[tuple[str, str | int]] = set()
+    for index, event in enumerate(events):
+        if event.kind != "validation" or not event.validation_kind:
+            continue
+        # Legacy events without an identity cannot prove a matching rerun.
+        check = (event.validation_kind, event.validation_id or index)
+        if not event.succeeded:
+            failed_checks.add(check)
+        if event.sequence > last_mutation:
+            latest_validation[check] = event
     unresolved = tuple(
         sorted(
             {
-                kind
-                for kind, event in latest_validation.items()
-                if not event.succeeded
-            }
-            | {
-                kind
-                for kind in failed_validation_kinds
+                check[0]
+                for check in failed_checks
                 if (
-                    kind not in latest_validation
-                    or not latest_validation[kind].succeeded
+                    check not in latest_validation
+                    or not latest_validation[check].succeeded
                 )
             }
         )
     )
     successful = tuple(
         sorted(
-            kind
-            for kind, event in latest_validation.items()
-            if event.succeeded
+            {
+                check[0]
+                for check, event in latest_validation.items()
+                if event.succeeded
+            }
         )
     )
     if unresolved:

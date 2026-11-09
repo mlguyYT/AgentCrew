@@ -7,8 +7,8 @@ empty so the orchestrator can detect "no override".
 The orchestrator calls `ProjectConfig.load(project_dir)` once at run start.
 Three things the config drives at run time:
 
-  1. Recipe → profile overrides:  routing.quality_profile may be replaced
-     based on recipe_profiles.<recipe>.
+  1. Profile escalation: routing.quality_profile may be tightened based on
+     quality_profile and recipe_profiles.<recipe>.
   2. Required specialists by path glob: project files matching
      required_specialists[*].paths add those roles to routing.specialists.
   3. Per-role default models (and backend), so the CLI doesn't need to
@@ -33,7 +33,7 @@ from pathlib import Path
 from typing import Any
 
 
-_VALID_PROFILES = {"light", "standard", "strict", "regulated"}
+_VALID_PROFILES = {"light": 0, "standard": 1, "strict": 2, "regulated": 3}
 _SCAN_PRUNE_DIRS = {
     ".agent-state",
     ".git",
@@ -70,7 +70,7 @@ class BudgetConfig:
 @dataclass
 class ProjectConfig:
     project_name: str | None = None
-    quality_profile: str | None = None   # override classifier's profile globally
+    quality_profile: str | None = None   # minimum profile for every recipe
     recipe_profiles: dict[str, str] = field(default_factory=dict)
     required_specialists: list[RequiredSpecialistRule] = field(default_factory=list)
     budget: BudgetConfig = field(default_factory=BudgetConfig)
@@ -173,15 +173,17 @@ class ProjectConfig:
     # ----- Apply -----
 
     def profile_for_recipe(self, recipe: str, fallback: str) -> str:
-        """Return the profile to use given the classifier's recipe.
+        """Return the strongest classifier, global, or recipe-specific profile.
 
-        Resolution order: recipe-specific override → global override → fallback.
+        Config may escalate light < standard < strict < regulated, never
+        downgrade the classifier's profile or the project's global minimum.
         """
-        if recipe in self.recipe_profiles:
-            return self.recipe_profiles[recipe]
+        profiles = [fallback]
         if self.quality_profile:
-            return self.quality_profile
-        return fallback
+            profiles.append(self.quality_profile)
+        if recipe in self.recipe_profiles:
+            profiles.append(self.recipe_profiles[recipe])
+        return max(profiles, key=_VALID_PROFILES.__getitem__)
 
     def required_specialists_for_project(self, project_dir: Path) -> list[str]:
         """Return specialists that must run because the project has files

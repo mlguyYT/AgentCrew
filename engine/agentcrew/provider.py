@@ -35,6 +35,14 @@ class AgentRun:
 
     Context metadata records which methodology fragments the orchestrator
     compiled for the run without storing another copy of their text.
+
+    `model` identifies the requested model even without a valid submission.
+    `usage` accumulates input/output and cache token counters across all
+    responses, including responses before a provider failure. Cache counters
+    retain provider semantics: OpenAI cache reads are part of input_tokens;
+    Anthropic cache reads/writes are separate from input_tokens.
+    `provider` is the billing identity, not just the wire protocol. An
+    OpenAI-compatible gateway does not necessarily use OpenAI's prices.
     """
 
     submission: dict | None = None
@@ -48,6 +56,8 @@ class AgentRun:
     execution_evidence: dict = field(default_factory=dict)
     validation_evidence: dict = field(default_factory=dict)
     review_evidence: dict = field(default_factory=dict)
+    model: str = ""
+    provider: str = ""
 
 
 class Provider(ABC):
@@ -110,7 +120,7 @@ class MockProvider(Provider):
         submit_tool_description: str,
         submit_tool_schema: dict,
     ) -> AgentRun:
-        run = AgentRun()
+        run = AgentRun(model=model, provider="mock")
         tool_by_name = {t.name: t for t in tools}
         script = self._scripts.get(role, [])
         if not script:

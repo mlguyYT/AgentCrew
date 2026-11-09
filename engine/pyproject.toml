@@ -1,7 +1,7 @@
 [project]
 name = "agentcrew-engine"
-version = "0.1.0"
-description = "Platform-independent multi-agent coding team. Roles, handoffs, and bounded tools — bring your own LLM."
+version = "0.2.0"
+description = "Provider-neutral multi-agent coding workflow with roles, handoffs, and isolated commands."
 requires-python = ">=3.10"
 # Core has ZERO LLM-vendor dependencies. The orchestrator, agents, tools,
 # handoff schema, and CLI all work without any AI SDK installed. Install

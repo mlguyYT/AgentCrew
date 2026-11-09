@@ -1,8 +1,14 @@
 # Scenario 01 — Python bug fix
 
-Shows the most common case: a Python team finds a one-line bug, types
-the request, AgentCrew classifies it as Fast Lane, runs Developer then
-Tester, lands at human approval. Total of two LLM calls.
+Shows a one-line bug classified as Fast Lane, followed by Developer,
+Tester, and human approval. The offline backend scripts the model
+responses and makes no LLM calls.
+
+For a fresh copy that leaves this example unchanged, run from any directory:
+
+```bash
+~/AgentCrew/bin/agentcrew demo
+```
 
 ## Setup
 
@@ -29,6 +35,9 @@ Expected output (excerpt):
 ```
 
 ## Run end-to-end (no API key)
+
+The command below modifies this fixture. Use `agentcrew demo` for a repeatable,
+isolated run.
 
 ```bash
 agentcrew run --task "$(cat task.txt)" --project . \

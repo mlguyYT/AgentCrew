@@ -73,7 +73,8 @@ class Routing:
         Drops 'Human' (terminal gate). For roles guarded by conditionals
         ('Reviewer if risk is meaningful'), evaluates the condition
         against this Routing and includes the role only if it holds.
-        Unknown conditions default to include (conservative).
+        Unknown conditions default to include, except for support triage,
+        where runtime evidence must not be inferred from classification.
 
         The 'Specialist Reviewer' placeholder in workflow strings is
         expanded into the actual specialists listed by the classifier.
@@ -82,18 +83,20 @@ class Routing:
         workflow at all are appended after the primary roles, per
         agent-team/playbooks/specialist-review-routing.md.
         """
+        return [step for step in self.execution_steps() if not _is_human_step(step)]
+
+    def execution_steps(self) -> list[str]:
+        """Expand conditional roles while retaining explicit human boundaries."""
+
         out: list[str] = []
 
         def _add(role: str, *, deduplicate: bool = False) -> None:
-            # Human-labeled steps are events in workflow strings, not actors.
-            # The orchestrator handles non-terminal human gates separately.
-            if _is_human_step(role):
-                return
             if role and (not deduplicate or role not in out):
                 out.append(role)
 
         for step in self.workflow_roles():
             if _is_human_step(step):
+                _add(step)
                 continue
             m = re.match(r"^(.+?)(?:\s+if\s+(.+))?$", step.strip())
             if not m:
@@ -119,7 +122,11 @@ class Routing:
         # still need to run (per specialist-review-routing.md). Append after
         # the primary roles so they see prior handoffs.
         for specialist in self.specialists:
-            _add(specialist, deduplicate=True)
+            if specialist not in out:
+                if out and _is_human_step(out[-1]):
+                    out.insert(len(out) - 1, specialist)
+                else:
+                    _add(specialist)
 
         return out
 
@@ -215,15 +222,14 @@ def _evaluate_condition(
       - 'needed' / 'triggered'       → specialists list is non-empty
       - 'validation evidence is missing' → unknown — default include
       - 'behavior claims changed'    → unknown — default include
-      - 'expected behavior'/'decision needed' → unknown — default include
-      - 'defect is confirmed'        → unknown — default include
-      - 'reproduction is needed'     → unknown — default include
+      - support triage evidence/outcomes → unknown — skip
       - 'implementation follows'     → True iff Developer is already in workflow
       - anything else                → default include (conservative)
 
     Returning True means 'include this role'. Returning False skips it.
-    Unknown patterns return True so we never silently drop a role the classifier's
-    spec might require.
+    Unknown patterns return True for existing non-triage workflows. Support
+    triage fails closed: classification cannot establish runtime outcomes or
+    authorize conditional implementation. Use an explicit human boundary instead.
     """
     c = condition.strip().lower()
     if "risk is meaningful" in c or "release risk is meaningful" in c:
@@ -235,7 +241,7 @@ def _evaluate_condition(
     if "implementation follows" in c:
         roles = [s.strip() for s in routing.workflow.split("->") if s.strip()]
         return "Developer" in roles
-    return True
+    return routing.intent != "support_triage_or_customer_issue"
 
 
 def classify(root: AgentCrewRoot, task: str, project: str) -> Routing:

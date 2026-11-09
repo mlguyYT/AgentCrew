@@ -2,7 +2,7 @@
 
 ## Security philosophy
 
-This project is a workflow and documentation system.
+AgentCrew includes a Markdown workflow and an executable coordination engine.
 
 It should never encourage:
 
@@ -34,6 +34,36 @@ forbidden:
 ## Reporting security issues
 
 If you find a security issue in the workflow, open a private security advisory if available, or contact the maintainers.
+
+---
+
+## Engine execution boundary
+
+Model-issued commands require Linux Bubblewrap and working user namespaces.
+Isolation is checked before command-capable roles call a model, and unavailable
+isolation stops the run. There is no unconfined fallback.
+
+The command environment exposes read-only system runtimes, the selected
+project, and private temporary storage. It excludes host home directories and
+network access. Existing Git metadata and engine-owned configuration/state are
+read-only; file tools also protect those paths and reject external symlinks.
+Commands can modify ordinary project files, so review their resulting diff.
+
+Host-side Git inspection disables text converters, external diff programs,
+filesystem monitors, hooks, and repository filters rather than executing them.
+Runtime-state roots and artifacts cannot be symbolic links or hard-linked
+aliases, so an existing state path cannot redirect work into another project.
+
+Human approval boundaries are tracked separately from acting roles. Specialist
+rework must be resolved or returned to the human, and unrelated passing tests
+cannot erase unresolved validation failures. Unknown model pricing requires
+explicit cost approval; token-based accounting does not replace provider billing.
+Approving a product decision does not approve a new cost preview. Unpriced
+usage remains recorded as unresolved and prevents a configured daily cap from
+being treated as verified. Paid engine advice also uses these budget controls.
+
+The portable Markdown workflow uses its host agent's execution controls.
+See [engine setup](../engine/README.md#quick-start) for isolation requirements.
 
 ---
 

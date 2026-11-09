@@ -12,6 +12,7 @@ usage() {
   printf '%s\n' ""
   printf '%s\n' "Commands:"
   printf '%s\n' "  run                 Delegate a task to the optional engine"
+  printf '%s\n' "  demo                Run a fresh offline example without touching your project"
   printf '%s\n' "  route               Preview engine routing for a task"
   printf '%s\n' "  backends            List optional engine provider backends"
   printf '%s\n' "  models              List recommended local engine models"
@@ -1299,7 +1300,7 @@ fi
 COMMAND="${1:-}"
 [ "$#" -gt 0 ] && shift || true
 
-if [ "$COMMAND" = "run" ] || [ "$COMMAND" = "route" ] || [ "$COMMAND" = "backends" ] || [ "$COMMAND" = "models" ] || [ "$COMMAND" = "show" ] || [ "$COMMAND" = "audit" ] || [ "$COMMAND" = "decisions" ]; then
+if [ "$COMMAND" = "run" ] || [ "$COMMAND" = "demo" ] || [ "$COMMAND" = "route" ] || [ "$COMMAND" = "backends" ] || [ "$COMMAND" = "models" ] || [ "$COMMAND" = "show" ] || [ "$COMMAND" = "audit" ] || [ "$COMMAND" = "decisions" ]; then
   ENGINE_ROOT="$PRE_ROOT"
   ENGINE_ARGS=()
   while [ "$#" -gt 0 ]; do

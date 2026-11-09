@@ -10,6 +10,7 @@ from pathlib import Path
 
 from .handoff import Handoff
 from .routing import Routing
+from .state_paths import checked_state_path, project_state_path
 
 
 _SAFE_RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,80}$")
@@ -35,10 +36,13 @@ def write_continuation(
     *,
     routing: Routing,
     handoffs: list[Handoff],
+    remaining_workflow: str | None = None,
+    pending_decision: str | None = None,
 ) -> Path:
     """Write the remaining workflow without duplicating completed planning."""
 
-    remaining = routing.workflow_after_mid_workflow_human_gate()
+    expanded = replace(routing, workflow=" -> ".join(routing.execution_steps()))
+    remaining = remaining_workflow or expanded.workflow_after_mid_workflow_human_gate()
     if not remaining:
         raise ValueError("routing has no resumable mid-workflow human gate")
     source_run_id = run_dir.name
@@ -50,10 +54,11 @@ def write_continuation(
         "task": routing.task,
         "routing": asdict(routing),
         "remaining_workflow": remaining,
-        "pending_decision": routing.next_human_decision(),
+        "pending_decision": pending_decision or routing.next_human_decision(),
         "prior_handoffs": [handoff.model_dump(mode="json") for handoff in handoffs],
     }
     path = run_dir / _FILENAME
+    checked_state_path(run_dir, path)
     serialized = json.dumps(payload, indent=2) + "\n"
     if len(serialized.encode()) > _MAX_ARTIFACT_BYTES:
         raise ContinuationError("continuation artifact exceeds size limit")
@@ -103,9 +108,20 @@ def load_continuation(project_dir: Path, run_id: str) -> Continuation:
             if "final approval" in decision.casefold()
         ]
     )
+    completed = {handoff.sender for handoff in handoffs}
+    remaining_roles = {step.split(" if ", 1)[0].strip() for step in remaining.split("->")}
+    has_placeholder = "Specialist Reviewer" in remaining_roles
+    specialists = [
+        role for role in original.specialists
+        if role not in completed or role in remaining_roles or has_placeholder
+    ]
+    # Version-1 artifacts may still contain a specialist placeholder. Expand it
+    # before selecting concrete remaining specialists, never by substring match.
+    remaining = " -> ".join(replace(original, workflow=remaining, specialists=specialists).execution_steps())
     resumed = replace(
         original,
         workflow=remaining,
+        specialists=specialists,
         starting_role=_first_role(remaining),
         next_roles=[
             step.strip()
@@ -153,7 +169,7 @@ def mark_continuation_resumed(
 def _continuation_path(project_dir: Path, run_id: str) -> Path:
     if not _SAFE_RUN_ID.fullmatch(run_id):
         raise ContinuationError(f"invalid continuation run id: {run_id!r}")
-    path = project_dir.resolve() / ".agent-state" / "runs" / run_id / _FILENAME
+    path = project_state_path(project_dir, "runs", run_id, _FILENAME)
     if not path.is_file():
         raise ContinuationError(f"continuation not found: {run_id}")
     return path

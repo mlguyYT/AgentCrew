@@ -70,6 +70,36 @@ def test_global_profile_overrides_fallback(project):
     assert cfg.profile_for_recipe("anything", "light") == "regulated"
 
 
+@pytest.mark.parametrize("fallback", ["light", "standard", "strict", "regulated"])
+@pytest.mark.parametrize("global_profile", [None, "light", "standard", "strict", "regulated"])
+@pytest.mark.parametrize("recipe_profile", [None, "light", "standard", "strict", "regulated"])
+def test_profile_for_recipe_only_escalates(fallback, global_profile, recipe_profile):
+    cfg = ProjectConfig._from_raw({
+        "quality_profile": global_profile,
+        "recipe_profiles": {"bug-fix": recipe_profile},
+    })
+    profiles = ["light", "standard", "strict", "regulated"]
+    expected = max(
+        (profile for profile in (fallback, global_profile, recipe_profile) if profile),
+        key=profiles.index,
+    )
+
+    assert cfg.profile_for_recipe("bug-fix", fallback) == expected
+    assert cfg.profile_for_recipe("other-recipe", fallback) == max(
+        (profile for profile in (fallback, global_profile) if profile),
+        key=profiles.index,
+    )
+
+
+def test_profile_escalation_normalizes_loaded_profiles(project):
+    project.mkdir()
+    _write(project, "quality_profile: STRICT\nrecipe_profiles:\n  bug-fix: LiGhT\n")
+    cfg = ProjectConfig.load(project)
+
+    assert cfg.profile_for_recipe("bug-fix", "standard") == "strict"
+    assert cfg.profile_for_recipe("bug-fix", "regulated") == "regulated"
+
+
 def test_required_specialists_by_path_glob(project):
     project.mkdir()
     (project / "src").mkdir()

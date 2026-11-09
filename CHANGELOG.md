@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+## v0.2.0 - 2026-11-09
+
 ### Added
+- Repeatable `agentcrew demo` command that previews Fast Lane and CEO-gated product routing, then executes and tests the bundled bug fix in a temporary project without model API calls.
+- Offline terminal recording, GIF, transcript, and reproducible recording tool for the README.
 - CEO operating contract, idea-to-product workflow, executive brief, private global CEO preference profile, and engine runtime context for outcome-first product building without manual role coordination.
 - Host-agent approval resume flags for explicit cost and mid-workflow CEO decisions.
 - Software Architect Agent, Software Architecture Skill, architecture decision playbook, review checklist, report template, routing gate, engine support, and architecture documentation.
@@ -16,6 +20,21 @@
 - Project guardrail artifacts, cloud-operation safety, artifact classification, public/private boundary guidance, and eval-metrics state for long-running project work.
 
 ### Fixed
+- Product-planning continuations preserve required specialists after placeholder expansion, including older continuation artifacts and repeated planning phases.
+- Host Git inspection disables executable helpers, repository filters, and injected Git configuration; nested-project snapshots fingerprint the correct target files.
+- Runtime-state roots and existing artifacts reject symbolic/hard-link aliases before workflow reads or writes, preventing cross-project state overwrites.
+- Product approval no longer implies fresh cost approval. Paid Advisor calls use the same budget checks and usage accounting, while free advice avoids workflow artifacts.
+- Unknown, cached, and incompletely reported usage remains unresolved in the ledger instead of appearing free; positive daily caps require approval when spending cannot be verified.
+- Malformed submit payloads and spoofed handoff identities stop as protocol failures while preserving already-received usage.
+- Triage-only requests do not schedule implementation; explicit support fixes require product approval before delivery.
+- Model-issued commands now require OS isolation with private temporary storage and no network or host-home access; recursive searches reject external symlink targets and role file tools protect Git and engine-owned metadata.
+- Specialist rework returns to the owning role for a bounded correction and recheck; unresolved specialist results cannot be replaced by an earlier approval.
+- Every non-terminal human approval boundary is tracked by workflow position, including trailing specialists and repeated roles; continuations preserve the actual pending boundary.
+- Validation failures are tracked by hashed command identity, so an unrelated passing test cannot clear a failed check.
+- Provider usage is normalized and accumulated across tool iterations; accounting includes executed roles even when no valid handoff was submitted.
+- Classifier workflows use concrete role names, and project configuration can only strengthen the effective quality profile.
+- README engine quick start now uses an isolated, runnable demo instead of passing an unrelated task to the fixture-specific mock backend.
+- Engine runs require an explicit or project-configured backend; unsupported mock projects return an actionable error before creating run state. Explicit backend choices take precedence over project defaults.
 - Host-facing and engine-side cost estimates now use the same compiled execution context, and low-risk Fast Lane tasks skip unnecessary CEO context.
 - Generated host loaders preserve the private CEO profile path, and the offline demo backend now reaches and resumes the product-planning approval gate with valid role handoffs.
 - Product ideas that request implementation now complete Advisor, Idea Consultant, and Product Manager planning before an enforced CEO execution gate; labeled human approval steps are no longer treated as agent roles.

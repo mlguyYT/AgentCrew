@@ -67,6 +67,11 @@ layer move with it. That's the right coupling.
 
 ## Quick start
 
+Engine command execution currently requires Linux, Bubblewrap (`bwrap`),
+and permission to create user namespaces. On Debian/Ubuntu, install it with
+`sudo apt-get install bubblewrap`. The engine checks isolation before calling
+command-capable model roles and stops if isolation cannot start.
+
 ```bash
 cd engine
 uv venv && source .venv/bin/activate
@@ -81,20 +86,45 @@ agentcrew-engine doctor
 # Preview what the classifier would do (no execution)
 agentcrew-engine route --task "Refactor auth/middleware.py to OIDC"
 
-# Run the bundled mock demo (uses the real classifier + scripted LLM
-# responses)
-rm -rf examples/01_python_bug_fix/.agent-state
-agentcrew-engine run \
-  --task "Fix broken.py so add_numbers returns a + b" \
-  --project examples/01_python_bug_fix \
-  --backend mock-demo \
-  --auto-approve-routing
+# Run a fresh isolated example (real routing, edits, and tests;
+# scripted model responses, no API calls)
+agentcrew-engine demo
 ```
 
-The mock-demo backend uses the **real classifier** to decide the
-workflow, then runs scripted LLM responses for Developer + Tester. End
-state lives in `.agent-state/` under the project and follows the
-methodology's schema exactly.
+`demo` previews the bug-fix and product-idea routes, then runs Developer
+and Tester on a temporary copy of scenario 01. It can be repeated without
+changing your project or the bundled source files.
+
+For ordinary `run` commands, choose `--backend` or set `backend` in
+`.agentcrew/config.yaml`. There is no implicit model backend. The explicit
+`mock-demo` backend expects the original scenario 01 fixture and does not
+implement arbitrary project tasks.
+
+The README's terminal recording is generated from actual `demo` output.
+To regenerate the GIF, terminal recording, and transcript with ffmpeg installed:
+
+```bash
+cd /path/to/AgentCrew
+engine/.venv/bin/python engine/tools/record_demo.py
+```
+
+Playback pauses are added for readability. The recording contains no live model calls.
+
+Commands see read-only system runtimes, the project, and private temporary
+storage. Host home directories and network access are unavailable; existing
+Git metadata and engine-owned state are read-only. File tools also enforce
+project containment and protect that metadata. There is no unconfined fallback.
+On hosts without this isolation support, use the Markdown workflow through
+your coding agent's native execution environment.
+
+Cost previews require explicit approval when model pricing is unknown. Reports
+separate the known USD subtotal from unresolved usage, including unpriced cache
+tokens or incompletely reported failures. A configured daily cap cannot be
+verified while earlier spending is unresolved. Provider billing remains authoritative.
+
+Free engine advice creates no workflow state. Metered Advisor calls use cost
+gates and write a minimal budget-ledger entry, even when their answer fails the
+output protocol. Their task text and answer are not saved as workflow artifacts.
 
 > Most users invoke the engine through the top-level `bin/agentcrew run`
 > wrapper, which forwards every argument to the engine. The
@@ -219,9 +249,12 @@ with `--approve-cost`; no roles ran before that stop. If a workflow reaches a
 mid-workflow CEO gate, the engine writes `continuation.json` and emits
 `continuation_ready`. After explicit approval, the host resumes with
 `--continue-run RUN_ID --approve-decision`; completed discovery and planning
-roles are not repeated, the approval is recorded, and the continuation cannot
-replay a completed resume. Hosts must never add approval flags without approval
-from the current human conversation.
+roles are not repeated and the product approval is recorded. Product approval
+does not imply cost approval: a paid resume stops for its current cost preview,
+and the host adds `--approve-cost` only after that preview is explicitly approved.
+When one human response approves both the plan and its current cost preview,
+the host may supply both approval flags together. Hosts must never add approval
+flags without approval from the current human conversation.
 
 ## Pointing the engine at any AgentCrew install
 

@@ -25,6 +25,8 @@ class AnthropicProvider(Provider):
       - prompt caching on the system prompt (role files are stable per task)
     """
 
+    billing_provider = "anthropic"
+
     def __init__(self, api_key: str | None = None) -> None:
         try:
             import anthropic
@@ -66,24 +68,30 @@ class AnthropicProvider(Provider):
         ]
         messages: list[dict] = [{"role": "user", "content": user_message}]
 
-        run = AgentRun()
+        run = AgentRun(model=model, provider="anthropic")
 
         for _ in range(max_iterations):
-            response = self._client.messages.create(
-                model=model,
-                max_tokens=max_tokens,
-                system=system_blocks,
-                tools=api_tools,
-                messages=messages,
-                thinking={"type": "adaptive"},
-                output_config={"effort": "high"},
-            )
+            try:
+                response = self._client.messages.create(
+                    model=model,
+                    max_tokens=max_tokens,
+                    system=system_blocks,
+                    tools=api_tools,
+                    messages=messages,
+                    thinking={"type": "adaptive"},
+                    output_config={"effort": "high"},
+                )
+            except self._anthropic.APIError as exc:
+                run.stop_reason = f"provider_error:{type(exc).__name__}"
+                break
+
+            usage = getattr(response, "usage", None)
+            for key in (
+                "input_tokens", "output_tokens",
+                "cache_read_input_tokens", "cache_creation_input_tokens",
+            ):
+                run.usage[key] = run.usage.get(key, 0) + (getattr(usage, key, 0) or 0)
             run.stop_reason = response.stop_reason or ""
-            run.usage = {
-                "input_tokens": getattr(response.usage, "input_tokens", 0),
-                "output_tokens": getattr(response.usage, "output_tokens", 0),
-                "cache_read_input_tokens": getattr(response.usage, "cache_read_input_tokens", 0),
-            }
             messages.append({"role": "assistant", "content": response.content})
 
             for block in response.content:
@@ -102,6 +110,10 @@ class AnthropicProvider(Provider):
             for tu in tool_uses:
                 run.tool_call_count += 1
                 if tu.name == submit_tool_name:
+                    if not isinstance(tu.input, dict):
+                        run.submission = None
+                        run.stop_reason = "protocol_error:invalid_submit_arguments"
+                        return run
                     run.submission = dict(tu.input)
                     tool_results.append(
                         {"type": "tool_result", "tool_use_id": tu.id, "content": "submission accepted"}

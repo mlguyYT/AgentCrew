@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/mlguyYT/AgentCrew/actions/workflows/ci.yml/badge.svg)](https://github.com/mlguyYT/AgentCrew/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](VERSION)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](VERSION)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![Works with Codex](https://img.shields.io/badge/works%20with-Codex-111827.svg)](agent-team/adapters/codex.md)
 [![Works with Claude Code](https://img.shields.io/badge/works%20with-Claude%20Code-111827.svg)](agent-team/adapters/claude-code.md)
@@ -19,8 +19,11 @@ You act as CEO. AgentCrew handles internal team coordination and routine reversi
 AgentCrew is not a background daemon, CI/CD system, or autonomous replacement for product judgment.
 
 <p align="center">
-  <img src="docs/assets/agentcrew-workflow.svg" alt="AgentCrew request routing workflow" width="100%">
+  <img src="docs/assets/agentcrew-demo.gif" alt="Offline AgentCrew demo: a tiny bug takes Fast Lane; team billing requires CEO approval; a scripted bug fix runs tests and reaches human approval." width="100%">
 </p>
+
+Real routing, file edits, and tests with scripted model responses. No API calls.
+[Terminal recording](docs/assets/agentcrew-demo.cast) · [Text transcript](docs/assets/agentcrew-demo.txt)
 
 ## Quick Start
 
@@ -53,6 +56,8 @@ For any host with persistent custom instructions but no automatic installer targ
 Most coding-agent sessions put too many jobs into one chat: product thinking, planning, implementation, testing, review, documentation, and approval. That creates predictable failures: unclear scope, giant diffs, skipped tests, weak review, lost context, unrelated edits, and agents acting like they can approve their own work.
 
 AgentCrew gives the agent a team process before it touches the code.
+
+It selects roles and review gates from the request's risk, carries compact project-local handoffs, and checks observed development, test, and review evidence in engine runs. You describe the outcome and make consequential product decisions; AgentCrew handles the internal role sequence.
 
 ```text
 roles define responsibility
@@ -127,7 +132,7 @@ The engine provides:
 - handoffs, decisions, audits, and summaries;
 - provider-neutral model backends.
 
-Install its dependencies to enable executable runs:
+Install its dependencies to enable executable runs. Engine commands currently require Linux with [Bubblewrap and user namespaces](engine/README.md#quick-start); the host-agent Markdown workflow remains portable.
 
 ```bash
 cd ~/AgentCrew/engine
@@ -135,12 +140,15 @@ python3 -m venv .venv
 .venv/bin/pip install -e .
 ```
 
-Then from any project:
+Try the offline demo from any directory:
 
 ```bash
-~/AgentCrew/bin/agentcrew route --task "Fix login validation" --project .
-~/AgentCrew/bin/agentcrew run --task "Fix login validation" --project . --backend mock-demo
+~/AgentCrew/bin/agentcrew demo
 ```
+
+The demo previews Fast Lane and a product idea's CEO gate, then fixes and tests a fresh temporary copy of the bundled Python example. It ends at `ready_for_human_approval` and removes the temporary project. Model responses are scripted.
+
+For your own project, the host agent can follow the workflow in normal chat. Direct engine runs require a configured backend or an explicit `--backend`; see [engine setup](engine/README.md#backends). `mock-demo` is only for the bundled fixture.
 
 The engine supports local and OpenAI-compatible backends, plus optional provider-specific adapters. Without engine dependencies, supported host agents can still apply the Markdown methodology and use their native subagent capabilities. No provider is required by the methodology, and human approval remains final.
 
@@ -213,7 +221,7 @@ The engine adds executable orchestration while the underlying methodology stays 
 
 ## Status
 
-AgentCrew v0.1.0 is usable today as an external, vendor-neutral product-team methodology with an executable orchestration engine.
+AgentCrew v0.2.0 is usable today as an external, vendor-neutral product-team methodology with an executable orchestration engine.
 
 ## License
 

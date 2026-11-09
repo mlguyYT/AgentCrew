@@ -92,6 +92,8 @@ class LocalProvider(OpenAICompatibleProvider):
     `probe=False` to skip the startup health check.
     """
 
+    billing_provider = "local"
+
     def __init__(
         self,
         *,

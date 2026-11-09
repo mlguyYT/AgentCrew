@@ -29,7 +29,12 @@ class OpenAICompatibleProvider(Provider):
     advertise compatibility (Ollama 0.5+, vLLM, Together, Groq, …) should
     work unmodified; if a particular server omits `tool_calls`, file a
     backend-specific provider rather than tweaking this one.
+
+    Subclasses can declare billing_provider (for example, "local"). Empty
+    means infer official OpenAI billing only for its exact default endpoint.
     """
+
+    billing_provider: str = ""
 
     def __init__(
         self,
@@ -89,7 +94,10 @@ class OpenAICompatibleProvider(Provider):
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message},
         ]
-        run = AgentRun()
+        billing_provider = self.billing_provider or (
+            "openai" if self._base_url == "https://api.openai.com/v1" else "openai-compatible"
+        )
+        run = AgentRun(model=model, provider=billing_provider)
 
         for _ in range(max_iterations):
             payload = {
@@ -99,11 +107,32 @@ class OpenAICompatibleProvider(Provider):
                 "max_tokens": max_tokens,
                 "tool_choice": "auto",
             }
-            data = self._post("/chat/completions", payload)
-            choice = data["choices"][0]
-            msg = choice["message"]
+            try:
+                data = self._post("/chat/completions", payload)
+            except (self._httpx.HTTPError, ValueError) as exc:
+                # Earlier responses may already have incurred billable usage.
+                run.stop_reason = f"provider_error:{type(exc).__name__}"
+                break
+
+            usage = data.get("usage") or {}
+            cached = (usage.get("prompt_tokens_details") or {}).get("cached_tokens", 0)
+            for key, value in {
+                "input_tokens": usage.get("input_tokens", usage.get("prompt_tokens", 0)),
+                "output_tokens": usage.get("output_tokens", usage.get("completion_tokens", 0)),
+                "cache_read_input_tokens": usage.get("cache_read_input_tokens", cached),
+            }.items():
+                run.usage[key] = run.usage.get(key, 0) + (value or 0)
+
+            try:
+                choice = data["choices"][0]
+                msg = choice["message"]
+            except (KeyError, IndexError, TypeError) as exc:
+                run.stop_reason = f"provider_error:{type(exc).__name__}"
+                break
+            if not isinstance(msg, dict):
+                run.stop_reason = "provider_error:invalid_message"
+                break
             run.stop_reason = choice.get("finish_reason", "")
-            run.usage = data.get("usage", {})
 
             # Append the assistant turn to history *exactly* as the server sent it
             # so the next round-trip stays consistent with tool_call_ids.
@@ -123,16 +152,24 @@ class OpenAICompatibleProvider(Provider):
                 run.tool_call_count += 1
                 fn = tc.get("function") or {}
                 name = fn.get("name", "")
-                args_raw = fn.get("arguments") or "{}"
+                args_raw = fn.get("arguments")
                 try:
                     args = json.loads(args_raw) if isinstance(args_raw, str) else args_raw
                 except json.JSONDecodeError as exc:
+                    if name == submit_tool_name:
+                        run.submission = None
+                        run.stop_reason = "protocol_error:invalid_submit_arguments"
+                        return run
                     messages.append(
                         {"role": "tool", "tool_call_id": tc["id"], "content": f"argument parse error: {exc}"}
                     )
                     continue
 
                 if name == submit_tool_name:
+                    if not isinstance(args, dict):
+                        run.submission = None
+                        run.stop_reason = "protocol_error:invalid_submit_arguments"
+                        return run
                     run.submission = dict(args)
                     messages.append(
                         {"role": "tool", "tool_call_id": tc["id"], "content": "submission accepted"}

@@ -29,9 +29,7 @@ def test_known_model_rates_present():
     assert "gpt-4o" in MODEL_RATES
 
 
-def test_local_ollama_models_are_free():
-    assert _rates_for("qwen2.5-coder:32b") == (0.0, 0.0)
-    assert _rates_for("llama3.3:70b") == (0.0, 0.0)
+def test_explicit_local_model_is_free():
     assert _rates_for("local") == (0.0, 0.0)
 
 
@@ -40,9 +38,12 @@ def test_mock_models_are_free():
     assert _rates_for("mock") == (0.0, 0.0)
 
 
-def test_unknown_cloud_model_defaults_to_free_not_blocking():
-    """Unknown model → no estimated cost. Don't block on missing rate data."""
-    assert _rates_for("brand-new-model-not-in-table") == (0.0, 0.0)
+@pytest.mark.parametrize("model", [
+    "brand-new-model-not-in-table", "provider:model", "provider:gpt-4o",
+    "qwen2.5-coder:32b", "llama3.3:70b",
+])
+def test_unknown_model_rates_are_unavailable(model):
+    assert _rates_for(model) is None
 
 
 # --- Role estimate ------------------------------------------------------------
@@ -51,7 +52,7 @@ def test_unknown_cloud_model_defaults_to_free_not_blocking():
 def test_role_estimate_zero_for_local_model():
     est = RoleEstimate.compute(
         role="Developer",
-        model="qwen2.5-coder:32b",
+        model="local",
         system_prompt_chars=5000,
         prior_handoff_count=2,
         gate_section_chars=2000,
@@ -101,6 +102,59 @@ def _routing(specialists=None) -> Routing:
         quality_profile="standard", recipe="bug-fix", starting_role="Developer",
         workflow="Developer -> Tester -> Human", specialists=specialists or [],
     )
+
+
+def _estimate_for_models(model_for_role):
+    return estimate_run(
+        routing=_routing(),
+        acting_roles=list(model_for_role),
+        model_for_role=model_for_role,
+        role_file_chars={},
+        gate_section_chars_for_role={},
+        max_tokens_per_role={},
+    )
+
+
+@pytest.mark.parametrize("model, unknown", [
+    ("gpt-4o", False), ("claude-sonnet-4-6", False),
+    ("mock", False), ("mock-developer", False), ("local", False),
+    ("brand-new-model", True), ("provider:model", True),
+    ("provider:gpt-4o", True), ("qwen2.5-coder:32b", True),
+])
+def test_run_estimate_exposes_unknown_pricing(model, unknown):
+    est = _estimate_for_models({"Developer": model})
+
+    assert est.has_unknown_model is unknown
+    assert est.to_dict() == {
+        "per_role": [{
+            "role": "Developer", "model": model,
+            "input_tokens": est.per_role[0].input_tokens,
+            "output_tokens": est.per_role[0].output_tokens,
+            "total_usd": round(est.per_role[0].total_usd, 4),
+        }],
+        "total_usd": round(est.total_usd, 4),
+        "has_unknown_model": unknown,
+    }
+    table = est.render_table()
+    assert ("Unknown pricing" in table) is unknown
+    if unknown:
+        assert table.splitlines()[2].endswith("UNKNOWN")
+        assert "KNOWN TOTAL" in table
+        assert "explicit approval" in table.lower()
+    else:
+        assert "UNKNOWN" not in table
+
+
+@pytest.mark.parametrize("models", [
+    {"Developer": "gpt-4o", "Tester": "provider:model"},
+    {"Developer": "provider:model", "Tester": "gpt-4o"},
+])
+def test_mixed_estimate_retains_known_cost_and_unknown_flag(models):
+    est = _estimate_for_models(models)
+
+    assert est.has_unknown_model is True
+    assert est.total_usd > 0
+    assert est.total_usd == sum(e.total_usd for e in est.per_role if e.model == "gpt-4o")
 
 
 def test_run_estimate_sums_per_role():
@@ -188,7 +242,7 @@ def test_block_when_daily_cap_would_be_exceeded():
 
 
 def test_zero_thresholds_disable_warn_and_block():
-    """Per-run thresholds set to 0 mean 'no cap, never block'."""
+    """Zero thresholds disable numeric caps for fully priced estimates."""
     gate = decide_cost_gate(
         _est_at(100.0),
         _budget(),  # no daily cap either
@@ -197,6 +251,46 @@ def test_zero_thresholds_disable_warn_and_block():
     )
     assert not gate.warn
     assert not gate.block
+
+
+@pytest.mark.parametrize("model", ["new-hosted-model", "provider:model", "qwen2.5-coder:32b", ""])
+@pytest.mark.parametrize("warn_usd, block_usd", [(0, 0), (0.5, 5.0)])
+def test_unknown_pricing_requires_explicit_approval(model, warn_usd, block_usd):
+    est = _estimate_for_models({"Developer": model})
+
+    gate = decide_cost_gate(
+        est, _budget(), per_run_warn_usd=warn_usd, per_run_block_usd=block_usd,
+    )
+
+    assert gate.block is True
+    assert gate.warn is False
+    assert "unknown" in gate.reason.lower()
+    assert "explicit" in gate.reason.lower()
+    assert "approval" in gate.reason.lower()
+
+
+@pytest.mark.parametrize("model", ["gpt-4o", "mock", "mock-developer", "local"])
+def test_known_pricing_does_not_require_unknown_cost_approval(model):
+    gate = decide_cost_gate(
+        _estimate_for_models({"Developer": model}), _budget(),
+        per_run_warn_usd=0, per_run_block_usd=0,
+    )
+
+    assert (gate.block, gate.warn, gate.reason) == (False, False, "")
+
+
+@pytest.mark.parametrize("cap, expected_reason", [(0, "per-run block"), (5, "daily cap")])
+def test_unknown_pricing_does_not_hide_exceeded_caps(cap, expected_reason):
+    est = RunEstimate(total_usd=6.0, has_unknown_model=True)
+
+    gate = decide_cost_gate(
+        est, _budget(cap=cap), per_run_warn_usd=0.5, per_run_block_usd=5,
+    )
+
+    assert gate.block is True
+    assert expected_reason in gate.reason
+    assert "unknown" in gate.reason.lower()
+    assert "approval" in gate.reason.lower()
 
 
 # --- Budget tracking on disk --------------------------------------------------
@@ -223,7 +317,7 @@ def test_remaining_is_infinite_when_no_cap(tmp_path):
     assert status.remaining_usd == float("inf")
 
 
-def test_malformed_log_lines_silently_ignored(tmp_path):
+def test_malformed_log_lines_do_not_discard_known_subtotal(tmp_path):
     project = tmp_path / "proj"
     (project / ".agent-state").mkdir(parents=True)
     log = project / ".agent-state" / "budget-history.jsonl"
@@ -240,6 +334,7 @@ def test_malformed_log_lines_silently_ignored(tmp_path):
     try:
         status = load_daily_so_far(project, daily_cap_usd=1.0)
         assert status.daily_so_far_usd == pytest.approx(0.3)
+        assert status.has_unresolved_spend is True
     finally:
         cost_mod._today_iso = real
 
@@ -256,17 +351,37 @@ def test_actual_cost_from_usage_known_model():
     assert cost == pytest.approx(0.0105)
 
 
-def test_actual_cost_from_usage_unknown_model_is_zero():
+def test_actual_cost_from_usage_unknown_model_is_unresolved():
     cost = actual_cost_from_usage(
         "qwen2.5-coder:7b",
         {"input_tokens": 100_000, "output_tokens": 50_000},
     )
-    assert cost == 0.0
+    assert cost is None
 
 
 def test_actual_cost_handles_missing_usage():
     assert actual_cost_from_usage("claude-opus-4-7", {}) == 0.0
     assert actual_cost_from_usage("claude-opus-4-7", {"input_tokens": None}) == 0.0
+
+
+@pytest.mark.parametrize("usage", [
+    {"input_tokens": 1000, "output_tokens": 500},
+    {"prompt_tokens": 1000, "completion_tokens": 500},
+    {"input_tokens": "1000", "completion_tokens": "500"},
+    {"input_tokens": 1000, "output_tokens": 500, "prompt_tokens": 9000, "completion_tokens": 9000},
+])
+def test_actual_cost_accepts_normalized_and_legacy_openai_usage(usage):
+    assert actual_cost_from_usage("gpt-4o", usage) == pytest.approx(0.0075)
+
+
+def test_actual_cost_prefers_explicit_normalized_zero():
+    usage = {"input_tokens": 0, "output_tokens": 0, "prompt_tokens": 1000, "completion_tokens": 500}
+    assert actual_cost_from_usage("gpt-4o", usage) == 0.0
+
+
+def test_actual_cost_does_not_double_count_openai_cached_input():
+    usage = {"input_tokens": 1000, "output_tokens": 500, "cache_read_input_tokens": 800}
+    assert actual_cost_from_usage("gpt-4o", usage) is None
 
 
 # --- End-to-end orchestrator integration --------------------------------------

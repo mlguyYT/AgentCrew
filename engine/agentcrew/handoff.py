@@ -163,16 +163,22 @@ def submit_handoff_input_schema(sender: str, valid_receivers: list[str]) -> dict
     return schema
 
 
-def persist(handoff: Handoff, run_dir: Path, current_handoff_path: Path) -> Path:
+def persist(handoff: Handoff, run_dir: Path, current_handoff_path: Path, *, state_root: Path | None = None) -> Path:
     """Write the handoff Markdown + JSON sidecar.
 
     - `run_dir/<slug>.{md,json}` keeps every handoff in the run history.
     - `current_handoff_path` (typically .agent-state/handoff.md) holds the
       latest one per the methodology's protocols/state-artifacts.md.
     """
+    from .state_paths import checked_state_path
+
+    checked_state_path(state_root or run_dir, run_dir)
+    checked_state_path(state_root or current_handoff_path.parent, current_handoff_path)
     run_dir.mkdir(parents=True, exist_ok=True)
     slug = f"{handoff.sender.lower().replace(' ', '_').replace('/', '_')}-to-{handoff.receiver.lower().replace(' ', '_').replace('/', '_')}"
     md_path = run_dir / f"{slug}.md"
+    checked_state_path(state_root or run_dir, md_path)
+    checked_state_path(state_root or run_dir, run_dir / f"{slug}.json")
     md_path.write_text(handoff.render_markdown())
     (run_dir / f"{slug}.json").write_text(handoff.model_dump_json(indent=2))
     current_handoff_path.parent.mkdir(parents=True, exist_ok=True)

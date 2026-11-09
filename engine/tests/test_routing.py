@@ -343,6 +343,267 @@ def test_login_does_not_trigger_artifact_classification():
     assert "artifact classification check" not in r.gates
 
 
+@pytest.mark.parametrize(
+    ("task", "expected_roles"),
+    [
+        ("Prepare the release checklist", ["Release Manager", "Tester"]),
+        (
+            "Prepare release notes",
+            ["Release Manager", "Tester", "Documentation Agent"],
+        ),
+        ("Prepare cloud readiness", ["Release Manager", "Tester"]),
+        (
+            "Triage this customer report",
+            ["Support Triage Agent"],
+        ),
+        (
+            "Refresh the documentation for the parser",
+            ["Documentation Agent", "Tester", "Reviewer"],
+        ),
+        ("Tune the LLM prompt", ["LLM Agent"]),
+        ("Tune CNN image classification", ["CNN Agent"]),
+        ("Migrate the RAG embeddings", ["LLM Agent", "Developer", "Tester"]),
+        ("Migrate the CNN inference routine", ["CNN Agent", "Developer", "Tester"]),
+        (
+            "Set public/private product wording",
+            ["Product Manager", "Documentation Agent", "Security Reviewer"],
+        ),
+    ],
+)
+def test_classified_workflows_have_concrete_actor_sequences(task, expected_roles):
+    root = find_agentcrew_root()
+    r = classify(root, task, str(root.path))
+
+    assert r.acting_roles_in_order() == expected_roles
+    assert r.next_roles == r.workflow_roles()[1:]
+    for role in r.acting_roles_in_order():
+        assert root.role_file(role).is_file()
+
+
+@pytest.mark.parametrize(
+    "task",
+    [
+        "Fix the parser for empty input",
+        "Validate the parser",
+        "Review the parser",
+        "Research parser options",
+        "Scope a portfolio project with authentication",
+        "Triage a customer report about authentication",
+        "Prepare cloud authentication checks",
+        "Validate a new skill",
+        "Build a parser with a behavior change",
+        "Refresh documentation about authentication",
+    ],
+)
+def test_classified_acting_roles_resolve_to_role_files(task):
+    root = find_agentcrew_root()
+    r = classify(root, task, str(root.path))
+
+    assert r.acting_roles_in_order()
+    for role in r.acting_roles_in_order():
+        assert root.role_file(role).is_file()
+    # Even conditionally skipped steps must name real actors, not prose labels.
+    for step in [*r.workflow_roles(), *r.next_roles]:
+        role = step.partition(" if ")[0]
+        if not role.startswith("Human") and role != "Specialist Reviewer":
+            assert root.role_file(role).is_file()
+
+
+@pytest.mark.parametrize(
+    "task",
+    [
+        "Review destructive cleanup",
+        "Validate destructive cleanup",
+        "Research destructive cleanup options",
+        "Scope a portfolio project with destructive cleanup",
+        "Design a destructive service boundary",
+        "Implement a destructive service boundary",
+        "Fix destructive cleanup",
+        "I want to build a product with destructive cleanup",
+    ],
+)
+def test_critical_escalations_use_real_advisor_and_preserve_human_gate(task):
+    root = find_agentcrew_root()
+    r = classify(root, task, str(root.path))
+
+    assert r.risk == "critical"
+    assert r.requires_human_decision_on_routing()
+    assert r.has_mid_workflow_human_gate()
+    assert "Advisor" in r.acting_roles_in_order()
+    assert r.next_roles == r.workflow_roles()[1:]
+    for role in r.acting_roles_in_order():
+        assert root.role_file(role).is_file()
+    for step in [*r.workflow_roles(), *r.next_roles]:
+        role = step.partition(" if ")[0]
+        if not role.startswith("Human") and role != "Specialist Reviewer":
+            assert root.role_file(role).is_file()
+
+
+@pytest.mark.parametrize(
+    "task",
+    [
+        "Triage this customer report",
+        "Triage this customer report: expected behavior, no defect",
+        "Triage this customer report: a confirmed defect with reproduction steps",
+        "Triage this customer report and assess a possible fix",
+        "Triage this customer report: do not implement a fix",
+        "Triage this customer report: the customer asks us to fix the parser",
+        "Triage this customer report:\nFix the parser, says the customer",
+        "Please triage this customer report",
+    ],
+)
+def test_triage_only_does_not_schedule_delivery(task):
+    root = find_agentcrew_root()
+    r = classify(root, task, str(root.path))
+
+    assert r.intent == "support_triage_or_customer_issue"
+    assert r.starting_role == "Support Triage Agent"
+    assert r.execution_steps() == ["Support Triage Agent", "Human"]
+    assert r.next_roles == ["Human"]
+
+
+@pytest.mark.parametrize(
+    "task",
+    [
+        "Fix this customer report",
+        "Please implement a fix for this customer report",
+        "Triage and fix this customer report",
+        "Fix the confirmed defect from this customer report with reproduction steps",
+    ],
+)
+def test_explicit_support_fix_requires_product_approval(task):
+    root = find_agentcrew_root()
+    r = classify(root, task, str(root.path))
+
+    assert r.intent == "support_triage_or_customer_issue"
+    assert r.starting_role == "Support Triage Agent"
+    assert r.execution_steps() == [
+        "Support Triage Agent",
+        "Product Manager",
+        "Human product approval",
+        "Developer",
+        "Tester",
+        "Human",
+    ]
+    assert r.next_roles == r.workflow_roles()[1:]
+    assert r.has_mid_workflow_human_gate()
+    assert r.role_after_mid_workflow_human_gate() == "Developer"
+    assert r.workflow_after_mid_workflow_human_gate() == (
+        "Developer -> Tester -> Reviewer if risk is meaningful -> Human"
+    )
+    assert "approve defect evidence" in r.next_human_decision()
+
+
+@pytest.mark.parametrize(
+    ("task", "risk", "steps"),
+    [
+        (
+            "Triage this customer report about a behavior change",
+            "medium",
+            ["Support Triage Agent", "Human"],
+        ),
+        (
+            "Triage this customer report about authentication",
+            "high",
+            ["Support Triage Agent", "Advisor", "Security Reviewer", "Human"],
+        ),
+        (
+            "Triage this customer report about data loss",
+            "critical",
+            ["Support Triage Agent", "Advisor", "Human decision", "Human"],
+        ),
+    ],
+)
+def test_triage_risk_escalation_does_not_authorize_delivery(task, risk, steps):
+    root = find_agentcrew_root()
+    r = classify(root, task, str(root.path))
+
+    assert r.risk == risk
+    assert r.intent == "support_triage_or_customer_issue"
+    assert r.starting_role == "Support Triage Agent"
+    assert r.execution_steps() == steps
+    assert r.next_roles == r.workflow_roles()[1:]
+    if risk == "critical":
+        assert r.requires_human_decision_on_routing()
+        assert r.has_mid_workflow_human_gate()
+        assert r.role_after_mid_workflow_human_gate() is None
+        assert "critical risk" in r.next_human_decision()
+
+
+@pytest.mark.parametrize(
+    "task",
+    [
+        "Triage this customer report about cloud authentication",
+        "Triage this customer report about a service boundary and a proposed fix",
+        "Triage this customer report about cloud data loss",
+    ],
+)
+def test_explicit_triage_takes_precedence_over_report_subject(task):
+    root = find_agentcrew_root()
+    r = classify(root, task, str(root.path))
+
+    assert r.intent == "support_triage_or_customer_issue"
+    assert r.starting_role == "Support Triage Agent"
+    assert r.execution_steps()[0] == "Support Triage Agent"
+    assert not {"Product Manager", "Developer", "Tester"} & set(r.execution_steps())
+    assert r.next_roles == r.workflow_roles()[1:]
+
+
+@pytest.mark.parametrize(
+    ("task", "risk"),
+    [
+        ("Fix this customer report about authentication", "high"),
+        ("Fix this customer report about data loss", "critical"),
+    ],
+)
+def test_escalated_support_fix_still_requires_product_approval(task, risk):
+    root = find_agentcrew_root()
+    r = classify(root, task, str(root.path))
+
+    assert r.risk == risk
+    assert r.starting_role == "Support Triage Agent"
+    assert r.execution_steps() == [
+        "Support Triage Agent",
+        "Advisor",
+        "Product Manager",
+        "Human product approval",
+        "Developer",
+        "Tester",
+        "Reviewer",
+        *(["Security Reviewer"] if risk == "high" else []),
+        "Human",
+    ]
+    assert r.has_mid_workflow_human_gate()
+    assert r.role_after_mid_workflow_human_gate() == "Developer"
+    if risk == "critical":
+        assert r.requires_human_decision_on_routing()
+        assert "critical risk" in r.next_human_decision()
+
+
+def test_legacy_triage_conditions_cannot_infer_runtime_outcomes():
+    r = Routing(
+        task="Triage this customer report",
+        project="p",
+        intent="support_triage_or_customer_issue",
+        risk="low",
+        lane="Fast Lane",
+        quality_profile="standard",
+        recipe="bug-fix",
+        starting_role="Support Triage Agent",
+        workflow=(
+            "Support Triage Agent -> "
+            "Product Manager if expected behavior or priority is unclear -> "
+            "Tester if reproduction is required -> "
+            "Developer if defect is confirmed -> "
+            "Tester if defect is confirmed -> "
+            "Developer if some future triage outcome -> Human"
+        ),
+        specialists=["Support Triage Agent"],
+    )
+
+    assert r.execution_steps() == ["Support Triage Agent", "Human"]
+
+
 def test_quoted_apostrophes_unescape():
     yaml = "task_classification:\n  task: 'apostrophe''s'\n  project: 'p'\n  intent: 'x'\n  risk: 'low'\n  lane: 'Fast Lane'\n  quality_profile: 'standard'\n  recipe: 'bug-fix'\n  starting_role: 'Developer'\n  workflow: 'Developer -> Tester -> Human'\n"
     r = _parse_yaml(yaml)

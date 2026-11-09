@@ -8,9 +8,9 @@ Two surfaces:
      `per_run_block_usd`; warn when over `per_run_warn_usd`.
 
   2. **Post-run accounting** — after each role runs, the provider returns
-     `usage` (actual input/output tokens). We compute the real USD and
-     persist it to `.agent-state/budget-history.jsonl` so the daily cap
-     stays accurate across many runs.
+     `usage` (actual input/output and cache tokens). We persist the known
+     USD subtotal and any pricing uncertainty to the daily budget ledger.
+     Unresolved spend prevents verification of a later daily cap.
 
 This isn't an accountant; it's a guardrail. The estimates are deliberately
 rough (chars-per-token ≈ 4) — startups need "is this $0.50 or $5?", not
@@ -20,16 +20,17 @@ rough (chars-per-token ≈ 4) — startups need "is this $0.50 or $5?", not
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
 from .routing import Routing
+from .state_paths import project_state_path
 
 
-# Published per-million-token rates (USD). Keep additive: an unknown model
-# defaults to (0, 0) which means "no estimated cost" rather than blocking.
-# Local models (Ollama, vLLM, etc.) → also (0, 0).
+# Published per-million-token rates (USD). Unknown pricing is distinct from
+# known zero-cost mock/local conventions and requires explicit cost approval.
 MODEL_RATES: dict[str, tuple[float, float]] = {
     # OpenAI-compatible hosted examples
     "gpt-4o":            (2.5, 10.0),
@@ -45,22 +46,18 @@ MODEL_RATES: dict[str, tuple[float, float]] = {
     "claude-sonnet-4-6": (3.0, 15.0),
     "claude-sonnet-4-5": (3.0, 15.0),
     "claude-haiku-4-5":  (1.0, 5.0),
-    # Anything starting with "mock-" or "local" → zero cost
+    # "mock", "mock-*", and "local" are explicit zero-cost conventions.
 }
 
 
-def _rates_for(model: str) -> tuple[float, float]:
-    """Return (input_per_1m, output_per_1m) USD for the model. Unknown → (0, 0)."""
+def _rates_for(model: str) -> tuple[float, float] | None:
+    """Return per-million-token USD rates, or None when pricing is unknown."""
     if model in MODEL_RATES:
         return MODEL_RATES[model]
     lower = model.lower()
     if lower.startswith("mock-") or lower in ("mock", "local"):
         return (0.0, 0.0)
-    # Local Ollama / vLLM model names like "qwen2.5-coder:32b", "llama3.3:70b"
-    # → zero cost (running on the user's hardware).
-    if ":" in model and not model.startswith("gpt-") and not model.startswith("claude-"):
-        return (0.0, 0.0)
-    return (0.0, 0.0)
+    return None
 
 
 def _est_tokens(chars: int) -> int:
@@ -77,6 +74,7 @@ class RoleEstimate:
     input_usd: float
     output_usd: float
     total_usd: float
+    pricing_known: bool = True
 
     @classmethod
     def compute(
@@ -89,7 +87,7 @@ class RoleEstimate:
         gate_section_chars: int,
         max_output_tokens: int,
     ) -> "RoleEstimate":
-        in_rate, out_rate = _rates_for(model)
+        in_rate, out_rate = _rates_for(model) or (0.0, 0.0)
         # Approximate input prompt size: system prompt + routing context (~600 chars)
         # + prior handoffs (~400 chars each) + gate playbook text + tools schema (~1500 chars).
         input_chars = (
@@ -135,6 +133,7 @@ class RunEstimate:
                 for e in self.per_role
             ],
             "total_usd": round(self.total_usd, 4),
+            "has_unknown_model": self.has_unknown_model,
         }
 
     def render_table(self) -> str:
@@ -143,12 +142,16 @@ class RunEstimate:
             "  ----                          -----                    ----------   -------",
         ]
         for e in self.per_role:
+            cost = f"${e.total_usd:>7.4f}" if e.pricing_known else " UNKNOWN"
             lines.append(
-                f"  {e.role:<29s} {e.model:<24s} {e.input_tokens + e.output_tokens:>10,} ${e.total_usd:>7.4f}"
+                f"  {e.role:<29s} {e.model:<24s} {e.input_tokens + e.output_tokens:>10,} {cost}"
             )
+        total_label = "KNOWN TOTAL" if self.has_unknown_model else "TOTAL"
         lines.append(
-            f"  {'':<29s} {'TOTAL':<24s} {'':>10s} ${self.total_usd:>7.4f}"
+            f"  {'':<29s} {total_label:<24s} {'':>10s} ${self.total_usd:>7.4f}"
         )
+        if self.has_unknown_model:
+            lines.append("  Unknown pricing: total excludes unpriced models; explicit approval required.")
         return "\n".join(lines)
 
 
@@ -171,10 +174,9 @@ def estimate_run(
     """
     est = RunEstimate()
     for i, role in enumerate(acting_roles):
-        model = model_for_role.get(role, "")
-        if not model:
+        model = model_for_role.get(role, "") or "(unset)"
+        if _rates_for(model) is None:
             est.has_unknown_model = True
-            model = "(unset)"
         sys_chars = role_file_chars.get(role, 2000)  # fall back if not pre-loaded
         gate_chars = gate_section_chars_for_role.get(role, 0)
         max_tokens = max_tokens_per_role.get(role, 8192)
@@ -186,6 +188,7 @@ def estimate_run(
             gate_section_chars=gate_chars,
             max_output_tokens=max_tokens,
         )
+        role_est.pricing_known = _rates_for(model) is not None
         est.per_role.append(role_est)
         est.total_usd += role_est.total_usd
     return est
@@ -199,16 +202,19 @@ class BudgetStatus:
     daily_so_far_usd: float
     daily_cap_usd: float
     today: str
+    has_unresolved_spend: bool = False
 
     @property
     def remaining_usd(self) -> float:
         if self.daily_cap_usd <= 0:
             return float("inf")
+        if self.has_unresolved_spend:
+            return 0.0
         return max(0.0, self.daily_cap_usd - self.daily_so_far_usd)
 
 
 def _budget_log(project_dir: Path) -> Path:
-    return project_dir / ".agent-state" / "budget-history.jsonl"
+    return project_state_path(project_dir, "budget-history.jsonl")
 
 
 def _today_iso() -> str:
@@ -216,9 +222,10 @@ def _today_iso() -> str:
 
 
 def load_daily_so_far(project_dir: Path, daily_cap_usd: float) -> BudgetStatus:
-    """Sum recorded costs for today from .agent-state/budget-history.jsonl."""
+    """Sum today's known costs, flagging unresolved or unreadable spend."""
     today = _today_iso()
     total = 0.0
+    unresolved = False
     log_path = _budget_log(project_dir)
     if log_path.exists():
         for line in log_path.read_text().splitlines():
@@ -228,17 +235,38 @@ def load_daily_so_far(project_dir: Path, daily_cap_usd: float) -> BudgetStatus:
             try:
                 entry = json.loads(line)
             except json.JSONDecodeError:
+                unresolved = True
+                continue
+            if not isinstance(entry, dict) or not isinstance(entry.get("date"), str):
+                unresolved = True
                 continue
             if entry.get("date") == today:
+                unresolved |= entry.get("pricing_known", True) is not True
                 try:
-                    total += float(entry.get("cost_usd", 0))
-                except (TypeError, ValueError):
+                    cost = float(entry["cost_usd"])
+                    if isinstance(entry["cost_usd"], bool) or not math.isfinite(cost) or cost < 0:
+                        raise ValueError("Invalid recorded cost")
+                    total += cost
+                except (KeyError, TypeError, ValueError):
+                    unresolved = True
                     continue
-    return BudgetStatus(daily_so_far_usd=total, daily_cap_usd=daily_cap_usd, today=today)
+    return BudgetStatus(
+        daily_so_far_usd=total, daily_cap_usd=daily_cap_usd, today=today,
+        has_unresolved_spend=unresolved,
+    )
 
 
-def record_run_cost(project_dir: Path, *, run_id: str, cost_usd: float) -> None:
-    """Append an entry to .agent-state/budget-history.jsonl."""
+def record_run_cost(
+    project_dir: Path, *, run_id: str, cost_usd: float, pricing_known: bool = True,
+    unresolved_usage: list[dict] | None = None,
+) -> None:
+    """Record the known subtotal, even when unresolved spend has no USD value.
+
+    Legacy callers/entries are fully priced by default. New callers must pass
+    the pricing summary's flag, including for an unresolved zero subtotal.
+    """
+    if not math.isfinite(cost_usd) or cost_usd < 0:
+        raise ValueError("Recorded cost must be finite and nonnegative")
     log_path = _budget_log(project_dir)
     log_path.parent.mkdir(parents=True, exist_ok=True)
     entry = {
@@ -246,7 +274,10 @@ def record_run_cost(project_dir: Path, *, run_id: str, cost_usd: float) -> None:
         "ts": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "run_id": run_id,
         "cost_usd": round(cost_usd, 6),
+        "pricing_known": pricing_known,
     }
+    if unresolved_usage:
+        entry["unresolved_usage"] = unresolved_usage
     with log_path.open("a") as f:
         f.write(json.dumps(entry, separators=(",", ":")) + "\n")
 
@@ -301,15 +332,87 @@ def decide_cost_gate(
             f"${per_run_warn_usd:.2f}."
         )
 
+    if estimate.has_unknown_model:
+        block = True
+        warn = False
+        unknown_reason = (
+            "Model pricing is unknown for one or more roles. The estimate excludes "
+            "these costs, so budget limits cannot be verified. Explicit cost approval "
+            "is required before running."
+        )
+        reason = f"{reason} {unknown_reason}".strip()
+
+    if budget.daily_cap_usd > 0 and budget.has_unresolved_spend:
+        block = True
+        warn = False
+        reason = (
+            f"{reason} The daily cap cannot be verified because recorded spend "
+            "has unresolved pricing or invalid ledger entries. Explicit cost "
+            "approval is required before running."
+        ).strip()
+
     return CostGate(estimate=estimate, budget=budget, warn=warn, block=block, reason=reason)
 
 
 # --- Actual cost from provider usage ------------------------------------------
 
 
-def actual_cost_from_usage(model: str, usage: dict) -> float:
-    """Compute actual USD from provider usage stats (per AgentRun.usage)."""
-    in_rate, out_rate = _rates_for(model)
-    input_tokens = int(usage.get("input_tokens", 0) or 0)
-    output_tokens = int(usage.get("output_tokens", 0) or 0)
-    return (input_tokens * in_rate + output_tokens * out_rate) / 1_000_000
+@dataclass(frozen=True)
+class CostSummary:
+    """Known USD subtotal and token counters whose price remains unresolved.
+
+    A zero known subtotal is not a claim that an unpriced run was free.
+    """
+
+    known_cost_usd: float
+    pricing_known: bool
+    unresolved_usage: dict[str, int] = field(default_factory=dict)
+
+
+def cost_summary(model: str, usage: dict, provider: str = "") -> CostSummary:
+    """Price ordinary tokens, retaining uncertainty about cache/billing rates.
+
+    No cache rates are assumed. For OpenAI, cached reads are a subset of
+    input_tokens: exclude them from the known subtotal instead of charging
+    them twice. Anthropic cache reads and creations are separate counters.
+    An omitted provider preserves model-table pricing for legacy callers;
+    compatible endpoints must not inherit another vendor's billing rates.
+    """
+    input_tokens = int(usage.get("input_tokens", usage.get("prompt_tokens", 0)) or 0)
+    output_tokens = int(usage.get("output_tokens", usage.get("completion_tokens", 0)) or 0)
+    cache_read = int(usage.get(
+        "cache_read_input_tokens",
+        (usage.get("prompt_tokens_details") or {}).get("cached_tokens", 0),
+    ) or 0)
+    cache_write = int(usage.get("cache_creation_input_tokens", 0) or 0)
+    counters = {
+        "input_tokens": input_tokens, "output_tokens": output_tokens,
+        "cache_read_input_tokens": cache_read, "cache_creation_input_tokens": cache_write,
+    }
+    if any(value < 0 for value in counters.values()):
+        raise ValueError("Usage counters must be nonnegative")
+    if provider in {"mock", "local"}:
+        return CostSummary(0.0, True)
+    rates = _rates_for(model)
+    family = "anthropic" if model.startswith("claude-") else "openai"
+    if rates is None or (provider and provider != family):
+        return CostSummary(0.0, False, {key: value for key, value in counters.items() if value})
+    if rates == (0.0, 0.0):
+        return CostSummary(0.0, not provider, {} if not provider else counters)
+    unresolved = {key: value for key, value in counters.items() if key.startswith("cache_") and value}
+    if family == "openai":
+        if cache_read > input_tokens:
+            return CostSummary(0.0, False, {key: value for key, value in counters.items() if value})
+        input_tokens -= cache_read
+    in_rate, out_rate = rates
+    known_cost = (input_tokens * in_rate + output_tokens * out_rate) / 1_000_000
+    return CostSummary(known_cost, not unresolved, unresolved)
+
+
+def actual_cost_from_usage(model: str, usage: dict, provider: str = "") -> float | None:
+    """Return numeric USD only for fully priced usage; otherwise return None.
+
+    Use cost_summary to retain a partially priced subtotal and its uncertainty.
+    """
+    summary = cost_summary(model, usage, provider)
+    return summary.known_cost_usd if summary.pricing_known else None

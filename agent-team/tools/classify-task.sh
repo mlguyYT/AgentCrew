@@ -146,16 +146,20 @@ GATES=()
 HUMAN_DECISIONS=("final approval before merge")
 REASONS=()
 FILES_TO_LOAD=("agent-team/context/route-index.md" "agent-team/playbooks/request-routing.md" "agent-team/playbooks/task-classification.md")
-ARCHITECTURE_DELIVERY_REQUEST="false"
+DELIVERY_REQUEST="false"
 if matches '(^| )(implement|build|create|add|change|refactor|migrate|replace)( |$)'; then
-  ARCHITECTURE_DELIVERY_REQUEST="true"
+  DELIVERY_REQUEST="true"
 fi
 
-# Intent mapping. Product ideas are handled before generic implementation so
+# Intent mapping. Explicit triage commands take precedence over report contents.
+# Product ideas are handled before generic implementation so
 # wording such as "I want to build an app" receives discovery and planning
 # before any code is written. Later rules may escalate risk without changing
 # explicit intent.
-if matches "$RX_PRODUCT_IDEA"; then
+if [[ "$TASK_LOWER" =~ ^[[:space:]]*(please[[:space:]]+)?triage([[:space:]]|$) ]]; then
+  INTENT="support_triage_or_customer_issue"
+  add_unique REASONS "explicit triage request does not authorize implementation"
+elif matches "$RX_PRODUCT_IDEA"; then
   STARTING_ROLE="Advisor"
   LANE="Full Lane"
   RECIPE="feature"
@@ -189,8 +193,8 @@ elif matches '(^| )(how|what|why|when|where|can|could|should|is|are|does|do|did|
 elif matches "$RX_CLOUD"; then
   INTENT="release_readiness_or_deployment_preparation"
   STARTING_ROLE="Release Manager"
-  WORKFLOW="Release Manager -> Tester/Reviewer/Security Reviewer if evidence or risk requires -> Human"
-  NEXT_ROLES=("Tester if validation evidence is missing" "Reviewer if release risk is meaningful" "Security Reviewer if access, endpoint, or data risk is present" "Human")
+  WORKFLOW="Release Manager -> Tester if validation evidence is missing -> Reviewer if release risk is meaningful -> Security Reviewer if triggered -> Human"
+  NEXT_ROLES=("Tester if validation evidence is missing" "Reviewer if release risk is meaningful" "Security Reviewer if triggered" "Human")
   add_unique SPECIALISTS "Release Manager"
   add_unique GATES "cloud operation gate"
   add_unique GATES "project constraints check"
@@ -226,7 +230,7 @@ elif matches "$RX_PORTFOLIO"; then
 elif matches "$RX_PRIVATE_BOUNDARY"; then
   INTENT="public_private_boundary_decision"
   STARTING_ROLE="Product Manager"
-  WORKFLOW="Product Manager -> Documentation Agent/Security Reviewer if needed -> Human"
+  WORKFLOW="Product Manager -> Documentation Agent if public wording changes -> Security Reviewer if sensitive data or access risk is present -> Human"
   NEXT_ROLES=("Documentation Agent if public wording changes" "Security Reviewer if sensitive data or access risk is present" "Human")
   add_unique GATES "public/private boundary check"
   add_unique GATES "artifact classification check"
@@ -237,7 +241,7 @@ elif matches "$RX_PRIVATE_BOUNDARY"; then
 elif matches "$RX_ARCHITECTURE"; then
   INTENT="architecture_design_or_decision"
   STARTING_ROLE="Software Architect Agent"
-  if [ "$ARCHITECTURE_DELIVERY_REQUEST" = "true" ]; then
+  if [ "$DELIVERY_REQUEST" = "true" ]; then
     WORKFLOW="Software Architect Agent -> Product Manager -> Human decision -> Developer -> Tester -> Reviewer -> Software Architect Agent -> Human"
     NEXT_ROLES=("Product Manager" "Human decision" "Developer" "Tester" "Reviewer" "Software Architect Agent" "Human")
   else
@@ -249,6 +253,9 @@ elif matches "$RX_ARCHITECTURE"; then
   add_unique GATES "architecture decision gate"
   add_unique HUMAN_DECISIONS "approve consequential architecture direction before implementation"
   add_unique REASONS "request needs architecture or system-design analysis"
+elif matches "$RX_SUPPORT"; then
+  INTENT="support_triage_or_customer_issue"
+  add_unique REASONS "request starts from support, customer, severity, impact, or reproduction triage"
 elif matches '(^| )(fix|change|add|update|create|build|implement|improve|refactor|remove|replace)( |$)'; then
   INTENT="implementation_or_bug_fix"
   STARTING_ROLE="Developer"
@@ -263,25 +270,18 @@ elif matches "$RX_RESEARCH"; then
   add_unique SPECIALISTS "Researcher Agent"
   add_unique SKILLS "researcher-pro"
   add_unique REASONS "request needs research or external evidence"
-elif matches "$RX_SUPPORT"; then
-  INTENT="support_triage_or_customer_issue"
-  STARTING_ROLE="Support Triage Agent"
-  WORKFLOW="Support Triage Agent -> Developer/Tester/Product Manager if actionable -> Human"
-  NEXT_ROLES=("Developer if defect is confirmed" "Tester if reproduction is needed" "Product Manager if expected behavior or priority is unclear" "Human")
-  add_unique SPECIALISTS "Support Triage Agent"
-  add_unique REASONS "request starts from support, customer, severity, impact, or reproduction triage"
 elif matches "$RX_RELEASE"; then
   INTENT="release_readiness_or_deployment_preparation"
   STARTING_ROLE="Release Manager"
-  WORKFLOW="Release Manager -> Tester/Reviewer/Documentation Agent if evidence is missing -> Human"
-  NEXT_ROLES=("Tester if validation evidence is missing" "Reviewer if release risk is meaningful" "Human")
+  WORKFLOW="Release Manager -> Tester if validation evidence is missing -> Reviewer if release risk is meaningful -> Documentation Agent if triggered -> Human"
+  NEXT_ROLES=("Tester if validation evidence is missing" "Reviewer if release risk is meaningful" "Documentation Agent if triggered" "Human")
   add_unique SPECIALISTS "Release Manager"
   add_unique REASONS "request targets release readiness or deployment preparation"
 elif matches "$RX_DOCS"; then
   INTENT="docs_examples_or_changelog"
   STARTING_ROLE="Documentation Agent"
-  WORKFLOW="Documentation Agent -> Tester/Reviewer if behavior claims changed -> Human"
-  NEXT_ROLES=("Human")
+  WORKFLOW="Documentation Agent -> Tester if behavior claims changed -> Reviewer if behavior claims changed -> Human"
+  NEXT_ROLES=("Tester if behavior claims changed" "Reviewer if behavior claims changed" "Human")
   add_unique SPECIALISTS "Documentation Agent"
   add_unique REASONS "request targets documentation"
 elif matches "$RX_SKILL"; then
@@ -294,16 +294,16 @@ elif matches "$RX_SKILL"; then
 elif matches "$RX_CNN"; then
   INTENT="computer_vision_cnn_training_or_inference"
   STARTING_ROLE="CNN Agent"
-  WORKFLOW="CNN Agent -> Developer/Tester if implementation follows -> Human"
-  NEXT_ROLES=("Developer if implementation follows" "Tester" "Human")
+  WORKFLOW="CNN Agent -> Developer if implementation follows -> Tester if implementation follows -> Human"
+  NEXT_ROLES=("Developer if implementation follows" "Tester if implementation follows" "Human")
   add_unique SPECIALISTS "CNN Agent"
   add_unique SKILLS "cnn"
   add_unique REASONS "request touches computer vision or CNN work"
 elif matches "$RX_LLM"; then
   INTENT="prompt_rag_tool_calling_or_model_behavior"
   STARTING_ROLE="LLM Agent"
-  WORKFLOW="LLM Agent -> Developer/Tester if implementation follows -> Human"
-  NEXT_ROLES=("Developer if implementation follows" "Tester" "Human")
+  WORKFLOW="LLM Agent -> Developer if implementation follows -> Tester if implementation follows -> Human"
+  NEXT_ROLES=("Developer if implementation follows" "Tester if implementation follows" "Human")
   add_unique SPECIALISTS "LLM Agent"
   add_unique SKILLS "llm-pro"
   add_unique REASONS "request touches LLM behavior or safety"
@@ -548,9 +548,35 @@ case "$INTENT" in
     WORKFLOW="Tester -> Reviewer if risk is meaningful -> Human"
     NEXT_ROLES=("Reviewer if risk is meaningful" "Human")
     ;;
+  support_triage_or_customer_issue)
+    # Triage outcomes require runtime evidence. Never infer a defect or approval
+    # from report keywords; explicit delivery requests still pause for scope approval.
+    STARTING_ROLE="Support Triage Agent"
+    add_unique SPECIALISTS "Support Triage Agent"
+    WORKFLOW="Support Triage Agent"
+    NEXT_ROLES=()
+    if [ "$RISK" = "high" ] || [ "$RISK" = "critical" ]; then
+      WORKFLOW+=" -> Advisor"
+      NEXT_ROLES+=("Advisor")
+    fi
+    if [[ "$TASK_LOWER" =~ ^[[:space:]]*(please[[:space:]]+)?(triage[[:space:]]+and[[:space:]]+)?(fix|implement)([[:space:]]|$) ]]; then
+      WORKFLOW+=" -> Product Manager -> Human product approval -> Developer -> Tester -> Reviewer if risk is meaningful"
+      NEXT_ROLES+=("Product Manager" "Human product approval" "Developer" "Tester" "Reviewer if risk is meaningful")
+      add_unique GATES "product direction and execution approval"
+      add_unique GATES "tester validation"
+      add_unique HUMAN_DECISIONS "approve defect evidence, product scope, and execution boundary before implementation"
+      add_unique REASONS "explicit support fix request requires product approval before implementation"
+    elif [ "$RISK" = "critical" ]; then
+      WORKFLOW+=" -> Human decision"
+      NEXT_ROLES+=("Human decision")
+    fi
+    WORKFLOW+=" -> Human"
+    NEXT_ROLES+=("Human")
+    add_unique REASONS "triage alone does not authorize implementation or infer a confirmed defect"
+    ;;
   docs_examples_or_changelog)
-    WORKFLOW="Documentation Agent -> Reviewer if behavior claims changed -> Human"
-    NEXT_ROLES=("Reviewer if behavior claims changed" "Human")
+    WORKFLOW="Documentation Agent -> Tester if behavior claims changed -> Reviewer if behavior claims changed -> Human"
+    NEXT_ROLES=("Tester if behavior claims changed" "Reviewer if behavior claims changed" "Human")
     ;;
   portfolio_project_positioning)
     if [ "$RISK" = "medium" ]; then
@@ -561,13 +587,14 @@ case "$INTENT" in
       NEXT_ROLES=("Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Documentation Agent" "Human")
     fi
     ;;
-  prompt_rag_tool_calling_or_model_behavior)
-    WORKFLOW="LLM Agent -> Developer/Tester if implementation follows -> Human"
-    NEXT_ROLES=("Developer if implementation follows" "Tester if implementation follows" "Human")
-    ;;
-  computer_vision_cnn_training_or_inference)
-    WORKFLOW="CNN Agent -> Developer/Tester if implementation follows -> Human"
-    NEXT_ROLES=("Developer if implementation follows" "Tester if implementation follows" "Human")
+  prompt_rag_tool_calling_or_model_behavior|computer_vision_cnn_training_or_inference)
+    if [ "$DELIVERY_REQUEST" = "true" ]; then
+      WORKFLOW="$STARTING_ROLE -> Developer -> Tester -> Human"
+      NEXT_ROLES=("Developer" "Tester" "Human")
+    else
+      WORKFLOW="$STARTING_ROLE -> Human"
+      NEXT_ROLES=("Human")
+    fi
     ;;
   skill_creation_or_skill_change)
     WORKFLOW="Skill Validator -> Human"
@@ -588,24 +615,28 @@ case "$RISK" in
         ;;
       code_or_pr_review)
         LANE="Full Lane plus explicit human decision"
-        WORKFLOW="Reviewer -> Advisor for risk acceptance -> Human decision -> Human"
-        NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Human")
+        WORKFLOW="Reviewer -> Advisor -> Human decision -> Human"
+        NEXT_ROLES=("Advisor" "Human decision" "Human")
         add_unique HUMAN_DECISIONS "accept critical risk before merge"
         add_unique REASONS "critical risk holds Reviewer entry but requires human risk acceptance"
         ;;
       validation_or_regression_check)
         LANE="Full Lane plus explicit human decision"
-        WORKFLOW="Tester -> Advisor for risk acceptance -> Human decision -> Human"
-        NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Human")
+        WORKFLOW="Tester -> Advisor -> Human decision -> Human"
+        NEXT_ROLES=("Advisor" "Human decision" "Human")
         add_unique HUMAN_DECISIONS "accept critical risk before merge"
         add_unique REASONS "critical risk holds Tester entry but requires human risk acceptance"
         ;;
       source_backed_research_or_current_info)
         LANE="Full Lane plus explicit human decision"
-        WORKFLOW="Researcher Agent -> Advisor for risk acceptance -> Human decision -> Human"
-        NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Human")
+        WORKFLOW="Researcher Agent -> Advisor -> Human decision -> Human"
+        NEXT_ROLES=("Advisor" "Human decision" "Human")
         add_unique HUMAN_DECISIONS "accept critical risk before merge"
         add_unique REASONS "critical risk holds Researcher entry but requires human risk acceptance"
+        ;;
+      support_triage_or_customer_issue)
+        # Keep the bounded triage route and its explicit human boundary.
+        add_unique REASONS "critical risk holds Support Triage entry and requires human risk acceptance"
         ;;
       rough_idea_or_strategy)
         STARTING_ROLE="Advisor"
@@ -624,20 +655,20 @@ case "$RISK" in
       portfolio_project_positioning)
         STARTING_ROLE="Product Manager"
         LANE="Full Lane plus explicit human decision"
-        WORKFLOW="Product Manager -> Advisor for risk acceptance -> Human decision -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Reviewer -> Documentation Agent -> Human"
-        NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Reviewer" "Documentation Agent" "Human")
+        WORKFLOW="Product Manager -> Advisor -> Human decision -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Reviewer -> Documentation Agent -> Human"
+        NEXT_ROLES=("Advisor" "Human decision" "Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Reviewer" "Documentation Agent" "Human")
         add_unique HUMAN_DECISIONS "accept critical risk before implementation"
         add_unique REASONS "critical portfolio/project-positioning risk keeps Product Manager entry but requires explicit human risk acceptance"
         ;;
       architecture_design_or_decision)
         STARTING_ROLE="Software Architect Agent"
         LANE="Full Lane plus explicit human decision"
-        if [ "$ARCHITECTURE_DELIVERY_REQUEST" = "true" ]; then
-          WORKFLOW="Software Architect Agent -> Product Manager -> Advisor for risk acceptance -> Human decision -> Developer -> Tester -> Reviewer -> Software Architect Agent -> Human"
-          NEXT_ROLES=("Product Manager" "Advisor for risk acceptance" "Human decision" "Developer" "Tester" "Reviewer" "Software Architect Agent" "Human")
+        if [ "$DELIVERY_REQUEST" = "true" ]; then
+          WORKFLOW="Software Architect Agent -> Product Manager -> Advisor -> Human decision -> Developer -> Tester -> Reviewer -> Software Architect Agent -> Human"
+          NEXT_ROLES=("Product Manager" "Advisor" "Human decision" "Developer" "Tester" "Reviewer" "Software Architect Agent" "Human")
         else
-          WORKFLOW="Software Architect Agent -> Advisor for risk acceptance -> Human decision -> Product Manager -> Human"
-          NEXT_ROLES=("Advisor for risk acceptance" "Human decision" "Product Manager" "Human")
+          WORKFLOW="Software Architect Agent -> Advisor -> Human decision -> Product Manager -> Human"
+          NEXT_ROLES=("Advisor" "Human decision" "Product Manager" "Human")
         fi
         add_unique HUMAN_DECISIONS "accept critical architecture risk before implementation"
         add_unique REASONS "critical architecture work keeps Software Architect Agent entry and requires explicit human risk acceptance"
@@ -646,7 +677,7 @@ case "$RISK" in
         STARTING_ROLE="Advisor"
         LANE="Full Lane plus explicit human decision"
         WORKFLOW="Advisor -> Idea Consultant -> Human decision -> Product Manager -> Developer -> Tester -> Reviewer -> Specialist Reviewer -> Human"
-        NEXT_ROLES=("Idea Consultant" "Product Manager" "Developer" "Tester" "Reviewer" "Specialist Reviewer" "Human")
+        NEXT_ROLES=("Idea Consultant" "Human decision" "Product Manager" "Developer" "Tester" "Reviewer" "Specialist Reviewer" "Human")
         add_unique HUMAN_DECISIONS "accept critical risk before implementation"
         add_unique REASONS "critical risk forces Advisor entry and Full Lane regardless of intent"
         ;;
@@ -691,14 +722,14 @@ case "$RISK" in
       portfolio_project_positioning)
         STARTING_ROLE="Product Manager"
         LANE="Full Lane"
-        WORKFLOW="Product Manager -> Advisor for risk review if needed -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Reviewer -> Documentation Agent -> Human"
-        NEXT_ROLES=("Advisor for risk review if needed" "Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Reviewer" "Documentation Agent" "Human")
+        WORKFLOW="Product Manager -> Advisor if risk is meaningful -> Researcher Agent if job evidence is needed -> Human scope approval -> Developer -> Tester -> Reviewer -> Documentation Agent -> Human"
+        NEXT_ROLES=("Advisor if risk is meaningful" "Researcher Agent if job evidence is needed" "Human scope approval" "Developer" "Tester" "Reviewer" "Documentation Agent" "Human")
         add_unique REASONS "high risk portfolio/project-positioning work keeps Product Manager entry and uses Full Lane"
         ;;
       architecture_design_or_decision)
         STARTING_ROLE="Software Architect Agent"
         LANE="Full Lane"
-        if [ "$ARCHITECTURE_DELIVERY_REQUEST" = "true" ]; then
+        if [ "$DELIVERY_REQUEST" = "true" ]; then
           WORKFLOW="Software Architect Agent -> Product Manager -> Human decision -> Developer -> Tester -> Reviewer -> Software Architect Agent -> Human"
           NEXT_ROLES=("Product Manager" "Human decision" "Developer" "Tester" "Reviewer" "Software Architect Agent" "Human")
         else
@@ -715,9 +746,7 @@ case "$RISK" in
         ;;
       support_triage_or_customer_issue)
         LANE="Full Lane"
-        WORKFLOW="Support Triage Agent -> Advisor for risk acceptance -> Developer -> Tester -> Reviewer -> Human"
-        NEXT_ROLES=("Advisor for risk acceptance" "Developer" "Tester" "Reviewer" "Human")
-        add_unique REASONS "high risk holds Support Triage entry and adds Advisor risk acceptance"
+        add_unique REASONS "high risk holds Support Triage entry and adds Advisor risk review without authorizing implementation"
         ;;
       skill_creation_or_skill_change)
         LANE="Full Lane"

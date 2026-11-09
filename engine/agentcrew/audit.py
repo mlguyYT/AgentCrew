@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
+from .state_paths import project_state_path, validate_state_tree
 
 
 @dataclass
@@ -40,6 +41,7 @@ class AuditEntry:
     next_owner: str
     estimated_cost: float
     actual_cost: float
+    pricing_known: bool = True
 
     @property
     def is_blocked(self) -> bool:
@@ -152,7 +154,8 @@ def _parse_entry(run_dir: Path) -> AuditEntry | None:
         final_decision=final_decision,
         next_owner=next_owner,
         estimated_cost=float((cost_est.get("estimate") or {}).get("total_usd", 0) or 0),
-        actual_cost=float(cost_act.get("actual_cost_usd", 0) or 0),
+        actual_cost=float(cost_act.get("known_cost_usd", cost_act.get("actual_cost_usd", 0)) or 0),
+        pricing_known=cost_act.get("pricing_known", True),
     )
 
 
@@ -168,7 +171,8 @@ def collect(
     are skipped. Either bound may be omitted.
     """
     report = AuditReport(since=since or "", until=until or "")
-    runs_dir = project_dir / ".agent-state" / "runs"
+    runs_dir = project_state_path(project_dir, "runs")
+    validate_state_tree(project_state_path(project_dir))
     if not runs_dir.exists():
         return report
     for d in sorted(runs_dir.iterdir()):
@@ -235,6 +239,9 @@ def render(report: AuditReport) -> str:
     out.append(f"Cost:")
     out.append(f"  Total estimated: ${report.total_estimated_cost:.4f}")
     out.append(f"  Total actual:    ${report.total_actual_cost:.4f}")
+    unresolved = sum(not entry.pricing_known for entry in report.entries)
+    if unresolved:
+        out.append(f"  Unresolved:      {unresolved} run(s); totals above include known subtotals only")
     out.append(f"  Avg per run:     ${report.avg_actual_per_run:.4f}")
 
     top = [e for e in report.top_n_expensive(5) if e.actual_cost > 0]

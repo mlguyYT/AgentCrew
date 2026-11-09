@@ -1,16 +1,21 @@
 import json
+import re
+
+import pytest
 
 from agentcrew.execution_commands import classify_tool_call
 from agentcrew.execution_evidence import (
     ExecutionEvidence,
     ExecutionRecorder,
     ToolEvidenceEvent,
+    ValidationSummary,
     assess_completion,
     build_execution_evidence,
     enforce_completion,
+    summarize_validation,
 )
 from agentcrew.handoff import Handoff
-from agentcrew.tools import build_tools
+from agentcrew.tools import ToolError, ToolSpec, build_tools
 
 
 def _instrumented_tools(project):
@@ -105,6 +110,128 @@ def test_records_sanitized_change_and_validation_evidence(tmp_path):
     assert evidence.successful_validation_kinds == ("syntax",)
     assert "value = 2" not in serialized
     assert "python3 -m py_compile app.py" not in serialized
+
+
+def test_validation_identity_normalizes_argv_without_retaining_arguments():
+    secret = "PRIVATE-argument-canary"
+    commands = [
+        f"python3 -m unittest 'suite {secret}'",
+        f'  python3  -m unittest "suite {secret}"  ',
+        f"python3 -m unittest 'suite {secret.lower()}'",
+        f"python3 -m unittest suite {secret}",
+        f"python -m unittest 'suite {secret}'",
+        f"python3 -m unittest 'suite {secret}' --failfast",
+    ]
+    recorder = ExecutionRecorder()
+    bash, = recorder.instrument([
+        ToolSpec("bash", "Run a check.", {}, lambda command: "exit=0")
+    ])
+    for command in commands:
+        bash.handler(command=command)
+
+    identities = [event.validation_id for event in recorder.events]
+    assert identities[0] == identities[1]
+    assert len(set(identities)) == len(commands) - 1
+    assert all(re.fullmatch(r"[0-9a-f]{64}", identity) for identity in identities)
+    evidence = build_execution_evidence(
+        recorder=recorder, status_before=None, status_after=None
+    )
+    serialized = json.dumps(evidence.to_dict())
+    assert secret not in serialized
+    assert secret.lower() not in serialized
+    assert "--failfast" not in serialized
+    assert all(command not in serialized for command in commands)
+
+
+def test_validation_tool_error_is_resolved_only_by_matching_rerun():
+    results = iter([ToolError("validation timed out"), "exit=0", "exit=0"])
+
+    def run_check(command):
+        result = next(results)
+        if isinstance(result, ToolError):
+            raise result
+        return result
+
+    recorder = ExecutionRecorder()
+    bash, = recorder.instrument([
+        ToolSpec("bash", "Run a check.", {}, run_check)
+    ])
+    with pytest.raises(ToolError, match="validation timed out"):
+        bash.handler(command="python3 -m unittest suite_a")
+    bash.handler(command="python3 -m unittest suite_b")
+    assert summarize_validation(tuple(recorder.events)) == ValidationSummary(
+        "failed", ("test",), ("test",)
+    )
+
+    bash.handler(command="python3 -m unittest suite_a")
+    assert recorder.events[0].validation_id == recorder.events[-1].validation_id
+    assert summarize_validation(tuple(recorder.events)) == ValidationSummary(
+        "passed", ("test",), ()
+    )
+
+
+@pytest.mark.parametrize(
+    "checks, expected",
+    [
+        ([("a", False), ("b", True)], ValidationSummary("failed", ("test",), ("test",))),
+        ([("a", False), ("a", True)], ValidationSummary("passed", ("test",), ())),
+        ([("a", True), ("a", False)], ValidationSummary("failed", (), ("test",))),
+        (
+            [("a", False), ("b", False), ("a", True)],
+            ValidationSummary("failed", ("test",), ("test",)),
+        ),
+        (
+            [("a", False), ("b", False), ("a", True), ("b", True)],
+            ValidationSummary("passed", ("test",), ()),
+        ),
+        (
+            [("a", False), ("mutation", True), ("a", True)],
+            ValidationSummary("passed", ("test",), ()),
+        ),
+        (
+            [("a", False), ("a", True), ("mutation", True), ("b", True)],
+            ValidationSummary("failed", ("test",), ("test",)),
+        ),
+        (
+            [("a", False), ("a", True), ("mutation", True)],
+            ValidationSummary("failed", (), ("test",)),
+        ),
+        (
+            [("a", True), ("mutation", True)],
+            ValidationSummary("missing", (), ()),
+        ),
+        (
+            [(None, False), (None, True)],
+            ValidationSummary("failed", ("test",), ("test",)),
+        ),
+    ],
+    ids=[
+        "unrelated-success",
+        "matching-success",
+        "matching-refailure",
+        "one-of-two-failures-remains",
+        "both-failures-resolved",
+        "fresh-matching-success",
+        "stale-matching-and-fresh-unrelated-success",
+        "stale-recovery",
+        "stale-success",
+        "legacy-unknown-identity",
+    ],
+)
+def test_validation_summary_requires_fresh_matching_success(checks, expected):
+    events = tuple(
+        ToolEvidenceEvent(
+            sequence=index,
+            tool="write_file" if identity == "mutation" else "bash",
+            kind="mutation" if identity == "mutation" else "validation",
+            succeeded=succeeded,
+            validation_kind=None if identity == "mutation" else "test",
+            validation_id=None if identity == "mutation" else identity,
+        )
+        for index, (identity, succeeded) in enumerate(checks, start=1)
+    )
+
+    assert summarize_validation(events) == expected
 
 
 def test_identical_write_does_not_count_as_a_project_change(tmp_path):
@@ -205,11 +332,12 @@ def test_normalizes_paths_and_excludes_runtime_state_from_changes(tmp_path):
         old_string="value = 1",
         new_string="value = 2",
     )
-    tools["edit_file"].handler(
-        path=".agent-state/handoff.md",
-        old_string="old",
-        new_string="new",
-    )
+    with pytest.raises(ToolError, match="metadata"):
+        tools["edit_file"].handler(
+            path=".agent-state/handoff.md",
+            old_string="old",
+            new_string="new",
+        )
 
     evidence = build_execution_evidence(
         recorder=recorder,
@@ -235,13 +363,15 @@ def test_failed_validation_kind_is_not_hidden_by_another_success(tmp_path):
         old_string="value = 1",
         new_string="value = 2",
     )
-    tools["bash"].handler(command="python3 -c 'assert False'")
+    check = "python3 -c 'from app import value; assert value == 3'"
+    tools["bash"].handler(command=check)
     tools["edit_file"].handler(
         path="app.py",
         old_string="value = 2",
         new_string="value = 3",
     )
     tools["bash"].handler(command="python3 -m py_compile app.py")
+    tools["bash"].handler(command="python3 -c 'assert True'")
 
     failed = build_execution_evidence(
         recorder=recorder,
@@ -251,7 +381,7 @@ def test_failed_validation_kind_is_not_hidden_by_another_success(tmp_path):
     assert failed.validation_status == "failed"
     assert failed.unresolved_validation_kinds == ("test",)
 
-    tools["bash"].handler(command="python3 -c 'assert True'")
+    tools["bash"].handler(command=check)
     recovered = build_execution_evidence(
         recorder=recorder,
         status_before=None,

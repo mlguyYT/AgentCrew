@@ -2,9 +2,9 @@
 
 Each role gets a curated subset of these. Tools run on the operator's
 filesystem (the project directory passed to the orchestrator); they are
-not provider-hosted. Every tool refuses to escape the project root, and
-the bash tool enforces a command allowlist plus a denylist of destructive
-patterns.
+not provider-hosted. File tools enforce project containment. Commands run
+inside an OS sandbox with read-only system runtimes, a writable project,
+private temporary storage, and no network or host-home access.
 
 Roles cannot override their allowlist — the orchestrator passes only the
 tool definitions the agent is allowed to call, and the API rejects any
@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Callable
 
 from .git_inspection import GitInspectionError, read_git_diff
+from .command_sandbox import SandboxUnavailable, sandbox_command
 
 
 @dataclass
@@ -161,6 +162,9 @@ def _read_file(project_root: Path, path: str, max_bytes: int = 64_000) -> str:
 
 def _write_file(project_root: Path, path: str, content: str) -> str:
     p = _resolve(project_root, path)
+    parts = p.relative_to(project_root.resolve()).parts
+    if not parts or parts[0] in {".git", ".agent-state", ".agentcrew"}:
+        raise ToolError("Git and engine-owned metadata cannot be modified by role tools")
     p.parent.mkdir(parents=True, exist_ok=True)
     p.write_text(content)
     return f"wrote {len(content)} bytes to {path}"
@@ -168,6 +172,9 @@ def _write_file(project_root: Path, path: str, content: str) -> str:
 
 def _edit_file(project_root: Path, path: str, old_string: str, new_string: str) -> str:
     p = _resolve(project_root, path)
+    parts = p.relative_to(project_root.resolve()).parts
+    if not parts or parts[0] in {".git", ".agent-state", ".agentcrew"}:
+        raise ToolError("Git and engine-owned metadata cannot be modified by role tools")
     if not p.exists():
         raise ToolError(f"file not found: {path}")
     original = p.read_text()
@@ -203,8 +210,9 @@ def _bash(
                 f"-m {sorted(allowed_python_modules)}"
             )
     try:
+        isolated_argv = sandbox_command(project_root, argv)
         result = subprocess.run(
-            argv,
+            isolated_argv,
             shell=False,
             cwd=project_root,
             capture_output=True,
@@ -217,8 +225,16 @@ def _bash(
                 "PYTHONDONTWRITEBYTECODE": "1",
             },
         )
+    except SandboxUnavailable as exc:
+        raise ToolError(str(exc)) from exc
     except subprocess.TimeoutExpired:
         raise ToolError(f"command timed out after {timeout}s")
+    if result.returncode != 0 and (result.stderr or "").startswith("bwrap:"):
+        raise ToolError(
+            "Command isolation could not start. Enable Bubblewrap user namespaces "
+            "or use the host agent's native execution environment. "
+            "Unconfined execution is disabled."
+        )
     out = (result.stdout or "")[:8000]
     err = (result.stderr or "")[:4000]
     returncode = result.returncode
@@ -246,6 +262,8 @@ def _grep(project_root: Path, pattern: str, path: str = ".", max_results: int = 
     matches: list[str] = []
     files = [p] if p.is_file() else [f for f in p.rglob("*") if f.is_file()]
     for f in files:
+        if not f.resolve().is_relative_to(project_root.resolve()):
+            continue
         try:
             for i, line in enumerate(f.read_text().splitlines(), start=1):
                 if rx.search(line):
@@ -261,7 +279,7 @@ def _grep(project_root: Path, pattern: str, path: str = ".", max_results: int = 
 def _glob(project_root: Path, pattern: str, max_results: int = 100) -> str:
     matches = []
     for p in project_root.rglob(pattern):
-        if p.is_file():
+        if p.is_file() and p.resolve().is_relative_to(project_root.resolve()):
             try:
                 matches.append(str(p.relative_to(project_root)))
             except ValueError:
@@ -445,11 +463,11 @@ def build_tools(
     # Documentation can write to docs paths only. We enforce this by
     # wrapping write_file/edit_file with a path-prefix guard.
     def _doc_write(path: str, content: str) -> str:
-        _check_doc_path(path)
+        _check_doc_path(str(_resolve(project_root, path).relative_to(project_root.resolve())))
         return _write_file(project_root, path, content)
 
     def _doc_edit(path: str, old_string: str, new_string: str) -> str:
-        _check_doc_path(path)
+        _check_doc_path(str(_resolve(project_root, path).relative_to(project_root.resolve())))
         return _edit_file(project_root, path, old_string, new_string)
 
     doc_write_spec = ToolSpec(

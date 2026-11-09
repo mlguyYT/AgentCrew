@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import subprocess
 from pathlib import Path
 
 from .agentcrew_root import AgentCrewRoot
@@ -30,6 +29,7 @@ from .quality_evidence import (
     enforce_tester_completion,
 )
 from .routing import Routing
+from .git_safety import git_command
 from .tools import build_tools
 
 
@@ -174,15 +174,22 @@ def run_role(
         ),
         submit_tool_schema=schema,
     )
+    run.model = agent.model
     if compiled_context is not None:
         run.context_fragments = compiled_context.fragment_ids
         run.context_estimated_tokens = compiled_context.estimated_tokens
 
-    handoff = (
-        Handoff(**{**run.submission, "model": agent.model})
-        if run.submission is not None
-        else None
-    )
+    try:
+        handoff = (
+            Handoff(**{**run.submission, "model": agent.model})
+            if isinstance(run.submission, dict) else None
+        )
+    except (TypeError, ValueError):
+        handoff = None
+    if handoff is not None and (
+        handoff.sender != agent.role or handoff.receiver not in valid_receivers
+    ):
+        handoff = None
     if recorder is None:
         return run, handoff
 
@@ -216,20 +223,7 @@ def run_role(
 def git_status_short(project_dir: Path) -> str | None:
     """Return git status output, or None when the project is not a worktree."""
 
-    result = subprocess.run(
-        [
-            "git",
-            "-C",
-            str(project_dir),
-            "status",
-            "--short",
-            "--",
-            ".",
-        ],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
+    result = git_command(project_dir, "status", "--short", "--", ".")
     if result.returncode != 0:
         return None
     return result.stdout

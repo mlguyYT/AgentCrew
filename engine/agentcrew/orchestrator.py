@@ -30,21 +30,21 @@ from typing import Callable
 
 import time as _time
 
-from .agents import Agent, build_agent
+from .agents import build_agent
 from .config import ProjectConfig
 from .ceo_context import context_for_routing
 from .context_compiler import compile_execution_context
+from .command_sandbox import SandboxUnavailable, check_sandbox
 from .decisions import load_recent as load_recent_decisions, render_section as render_decisions_section
 from .execution_evidence import FileFingerprint
 from .telemetry import emit_run_event
 from .cost import (
     CostGate,
     RunEstimate,
-    actual_cost_from_usage,
+    cost_summary,
     decide_cost_gate,
     estimate_run,
     load_daily_so_far,
-    record_run_cost,
 )
 from .gates import load_gates_for_role, render_gate_section
 from .git_inspection import (
@@ -61,6 +61,10 @@ from .handoff import (
 from .provider import AgentRun, Provider
 from .role_runner import git_status_short, run_role
 from .routing import Routing, classify
+from .workflow_gates import WorkflowGates
+from .advisor_execution import run_direct_answer
+from .run_accounting import finalize_accounting
+from .state_paths import validate_state_tree
 from .state import (
     StateLayout,
     build_layout,
@@ -68,7 +72,6 @@ from .state import (
     write_handoff,
     write_routing,
 )
-from .tools import build_tools
 from .agentcrew_root import AgentCrewRoot
 
 
@@ -109,10 +112,14 @@ def estimate_routing_run(
     model_for_role: dict[str, str],
     ceo_context: str = "",
     prior_handoff_count: int = 0,
+    billing_provider: str = "",
 ) -> RunEstimate:
     """Estimate the same bounded context that role execution will receive."""
 
-    acting = routing.acting_roles_in_order()
+    if routing.is_direct_answer():
+        acting = ["Advisor"] if model_for_role.get("Advisor") else []
+    else:
+        acting = routing.acting_roles_in_order()
     role_file_chars: dict[str, int] = {}
     context_chars: dict[str, int] = {}
     max_tokens_per_role: dict[str, int] = {}
@@ -135,7 +142,7 @@ def estimate_routing_run(
             context_chars[role] = len(render_gate_section(gate_texts))
         context_chars[role] += len(ceo_context)
         max_tokens_per_role[role] = 8192
-    return estimate_run(
+    estimate = estimate_run(
         routing=routing,
         acting_roles=acting,
         model_for_role=model_for_role,
@@ -144,6 +151,26 @@ def estimate_routing_run(
         max_tokens_per_role=max_tokens_per_role,
         prior_handoff_count=prior_handoff_count,
     )
+    if billing_provider and billing_provider != "mock":
+        for item in estimate.per_role:
+            input_price = cost_summary(item.model, {"input_tokens": item.input_tokens}, billing_provider)
+            output_price = cost_summary(item.model, {"output_tokens": item.output_tokens}, billing_provider)
+            item.input_usd, item.output_usd = input_price.known_cost_usd, output_price.known_cost_usd
+            item.total_usd = item.input_usd + item.output_usd
+            item.pricing_known = input_price.pricing_known and output_price.pricing_known
+        estimate.total_usd = sum(item.total_usd for item in estimate.per_role)
+        estimate.has_unknown_model = any(not item.pricing_known for item in estimate.per_role)
+    return estimate
+
+
+def billing_identity(provider: Provider) -> str:
+    declared = getattr(provider, "billing_provider", "")
+    if declared:
+        return declared
+    base_url = getattr(provider, "_base_url", "")
+    if base_url:
+        return "openai" if base_url == "https://api.openai.com/v1" else "openai-compatible"
+    return ""
 
 
 @dataclass
@@ -160,6 +187,10 @@ class TeamRun:
     cost_estimate: RunEstimate | None = None
     actual_cost_usd: float = 0.0
     direct_answer: str = ""
+    remaining_workflow: str | None = None
+    pending_human_decision: str | None = None
+    pricing_known: bool = True
+    unresolved_usage: list[dict] = field(default_factory=list)
 
     def summary(self) -> str:
         lines = [
@@ -207,6 +238,7 @@ def run(
     """
 
     project_dir = project_dir.resolve()
+    layout = build_layout(project_dir) if state_root is None else _custom_layout(state_root)
     _run_start_t = _time.monotonic()
     routing = routing_override or classify(
         root,
@@ -231,9 +263,8 @@ def run(
         handoffs=list(prior_handoffs or []),
     )
 
-    # Direct Answer Mode: the classifier flagged this as advisory. Invoke
-    # the Advisor (per agent-team/agents/advisor.md) to actually answer the
-    # user. Per Direct Answer Mode, do not create .agent-state artifacts.
+    # Advisory execution shares cost safeguards. Free answers need no state;
+    # metered answers persist only the ledger, without task/handoff artifacts.
     if routing.is_direct_answer():
         advisor_model = model_for_role.get("Advisor")
         if not advisor_model:
@@ -242,26 +273,15 @@ def run(
             state.next_owner = "human"
             return state
 
-        advisor_agent = build_agent(root, "Advisor", advisor_model)
-        advisor_run = _run_advisor(
-            agent=advisor_agent,
-            routing=routing,
-            project_dir=project_dir,
-            provider=provider,
+        state.cost_estimate = estimate_routing_run(
+            root=root, routing=routing, model_for_role=model_for_role,
+            billing_provider=billing_identity(provider),
         )
-        state.agent_runs.append(advisor_run)
-        if advisor_run.submission is None or not advisor_run.submission.get("answer"):
-            state.final_decision = "direct_answer_or_advisory_protocol_failure"
-            state.next_owner = "human"
-            return state
+        return run_direct_answer(
+            state, root=root, provider=provider, model=advisor_model,
+            config=project_config, cost_approver=cost_approver,
+        )
 
-        answer = advisor_run.submission["answer"]
-        state.direct_answer = answer
-        state.final_decision = "answered"
-        state.next_owner = "human"
-        return state
-
-    layout = build_layout(project_dir) if state_root is None else _custom_layout(state_root)
     layout.state_dir.mkdir(parents=True, exist_ok=True)
     run_dir = layout.run_dir(run_id)
     state.run_dir = run_dir
@@ -308,6 +328,16 @@ def run(
         (run_dir / "summary.md").write_text(state.summary())
         return state
 
+    if {"Developer", "Tester"}.intersection(acting):
+        try:
+            check_sandbox(project_dir)
+        except SandboxUnavailable as exc:
+            state.final_decision = "command_sandbox_unavailable"
+            state.next_owner = "human"
+            (run_dir / "error.md").write_text(str(exc) + "\n")
+            (run_dir / "summary.md").write_text(state.summary())
+            return state
+
     # ---- Cost gate ---------------------------------------------------------
     # Estimate before any LLM call so the user can decline a surprise spend.
     # If config has thresholds set to 0, the gate is effectively skipped.
@@ -317,6 +347,7 @@ def run(
         model_for_role=model_for_role,
         ceo_context=ceo_context.text,
         prior_handoff_count=len(prior_handoffs or []),
+        billing_provider=billing_identity(provider),
     )
     state.cost_estimate = estimate
     budget_status = load_daily_so_far(
@@ -354,6 +385,10 @@ def run(
     # them concurrently is safe and substantially faster on critical-risk
     # routes that pick multiple specialists.
     primary_acting, trailing_specialists = _split_trailing_specialists(acting, routing.specialists)
+    workflow_gates = WorkflowGates(routing)
+    if any(boundary.role_index >= len(primary_acting) for boundary in workflow_gates.boundaries):
+        # A parallel batch must never cross an approval boundary.
+        primary_acting, trailing_specialists = list(acting), []
 
     rework_counts: dict[tuple[str, str], int] = {}
     REWORK_LIMIT = 1
@@ -361,116 +396,144 @@ def run(
     developer_file_baselines: dict[str, FileFingerprint | None] = {}
     observed_developer_files: tuple[str, ...] = ()
 
-    # Resolve where the mid-workflow CEO gate sits (if any). The gate may be
-    # product direction, execution approval, or explicit risk acceptance.
-    mid_gate_role = (
-        routing.role_after_mid_workflow_human_gate()
-        if routing.has_mid_workflow_human_gate()
-        else None
-    )
-    mid_gate_acknowledged = False
-
     idx = 0
-    while idx < len(primary_acting):
-        role = primary_acting[idx]
-
-        # Mid-workflow CEO decision gate.
-        if mid_gate_role and role == mid_gate_role and not mid_gate_acknowledged:
-            if not risk_acceptor(routing, role):
-                state.final_decision = "mid_workflow_human_decision_required"
-                state.next_owner = "human"
+    while idx < len(primary_acting) or trailing_specialists:
+        if idx >= len(primary_acting):
+            spec_results = _run_specialists_parallel(
+                specialists=trailing_specialists,
+                routing=routing,
+                prior=list(state.handoffs),
+                valid_receivers=list({*acting, "Human"}),
+                project_dir=project_dir,
+                provider=provider,
+                root=root,
+                model_for_role=model_for_role,
+                ceo_context=ceo_context.text,
+                decisions_section=decisions_section,
+            )
+            objections: list[tuple[str, Handoff]] = []
+            # Every role has already executed. Retain all results and usage,
+            # including those after a blocking result in deterministic order.
+            for specialist, agent_run, handoff in spec_results:
+                state.agent_runs.append(agent_run)
+                _persist_agent_evidence(run_dir, state.agent_runs, specialist, agent_run)
+                if handoff is None:
+                    state.final_decision = f"specialist_protocol_failure:{specialist}"
+                    state.next_owner = "human"
+                    continue
+                state.handoffs.append(handoff)
+                write_handoff(layout, run_dir, handoff)
+                if handoff.decision in BLOCKING_DECISIONS:
+                    state.final_decision = handoff.decision
+                    state.next_owner = "human"
+                elif handoff.decision in REWORK_DECISIONS:
+                    objections.append((specialist, handoff))
+            if state.final_decision:
                 break
-            mid_gate_acknowledged = True
-            from .state import append_human_decision
-
-            append_human_decision(
-                layout,
-                (
-                    f"- {datetime.now(timezone.utc).isoformat(timespec='seconds')} "
-                    f"- approved: {routing.next_human_decision()} before {role}"
-                ),
-            )
-
-        model = model_for_role.get(role)
-        if not model:
-            state.final_decision = f"model_missing_for_role:{role}"
-            state.next_owner = "human"
-            break
-        try:
-            agent = build_agent(root, role, model)
-        except FileNotFoundError as exc:
-            state.final_decision = f"role_file_missing:{role}"
-            state.next_owner = "human"
-            (run_dir / "error.md").write_text(str(exc))
-            break
-
-        tester_snapshot_before = (
-            capture_git_worktree_snapshot(project_dir)
-            if role == "Tester"
-            else None
-        )
-        expected_changed_files = observed_developer_files
-        if role == "Reviewer" and not expected_changed_files:
-            expected_changed_files = (
-                list_git_changed_paths(project_dir) or ()
-            )
-
-        # Receivers this role may name in its handoff: any acting role plus Human.
-        valid_receivers = list({*acting, *trailing_specialists, "Human"})
-        agent_run, handoff = run_role(
-            agent=agent,
-            routing=routing,
-            prior=state.handoffs,
-            valid_receivers=valid_receivers,
-            project_dir=project_dir,
-            provider=provider,
-            root=root,
-            ceo_context=ceo_context.text,
-            decisions_section=decisions_section,
-            developer_status_baseline=developer_status_baseline,
-            developer_file_baselines=developer_file_baselines,
-            expected_changed_files=expected_changed_files,
-            git_available=developer_status_baseline is not None,
-        )
-        state.agent_runs.append(agent_run)
-        if agent_run.execution_evidence:
-            observed_developer_files = agent_run.observed_changed_files
-
-        tester_modified_worktree = False
-        if role == "Tester" and tester_snapshot_before is not None:
-            tester_snapshot_after = capture_git_worktree_snapshot(project_dir)
-            tester_modified_worktree = (
-                tester_snapshot_after != tester_snapshot_before
-            )
-        _persist_agent_evidence(
-            run_dir,
-            state.agent_runs,
-            role,
-            agent_run,
-        )
-        if tester_modified_worktree:
-            state.final_decision = "tester_modified_worktree"
-            state.next_owner = "human"
-            (run_dir / "error.md").write_text(
-                "Tester role modified the git worktree during validation. "
-                "Route this back to Developer or approve the generated artifacts explicitly.\n"
-            )
-            break
+            if objections:
+                # Rework is serial and bounded, through the same handling as
+                # primary reviews. All specialists run again on the new result.
+                role, handoff = objections[0]
+                primary_acting, trailing_specialists = list(acting), []
+                idx = max(index for index, actor in enumerate(primary_acting) if actor == role)
+            else:
+                break
+        else:
+            handoff = None
+            role = primary_acting[idx]
 
         if handoff is None:
-            state.final_decision = "protocol_failure"
-            state.next_owner = "human"
-            (run_dir / "error.md").write_text(
-                f"{role} did not submit a valid handoff.\n"
-            )
-            break
+            refused, approved = workflow_gates.before(idx, role, risk_acceptor)
+            from .state import append_human_decision
 
-        state.handoffs.append(handoff)
-        write_handoff(layout, run_dir, handoff)
+            for boundary in approved:
+                append_human_decision(
+                    layout,
+                    f"- {datetime.now(timezone.utc).isoformat(timespec='seconds')} "
+                    f"- approved: {boundary.label} before {role}",
+                )
+            if refused:
+                state.final_decision = "mid_workflow_human_decision_required"
+                state.next_owner = "human"
+                state.remaining_workflow = refused.remaining_workflow
+                state.pending_human_decision = refused.label
+                break
+
+            model = model_for_role.get(role)
+            if not model:
+                state.final_decision = f"model_missing_for_role:{role}"
+                state.next_owner = "human"
+                break
+            try:
+                agent = build_agent(root, role, model)
+            except FileNotFoundError as exc:
+                state.final_decision = f"role_file_missing:{role}"
+                state.next_owner = "human"
+                (run_dir / "error.md").write_text(str(exc))
+                break
+
+            tester_snapshot_before = (
+                capture_git_worktree_snapshot(project_dir)
+                if role == "Tester"
+                else None
+            )
+            expected_changed_files = observed_developer_files
+            if role == "Reviewer" and not expected_changed_files:
+                expected_changed_files = list_git_changed_paths(project_dir) or ()
+
+            valid_receivers = list({*acting, "Human"})
+            agent_run, handoff = run_role(
+                agent=agent,
+                routing=routing,
+                prior=state.handoffs,
+                valid_receivers=valid_receivers,
+                project_dir=project_dir,
+                provider=provider,
+                root=root,
+                ceo_context=ceo_context.text,
+                decisions_section=decisions_section,
+                developer_status_baseline=developer_status_baseline,
+                developer_file_baselines=developer_file_baselines,
+                expected_changed_files=expected_changed_files,
+                git_available=developer_status_baseline is not None,
+            )
+            state.agent_runs.append(agent_run)
+            if agent_run.execution_evidence:
+                observed_developer_files = agent_run.observed_changed_files
+
+            tester_modified_worktree = (
+                role == "Tester" and tester_snapshot_before is not None
+                and capture_git_worktree_snapshot(project_dir) != tester_snapshot_before
+            )
+            _persist_agent_evidence(run_dir, state.agent_runs, role, agent_run)
+            if tester_modified_worktree:
+                state.final_decision = "tester_modified_worktree"
+                state.next_owner = "human"
+                (run_dir / "error.md").write_text(
+                    "Tester role modified the git worktree during validation. "
+                    "Route this back to Developer or approve the generated artifacts explicitly.\n"
+                )
+                break
+
+            if handoff is None:
+                state.final_decision = "protocol_failure"
+                state.next_owner = "human"
+                (run_dir / "error.md").write_text(f"{role} did not submit a valid handoff.\n")
+                break
+
+            state.handoffs.append(handoff)
+            write_handoff(layout, run_dir, handoff)
 
         # Blocking decisions stop the run completely — no further roles or
         # specialists may execute.
         if handoff.decision in BLOCKING_DECISIONS:
+            if handoff.decision == "needs_human_decision":
+                boundary = next((boundary for boundary in workflow_gates.boundaries
+                                 if boundary.role_index == idx + 1
+                                 and boundary.step_index not in workflow_gates.acknowledged), None)
+                if boundary:
+                    state.remaining_workflow = boundary.remaining_workflow
+                    state.pending_human_decision = boundary.label
             state.final_decision = handoff.decision
             state.next_owner = "human"
             break
@@ -511,74 +574,18 @@ def run(
             continue
 
         idx += 1
-    else:
-        # Primary workflow finished naturally — now run trailing specialists
-        # in parallel. They all see the same `state.handoffs` (read-only) and
-        # produce handoffs independently.
-        if trailing_specialists:
-            spec_results = _run_specialists_parallel(
-                specialists=trailing_specialists,
-                routing=routing,
-                prior=list(state.handoffs),
-                valid_receivers=list({*acting, "Human"}),
-                project_dir=project_dir,
-                provider=provider,
-                root=root,
-                model_for_role=model_for_role,
-                ceo_context=ceo_context.text,
-                decisions_section=decisions_section,
-            )
-            for role, agent_run, handoff in spec_results:
-                state.agent_runs.append(agent_run)
-                if handoff is None:
-                    state.final_decision = f"specialist_protocol_failure:{role}"
-                    state.next_owner = "human"
-                    (run_dir / "error.md").write_text(
-                        f"Specialist {role} did not submit a valid handoff.\n"
-                    )
-                    break
-                state.handoffs.append(handoff)
-                write_handoff(layout, run_dir, handoff)
-                # A blocking decision from any specialist stops the rest.
-                if handoff.decision in BLOCKING_DECISIONS:
-                    state.final_decision = handoff.decision
-                    state.next_owner = "human"
-                    break
-        if not state.final_decision:
-            # Pick the most informative terminal decision: prefer an APPROVAL
-            # decision (the role explicitly says ready); fall back to the
-            # last handoff's decision otherwise.
-            for h in reversed(state.handoffs):
-                if h.decision in APPROVAL_DECISIONS:
-                    state.final_decision = h.decision
-                    break
-            else:
-                state.final_decision = (
-                    state.handoffs[-1].decision if state.handoffs else "no_handoffs"
-                )
-            state.next_owner = "human"
+    if not state.final_decision:
+        for h in reversed(state.handoffs):
+            if h.decision in APPROVAL_DECISIONS:
+                state.final_decision = h.decision
+                break
+        else:
+            state.final_decision = state.handoffs[-1].decision if state.handoffs else "no_handoffs"
+        state.next_owner = "human"
 
-    # ---- Post-run cost accounting -----------------------------------------
-    # Sum actual provider usage across all roles; record to the daily log.
-    # Map each agent_run back to the role that produced it (same order
-    # they appended to state.agent_runs and state.handoffs).
-    actual_total = 0.0
-    new_handoffs = state.handoffs[len(prior_handoffs or []):]
-    for ar, hf in zip(state.agent_runs, new_handoffs):
-        if hasattr(ar, "usage") and ar.usage:
-            actual_total += actual_cost_from_usage(hf.model or "", ar.usage)
-    state.actual_cost_usd = actual_total
-    if actual_total > 0:
-        record_run_cost(project_dir, run_id=run_id, cost_usd=actual_total)
-    (run_dir / "cost-actual.json").write_text(
-        json.dumps(
-            {
-                "actual_cost_usd": round(actual_total, 6),
-                "estimated_cost_usd": round(estimate.total_usd, 6),
-                "daily_total_after": round(budget_status.daily_so_far_usd + actual_total, 6),
-            },
-            indent=2,
-        )
+    finalize_accounting(
+        state, run_dir=run_dir,
+        daily_cap=project_config.budget.daily_max_usd if project_config else 0.0,
     )
 
     (run_dir / "summary.md").write_text(state.summary())
@@ -711,62 +718,6 @@ def _run_specialists_parallel(
     return [r for r in results if r is not None]
 
 
-def _submit_answer_schema() -> dict:
-    """JSON schema for the Advisor's submit_answer tool (Direct Answer Mode)."""
-    return {
-        "type": "object",
-        "properties": {
-            "answer": {
-                "type": "string",
-                "description": (
-                    "Your direct answer to the user's question. Plain Markdown. "
-                    "Be specific and concrete. Cite files/lines from the project "
-                    "when relevant. No fluff."
-                ),
-                "minLength": 1,
-                "maxLength": 8000,
-            },
-        },
-        "required": ["answer"],
-    }
-
-
-def _build_advisor_user_message(task: str) -> str:
-    return (
-        "## User's question\n\n"
-        f"{task}\n\n"
-        "the classifier routed this to **Direct Answer Mode** — the user is "
-        "asking a question, not requesting code changes. Read just enough of "
-        "the project to give a useful answer, then call `submit_answer`.\n"
-    )
-
-
-def _run_advisor(
-    *,
-    agent: Agent,
-    routing: Routing,
-    project_dir: Path,
-    provider: Provider,
-) -> AgentRun:
-    """Run the Advisor for Direct Answer Mode — no handoff, just a written answer."""
-    tools = build_tools(role="Advisor", project_root=project_dir)
-    return provider.run_agent(
-        role="Advisor",
-        system_prompt=agent.system_prompt(),
-        user_message=_build_advisor_user_message(routing.task),
-        tools=tools,
-        model=agent.model,
-        max_tokens=agent.max_tokens,
-        max_iterations=agent.max_iterations,
-        submit_tool_name="submit_answer",
-        submit_tool_description=(
-            "Submit your direct answer to the user's question. "
-            "Call exactly once when you are done."
-        ),
-        submit_tool_schema=_submit_answer_schema(),
-    )
-
-
 def _apply_project_config(
     routing: Routing,
     config: ProjectConfig,
@@ -810,6 +761,7 @@ def _apply_project_config(
 
 def _custom_layout(state_root: Path) -> StateLayout:
     """Used by tests that point .agent-state/ somewhere else."""
+    validate_state_tree(state_root.absolute())
     state_root = state_root.resolve()
     return StateLayout(
         root=state_root.parent,

@@ -36,6 +36,7 @@ from pathlib import Path
 
 from .handoff import Handoff
 from .routing import Routing, render_markdown as render_routing_md
+from .state_paths import checked_state_path, project_state_path, validate_state_tree
 
 
 # Per-role report files defined by state-artifacts.md. Roles whose
@@ -72,17 +73,18 @@ class StateLayout:
 
     def role_report_path(self, role: str) -> Path | None:
         name = _REPORT_FILE_BY_ROLE.get(role)
-        return (self.state_dir / name) if name else None
+        return checked_state_path(self.state_dir, self.state_dir / name) if name else None
 
     def run_dir(self, run_id: str) -> Path:
-        d = self.runs_dir / run_id
+        d = checked_state_path(self.state_dir, self.runs_dir / run_id)
         d.mkdir(parents=True, exist_ok=True)
         return d
 
 
 def build_layout(project_dir: Path) -> StateLayout:
     project_dir = project_dir.resolve()
-    state_dir = (project_dir / ".agent-state").resolve()
+    state_dir = project_state_path(project_dir)
+    validate_state_tree(state_dir)
     return StateLayout(
         root=project_dir,
         state_dir=state_dir,
@@ -102,6 +104,7 @@ def write_current_task(layout: StateLayout, *, task: str, routing: Routing, owne
     Field set comes verbatim from agent-team/templates/current-task.md.
     """
     layout.state_dir.mkdir(parents=True, exist_ok=True)
+    checked_state_path(layout.state_dir, layout.current_task)
     body = (
         "# Current Task\n\n"
         f"## Title\n{_short_title(task)}\n\n"
@@ -131,6 +134,8 @@ def write_current_task(layout: StateLayout, *, task: str, routing: Routing, owne
 def write_routing(layout: StateLayout, run_dir: Path, routing: Routing) -> Path:
     """Persist the routing per the methodology's templates/task-routing.md shape."""
     p = run_dir / "task-routing.md"
+    checked_state_path(layout.state_dir, p)
+    checked_state_path(layout.state_dir, run_dir / "task-routing.json")
     p.write_text(render_routing_md(routing))
     (run_dir / "task-routing.json").write_text(
         _routing_to_json(routing)
@@ -142,7 +147,7 @@ def write_handoff(layout: StateLayout, run_dir: Path, handoff: Handoff) -> Path:
     """Append handoff to the run dir AND update current handoff + per-role report."""
     from .handoff import persist as _persist
 
-    md_path = _persist(handoff, run_dir, layout.handoff)
+    md_path = _persist(handoff, run_dir, layout.handoff, state_root=layout.state_dir)
     # Also mirror to the per-role report file when state-artifacts.md defines one for the sender.
     report_path = layout.role_report_path(handoff.sender)
     if report_path is not None:
@@ -152,12 +157,14 @@ def write_handoff(layout: StateLayout, run_dir: Path, handoff: Handoff) -> Path:
 
 
 def append_decision(layout: StateLayout, line: str) -> None:
+    checked_state_path(layout.state_dir, layout.decisions)
     layout.decisions.parent.mkdir(parents=True, exist_ok=True)
     with layout.decisions.open("a") as f:
         f.write(line.rstrip() + "\n")
 
 
 def append_human_decision(layout: StateLayout, line: str) -> None:
+    checked_state_path(layout.state_dir, layout.human_decisions)
     layout.human_decisions.parent.mkdir(parents=True, exist_ok=True)
     with layout.human_decisions.open("a") as f:
         f.write(line.rstrip() + "\n")

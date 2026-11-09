@@ -30,6 +30,23 @@ def _emit(event: dict) -> None:
     sys.stdout.flush()
 
 
+def _run_error(message: str, *, from_agent: bool) -> int:
+    if from_agent:
+        _emit({"event": "error", "ts": time.time(), "message": message})
+    else:
+        print(f"ERROR: {message}", file=sys.stderr)
+    return 2
+
+
+def _run_exit_code(result) -> int:
+    from .handoff import APPROVAL_DECISIONS
+
+    completed_or_paused = APPROVAL_DECISIONS | {
+        "mid_workflow_human_decision_required", "needs_human_decision", "direct_answer_or_advisory",
+    }
+    return 0 if result.final_decision in completed_or_paused else 1
+
+
 def _run_from_agent(
     *,
     task,
@@ -62,6 +79,9 @@ def _run_from_agent(
     # Pre-flight classification — emit before we hit the orchestrator so the
     # host agent can show the routing immediately.
     try:
+        from .state import build_layout
+
+        build_layout(project)
         r = routing_override or classify(
             root,
             task=task,
@@ -82,6 +102,7 @@ def _run_from_agent(
         if project_config is not None:
             _apply_project_config(r, project_config, project.resolve(), models)
 
+    acting_roles = (["Advisor"] if models.get("Advisor") else []) if r.is_direct_answer() else r.acting_roles_in_order()
     _emit(
         {
             "event": "routing",
@@ -94,7 +115,7 @@ def _run_from_agent(
             "intent": r.intent,
             "workflow": r.workflow,
             "starting_role": r.starting_role,
-            "acting_roles": r.acting_roles_in_order(),
+            "acting_roles": acting_roles,
             "specialists": r.specialists,
             "gates": r.gates,
             "human_decisions": r.human_decisions,
@@ -113,7 +134,7 @@ def _run_from_agent(
     from .ceo_context import context_for_routing
     from .cost import decide_cost_gate as _decide
     from .cost import load_daily_so_far as _load_daily
-    from .orchestrator import estimate_routing_run
+    from .orchestrator import billing_identity, estimate_routing_run
 
     ceo_context = context_for_routing(root, r)
     est = estimate_routing_run(
@@ -122,6 +143,7 @@ def _run_from_agent(
         model_for_role=models,
         ceo_context=ceo_context.text,
         prior_handoff_count=len(prior_handoffs or []),
+        billing_provider=billing_identity(provider),
     )
     cap = project_config.budget.daily_max_usd if project_config else 0.0
     budget = _load_daily(project.resolve(), daily_cap_usd=cap)
@@ -136,6 +158,7 @@ def _run_from_agent(
         "ts": time.time(),
         "per_role": est.to_dict()["per_role"],
         "estimated_total_usd": round(est.total_usd, 4),
+        "pricing_known": not est.has_unknown_model,
         "daily_so_far_usd": round(budget.daily_so_far_usd, 4),
         "daily_cap_usd": round(budget.daily_cap_usd, 2),
         "warn": gate.warn,
@@ -217,14 +240,20 @@ def _run_from_agent(
         model_for_role=models,
         routing_approver=auto_approve,  # already approved above
         risk_acceptor=_from_agent_risk_acceptor,
-        cost_approver=lambda gate: approve_cost or not (gate.warn or gate.block),
+        cost_approver=lambda current: (
+            not (current.warn or current.block)
+            or (
+                approve_cost and current.estimate.to_dict() == est.to_dict()
+                and current.budget == budget
+            )
+        ),
         cwd_for_classifier=str(project.resolve()),
         routing_override=routing_override,
         prior_handoffs=prior_handoffs,
         approved_human_decision=approved_human_decision,
     )
 
-    if continuation_source_run_id:
+    if continuation_source_run_id and result.agent_runs:
         from .continuation import ContinuationError, mark_continuation_resumed
 
         try:
@@ -252,6 +281,8 @@ def _run_from_agent(
             result.run_dir,
             routing=result.routing,
             handoffs=result.handoffs,
+            remaining_workflow=result.remaining_workflow,
+            pending_decision=result.pending_human_decision,
         )
         continuation_run_id = result.run_id
         _emit(
@@ -259,8 +290,9 @@ def _run_from_agent(
                 "event": "continuation_ready",
                 "ts": time.time(),
                 "run_id": result.run_id,
-                "decision": result.routing.next_human_decision(),
-                "next_role": result.routing.role_after_mid_workflow_human_gate(),
+                "decision": result.pending_human_decision or result.routing.next_human_decision(),
+                "next_role": (result.remaining_workflow.split(" -> ")[0] if result.remaining_workflow
+                              else result.routing.role_after_mid_workflow_human_gate()),
             }
         )
 
@@ -272,7 +304,10 @@ def _run_from_agent(
             "next_owner": result.next_owner,
             "run_dir": str(result.run_dir),
             "estimated_cost_usd": round(result.cost_estimate.total_usd, 4) if result.cost_estimate else 0,
-            "actual_cost_usd": round(result.actual_cost_usd, 4),
+            "actual_cost_usd": round(result.actual_cost_usd, 4) if result.pricing_known else None,
+            "known_cost_usd": round(result.actual_cost_usd, 4),
+            "pricing_known": result.pricing_known,
+            "answer": result.direct_answer or None,
             "continuation_run_id": continuation_run_id,
             "handoffs": [
                 {"sender": h.sender, "receiver": h.receiver, "decision": h.decision}
@@ -280,7 +315,7 @@ def _run_from_agent(
             ],
         }
     )
-    return 0 if result.next_owner == "human" and not result.final_decision.startswith("protocol_") else 1
+    return _run_exit_code(result)
 
 
 def _continuation_is_ready(result) -> bool:
@@ -290,6 +325,8 @@ def _continuation_is_ready(result) -> bool:
         return True
     if result.final_decision != "needs_human_decision" or not result.handoffs:
         return False
+    if result.remaining_workflow:
+        return True
     steps = result.routing.workflow_roles()
     gate_index = next(
         (
@@ -439,7 +476,10 @@ def main(argv: list[str] | None = None) -> int:
     run = sub.add_parser("run", parents=[common], help="Classify and execute the workflow")
     run.add_argument("--task")
     run.add_argument("--project", type=Path, required=True)
-    run.add_argument("--backend", choices=["local", "openai", "anthropic", "mock-demo"], default="mock-demo")
+    run.add_argument(
+        "--backend", choices=["local", "openai", "anthropic", "mock-demo"],
+        help="Model backend (or set backend in .agentcrew/config.yaml). Use demo for an offline example.",
+    )
     run.add_argument("--base-url", default=None)
     run.add_argument("--auto-approve-routing", action="store_true")
     run.add_argument(
@@ -474,6 +514,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     _add_per_role_model_flags(run)
 
+    sub.add_parser("demo", parents=[common], help="Run an isolated offline example with scripted model responses")
     doc = sub.add_parser("doctor", parents=[common], help="Verify the methodology link")
     sub.add_parser("models", help="Recommended local models per role")
     sub.add_parser("backends", help="Available provider plugins")
@@ -496,6 +537,16 @@ def main(argv: list[str] | None = None) -> int:
     dec_add.add_argument("--rationale", default="")
 
     args = parser.parse_args(argv)
+    if args.cmd in {"run", "show", "audit", "decisions"}:
+        from .state import build_layout
+        from .state_paths import UnsafeStatePath, project_state_path
+
+        try:
+            build_layout(args.project)
+            if args.cmd == "show" and args.run:
+                project_state_path(args.project, "runs", args.run)
+        except UnsafeStatePath as exc:
+            return _run_error(str(exc), from_agent=getattr(args, "from_agent", False))
 
     if args.cmd == "models":
         try:
@@ -604,6 +655,15 @@ def main(argv: list[str] | None = None) -> int:
         print(render_routing_md(r))
         return 0
 
+    if args.cmd == "demo":
+        from .demo import run_demo
+
+        try:
+            return run_demo(root)
+        except (OSError, ValueError, RuntimeError) as exc:
+            print(f"ERROR: offline demo could not run: {exc}", file=sys.stderr)
+            return 2
+
     if args.cmd == "run":
         # Project config can set default backend and per-role models, so the
         # user doesn't have to pass --backend, --developer-model, ... every time.
@@ -632,17 +692,28 @@ def main(argv: list[str] | None = None) -> int:
             prior_handoffs = list(continuation.prior_handoffs)
             continuation_source_run_id = continuation.source_run_id
             approved_human_decision = continuation.pending_decision
-            # The earlier cost approval covered the complete planned workflow.
-            args.approve_cost = True
+            # Product approval and approval of the current cost preview are
+            # separate decisions. A resume must never synthesize --approve-cost.
         elif not args.task:
             parser.error("run requires --task or --continue-run")
 
         project_config = ProjectConfig.load(args.project.resolve())
-        if project_config:
-            # CLI's default is "mock-demo"; if user didn't explicitly pass --backend
-            # and config has one, use the config value.
-            if args.backend == "mock-demo" and project_config.backend:
-                args.backend = project_config.backend
+        args.backend = args.backend or (project_config.backend if project_config else None)
+        error_message = None
+        if args.backend is None:
+            error_message = (
+                "Choose --backend local/openai/anthropic or set backend in "
+                ".agentcrew/config.yaml. For the offline example, run 'agentcrew demo'."
+            )
+        elif args.backend == "mock-demo":
+            from .demo import validate_demo_project
+
+            try:
+                validate_demo_project(args.project)
+            except (OSError, ValueError) as exc:
+                error_message = str(exc)
+        if error_message:
+            return _run_error(error_message, from_agent=args.from_agent)
 
         provider = _make_provider(args)
         models = _resolve_models(args)
@@ -659,39 +730,49 @@ def main(argv: list[str] | None = None) -> int:
 
         cost_approver = auto_approve_cost if args.from_agent else _interactive_cost_approver
 
-        if args.from_agent:
-            return _run_from_agent(
+        try:
+            if args.from_agent:
+                return _run_from_agent(
+                    task=args.task,
+                    project=args.project,
+                    root=root,
+                    provider=provider,
+                    models=models,
+                    routing_approver=approver,
+                    approve_cost=args.approve_cost,
+                    routing_override=routing_override,
+                    prior_handoffs=prior_handoffs,
+                    continuation_source_run_id=continuation_source_run_id,
+                    approved_human_decision=approved_human_decision,
+                )
+
+            result = run_team(
                 task=args.task,
-                project=args.project,
+                project_dir=args.project,
                 root=root,
                 provider=provider,
-                models=models,
+                model_for_role=models,
                 routing_approver=approver,
-                approve_cost=args.approve_cost,
-                routing_override=routing_override,
-                prior_handoffs=prior_handoffs,
-                continuation_source_run_id=continuation_source_run_id,
-                approved_human_decision=approved_human_decision,
+                cost_approver=cost_approver,
+                risk_acceptor=_interactive_risk_acceptor,
+                cwd_for_classifier=str(args.project.resolve()),
             )
-
-        result = run_team(
-            task=args.task,
-            project_dir=args.project,
-            root=root,
-            provider=provider,
-            model_for_role=models,
-            routing_approver=approver,
-            cost_approver=cost_approver,
-            risk_acceptor=_interactive_risk_acceptor,
-            cwd_for_classifier=str(args.project.resolve()),
-        )
+        except RuntimeError as exc:
+            if args.backend != "mock-demo":
+                raise
+            return _run_error(
+                f"Scripted demo could not complete: {exc}. "
+                "Run 'agentcrew demo' for a fresh bundled example, "
+                "or select a model backend for other tasks.",
+                from_agent=args.from_agent,
+            )
         if result.direct_answer:
             print(result.direct_answer)
             return 0
         print(result.summary())
         print()
         print(f"Artifacts written to: {result.run_dir}")
-        return 0 if result.next_owner == "human" and not result.final_decision.startswith("protocol_") else 1
+        return _run_exit_code(result)
 
     return 1
 

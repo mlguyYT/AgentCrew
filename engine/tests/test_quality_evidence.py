@@ -6,6 +6,7 @@ from agentcrew.quality_evidence import (
     enforce_reviewer_completion,
     enforce_tester_completion,
 )
+from agentcrew.tools import build_tools
 
 
 def _handoff(sender, receiver="Human", **overrides):
@@ -102,6 +103,84 @@ def test_tester_failure_routes_to_developer():
     assert assessment.reasons == ("observed_validation_failure",)
     assert handoff.receiver == "Developer"
     assert handoff.validation_status == "failed"
+
+
+def test_tester_unrelated_suite_cannot_clear_failure_before_matching_rerun(tmp_path):
+    (tmp_path / "app.py").write_text("VALUE = 1\n")
+    (tmp_path / "suite_a.py").write_text(
+        "import unittest\n"
+        "from app import VALUE\n"
+        "class SuiteA(unittest.TestCase):\n"
+        "    def test_value(self):\n"
+        "        self.assertEqual(VALUE, 2)\n"
+    )
+    (tmp_path / "suite_b.py").write_text(
+        "import unittest\n"
+        "class SuiteB(unittest.TestCase):\n"
+        "    def test_unrelated_behavior(self):\n"
+        "        self.assertEqual(2 + 2, 4)\n"
+    )
+    recorder = ExecutionRecorder(tmp_path)
+    tester_tools = {
+        tool.name: tool
+        for tool in recorder.instrument(build_tools("Tester", tmp_path))
+    }
+
+    assert tester_tools["bash"].handler(
+        command="python3 -m unittest suite_a"
+    ).startswith("exit=1\n")
+    assert tester_tools["bash"].handler(
+        command="python3 -m unittest suite_b"
+    ).startswith("exit=0\n")
+
+    failed = build_tester_evidence(recorder)
+    handoff = _handoff("Tester")
+    assessment = enforce_tester_completion(
+        failed,
+        handoff,
+        require_behavior_validation=True,
+        developer_available=True,
+    )
+
+    assert failed.to_dict()["validation"] == {
+        "status": "failed",
+        "successful_kinds": ["test"],
+        "unresolved_kinds": ["test"],
+    }
+    assert assessment.reasons == ("observed_validation_failure",)
+    assert handoff.receiver == "Developer"
+    assert handoff.validation_status == "failed"
+
+    developer_tools = {
+        tool.name: tool
+        for tool in recorder.instrument(build_tools("Developer", tmp_path))
+    }
+    developer_tools["edit_file"].handler(
+        path="app.py", old_string="VALUE = 1", new_string="VALUE = 2"
+    )
+    assert tester_tools["bash"].handler(
+        command="python3 -m unittest suite_b"
+    ).startswith("exit=0\n")
+    assert build_tester_evidence(recorder).validation_status == "failed"
+
+    assert tester_tools["bash"].handler(
+        command='  python3  -m unittest "suite_a"  '
+    ).startswith("exit=0\n")
+    recovered = build_tester_evidence(recorder)
+    handoff = _handoff("Tester")
+
+    assert recovered.to_dict()["validation"] == {
+        "status": "passed",
+        "successful_kinds": ["test"],
+        "unresolved_kinds": [],
+    }
+    assert enforce_tester_completion(
+        recovered,
+        handoff,
+        require_behavior_validation=True,
+        developer_available=True,
+    ).outcome == "passed"
+    assert handoff.validation_status == "passed"
 
 
 def test_tester_can_report_a_concrete_validation_limitation():

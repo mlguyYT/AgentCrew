@@ -18,7 +18,9 @@ jobs:
       - name: Shell syntax
         run: |
           bash -n bin/agentcrew
-          bash -n agent-team/tools/*.sh
+          for script in agent-team/tools/*.sh; do
+            bash -n "$script"
+          done
           ./bin/agentcrew loader --root "$PWD" > /dev/null
 
       - name: Python syntax
@@ -26,6 +28,9 @@ jobs:
 
       - name: Install engine test dependencies
         run: python3 -m pip install -e "./engine[dev]"
+
+      - name: Install command isolation
+        run: sudo apt-get update && sudo apt-get install -y bubblewrap
 
       - name: Engine tests
         run: python3 -m pytest engine/tests

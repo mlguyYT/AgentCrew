@@ -1,0 +1,21 @@
+$ agentcrew demo
+AgentCrew offline demo
+Scripted model responses; real routing, edits, and tests.
+No API key or model service required.
+
+Tiny bug: Fix broken.py so add_numbers returns a + b
+  Lane: Fast Lane
+  Workflow: Developer -> Tester -> Human
+
+Product idea: I want to add team billing to this app. Help me shape it and implement the first safe version.
+  Lane: Full Lane
+  Workflow: Advisor -> Researcher Agent if evidence is needed -> Idea Consultant -> Product Manager -> Human decision -> Developer -> Tester -> Reviewer -> Specialist Reviewer if needed -> Human
+  CEO approval before: Developer
+
+Execute the tiny bug fix in a fresh temporary project:
+  Developer -> Tester: Patched the operator; ready for test.
+  Tester -> Human: ready_for_human_approval
+  Validation: python3 -m unittest -q: pass
+  Final decision: ready_for_human_approval
+  Model API calls: 0
+Temporary project removed after the demo.
