@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Branded the README as "AgentCrew by ML Guy" and linked the creator's YouTube channel and launch video.
+
 ## v0.2.0 - 2026-11-09
 
 ### Added

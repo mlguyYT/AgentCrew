@@ -1,6 +1,8 @@
-# AgentCrew
+# AgentCrew by ML Guy
 
 **You set the product direction. AgentCrew runs the software team.**
+
+[Watch the launch video](https://www.youtube.com/watch?v=1IIgW4wsswQ) | [ML Guy on YouTube](https://www.youtube.com/@ml_guy)
 
 [![CI](https://github.com/mlguyYT/AgentCrew/actions/workflows/ci.yml/badge.svg)](https://github.com/mlguyYT/AgentCrew/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
