@@ -20,6 +20,7 @@
 - Project guardrail artifacts, cloud-operation safety, artifact classification, public/private boundary guidance, and eval-metrics state for long-running project work.
 
 ### Fixed
+- CI pins Ubuntu 24.04, loads its packaged Bubblewrap AppArmor profile, and verifies command isolation before running the engine suite.
 - Product-planning continuations preserve required specialists after placeholder expansion, including older continuation artifacts and repeated planning phases.
 - Host Git inspection disables executable helpers, repository filters, and injected Git configuration; nested-project snapshots fingerprint the correct target files.
 - Runtime-state roots and existing artifacts reject symbolic/hard-link aliases before workflow reads or writes, preventing cross-project state overwrites.

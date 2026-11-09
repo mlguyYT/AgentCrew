@@ -72,6 +72,13 @@ and permission to create user namespaces. On Debian/Ubuntu, install it with
 `sudo apt-get install bubblewrap`. The engine checks isolation before calling
 command-capable model roles and stops if isolation cannot start.
 
+On Ubuntu 24.04, AppArmor may also require the packaged Bubblewrap profile.
+An administrator can install `apparmor-profiles`, copy
+`/usr/share/apparmor/extra-profiles/bwrap-userns-restrict` into `/etc/apparmor.d/`,
+and load it with `apparmor_parser -r`. This gives Bubblewrap its application-specific
+namespace permissions without globally disabling AppArmor restrictions. See
+[Ubuntu's namespace guidance](https://documentation.ubuntu.com/release-notes/24.04/#unprivileged-user-namespace-restrictions).
+
 ```bash
 cd engine
 uv venv && source .venv/bin/activate

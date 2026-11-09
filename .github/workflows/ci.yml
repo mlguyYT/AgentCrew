@@ -9,7 +9,7 @@ on:
 jobs:
   checks:
     name: Repository checks
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
@@ -30,7 +30,23 @@ jobs:
         run: python3 -m pip install -e "./engine[dev]"
 
       - name: Install command isolation
-        run: sudo apt-get update && sudo apt-get install -y bubblewrap
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap apparmor-profiles
+          profile=/usr/share/apparmor/extra-profiles/bwrap-userns-restrict
+          if [ -f "$profile" ]; then
+            sudo install -m 0644 "$profile" /etc/apparmor.d/bwrap-userns-restrict
+            sudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
+          fi
+
+      - name: Verify command isolation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          from agentcrew.command_sandbox import sandbox_command
+          subprocess.run(sandbox_command(Path.cwd(), ["/usr/bin/true"]), check=True)
+          PY
 
       - name: Engine tests
         run: python3 -m pytest engine/tests
